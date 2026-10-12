@@ -1,0 +1,28 @@
+[
+  {
+    "source": 1,
+    "path": "src/assets/models/prepared/armored-suv.glb",
+    "inputTriangles": 338485,
+    "triangles": 31600,
+    "bytes": 1110292,
+    "meshes": 14,
+    "dimensions": [
+      2.117353948274902,
+      1.8011479822493766,
+      5
+    ]
+  },
+  {
+    "source": 2,
+    "path": "src/assets/models/prepared/muscle-coupe.glb",
+    "inputTriangles": 82602,
+    "triangles": 20010,
+    "bytes": 777604,
+    "meshes": 18,
+    "dimensions": [
+      1.930128871768801,
+      1.3776678837440992,
+      5
+    ]
+  }
+]

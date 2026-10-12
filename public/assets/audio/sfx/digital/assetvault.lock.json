@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packs": {
+    "kenney/digital-audio": {
+      "id": "kenney/digital-audio",
+      "to": "public/assets/audio/sfx/digital",
+      "installedAt": "2026-10-01T21:40:16.058Z",
+      "files": [
+        {
+          "sha256": "24e6ce28b76a6d8c89cff4d331e0965ff5c3de8a73c612028e9d363cc64e4f06",
+          "archive": "kenney_digital-audio.zip"
+        }
+      ]
+    }
+  }
+}

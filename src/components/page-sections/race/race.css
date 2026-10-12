@@ -1,0 +1,37 @@
+.death-race { position: relative; width: 100%; height: 100%; background: #101216; color: #f4f4f2; font-variant-numeric: tabular-nums; overflow: hidden; }
+.death-race > canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.death-race button { min-height: 44px; padding: 8px 16px; border: 1px solid #686e76; border-radius: 8px; background: #161b23ed; color: #f4f4f2; font-weight: 700; }
+.death-race button:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.race-hud__top { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 24px; padding: 12px 24px; border-radius: 8px; background: #101216e8; }
+.race-hud__top > div { display: flex; flex-direction: column; gap: 4px; }
+.race-hud__top small { font: 10px monospace; color: #bdc3cc; letter-spacing: .12em; }
+.race-hud__top strong { font: 700 24px monospace; white-space: nowrap; }.race-hud__top strong span { font-size: 12px; color: #bdc3cc; }
+.race-exit { position: absolute; right: 16px; top: 16px; }
+.race-map { position: absolute; left: 16px; top: 16px; width: 144px; padding: 8px; border-radius: 8px; background: #101216c9; }
+.race-map span { display: block; text-align: center; font: 8px monospace; letter-spacing: .08em; }
+.race-standings { position: absolute; top: 96px; right: 16px; width: 176px; padding: 8px; background: #101216d9; border-radius: 8px; }
+.race-standings li { display: flex; gap: 8px; align-items: center; padding: 4px; font: 10px monospace; color: #bbc1ca; }.race-standings strong { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.race-standings li[data-local="true"] { color: #fff; border-left: 2px solid #fff; }
+.race-vehicle { position: absolute; bottom: 24px; left: 24px; display: flex; gap: 16px; align-items: center; background: #101216de; border-radius: 12px; padding: 16px; }
+.race-vehicle .vehicle-glyph { width: 40px; height: 64px; margin: 0; }.race-vehicle > div { display: flex; flex-direction: column; gap: 8px; }.race-vehicle strong { font-size: 12px; letter-spacing: .12em; }.race-vehicle label,.race-vehicle span { font: 10px monospace; }.race-vehicle meter { display: block; width: 100%; height: 8px; accent-color: #eee; margin-top: 4px; }.race-vehicle b { font: 700 28px monospace; }.race-vehicle b small { display: block; font: 10px monospace; color: #bdc3cc; }
+.race-controls { position: absolute; bottom: 24px; right: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font: 10px monospace; text-shadow: 0 1px 3px #101216; }
+.race-callout { position: absolute; inset: 32% 0 auto; display: flex; align-items: center; flex-direction: column; gap: 16px; font-weight: 900; text-shadow: 0 4px 16px #101216; pointer-events: none; }.race-callout strong { font-size: clamp(40px,10vw,96px); }.race-callout small { font: 12px monospace; letter-spacing: .12em; }
+.race-finished { position: absolute; left: 50%; top: 28%; transform: translateX(-50%); text-align: center; padding: 16px; background: #101216df; font-weight: 800; }.race-finished span { display: block; margin-top: 8px; font: 12px monospace; }
+.race-loading,.race-results { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; background: #101216e8; padding: 24px; overflow-y: auto; }.race-loading h1 { font-size: clamp(24px,5vw,48px); font-weight: 900; }.race-loading p { color: #c7cbd2; text-align: center; }.race-loading small { font: 12px monospace; letter-spacing: .2em; }
+.race-results { z-index: 10; }.race-results section { max-width: 640px; width: 100%; margin: auto; background: #161b23; padding: 32px; border-radius: 16px; }.race-results h1 { font-size: clamp(24px,4vw,40px); font-weight: 900; margin: 16px 0; }.race-results h2 { font-size: 24px; font-weight: 800; }.race-results ol { margin: 24px 0; }.race-results li { display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #3c424c; padding: 12px 0; }.race-results li strong { flex: 1; }.race-results small { font: 10px monospace; color: #c1c7cf; }.race-results button { margin: 8px 8px 0 0; }
+.race-touch { display: none; }
+@media (max-width: 900px) {
+ .race-hud__top { padding: 8px 12px; gap: 16px; }.race-hud__top strong { font-size: 18px; }.race-hud__top small { font-size: 8px; }
+ .race-map { top: 88px; width: 96px; }.race-standings { width: 136px; }.race-exit { font-size: 10px; padding: 8px !important; }
+ .race-vehicle { left: 16px; bottom: 88px; padding: 8px; gap: 8px; }.race-vehicle .vehicle-glyph { display: none; }.race-vehicle b { font-size: 20px; }
+ .race-controls { bottom: 88px; right: 16px; }.race-controls > span { display: none; }.race-controls button { max-width: 120px; font-size: 10px; }
+ .race-touch { position: absolute; bottom: max(16px,env(safe-area-inset-bottom)); left: 16px; right: 16px; display: flex; justify-content: space-between; gap: 8px; }.race-touch > div { display: flex; gap: 8px; }.race-touch button { touch-action: none; min-width: 48px; padding: 8px; user-select: none; }
+}
+@media (max-width: 480px) { .race-hud__top { left: 16px; transform: none; }.race-standings { top: 80px; }.race-results section { padding: 16px; }.race-results li { gap: 8px; font-size: 12px; } }
+@media (max-height: 520px) { .race-standings { display: none; }.race-map { width: 80px; }.race-vehicle { bottom: 76px; }.race-vehicle label { display: none; } }
+@media (prefers-reduced-motion: reduce) { .death-race * { transition: none !important; animation: none !important; } }
+
+.race-leave-dialog { margin: auto; max-width: min(480px, calc(100% - 32px)); padding: 32px; border: 1px solid #686e76; border-radius: 12px; background: #161b23; color: #f4f4f2; }.race-leave-dialog::backdrop { background: #101216da; }.race-leave-dialog h2 { font-size: 24px; font-weight: 800; }.race-leave-dialog p { margin: 16px 0; }.race-leave-dialog button { margin: 8px 8px 0 0; }
+
+.death-race button:disabled { opacity: .55; cursor: not-allowed; }
+.race-ability { font-size: 11px; letter-spacing: .06em; }
+@media (max-width: 900px) { .race-controls .race-ability { max-width: 148px; } .race-vehicle { max-width: calc(100% - 184px); } }

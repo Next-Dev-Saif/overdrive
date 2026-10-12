@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packs": {
+    "kenney/impact-sounds": {
+      "id": "kenney/impact-sounds",
+      "to": "public/assets/audio/sfx/impact",
+      "installedAt": "2026-10-01T21:40:03.501Z",
+      "files": [
+        {
+          "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+          "archive": "kenney_impact-sounds.zip"
+        }
+      ]
+    }
+  }
+}

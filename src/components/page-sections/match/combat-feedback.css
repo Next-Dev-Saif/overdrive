@@ -1,0 +1,34 @@
+.combat-hud {
+    --combat-ink: #101216;
+    --combat-paper: #f4f4f2;
+    --combat-muted: #c4c7cc;
+}
+.target-tracking {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px dashed var(--combat-muted);
+    box-shadow: 0 0 0 1px var(--combat-ink);
+    color: var(--combat-paper);
+    pointer-events: none;
+}
+.target-tracking[data-locked="true"] { border-style: solid; border-color: var(--combat-paper); }
+.target-tracking i { position: absolute; width: 12px; height: 12px; border: solid var(--combat-paper); filter: drop-shadow(0 1px 1px var(--combat-ink)); }
+.target-tracking i:nth-child(1) { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+.target-tracking i:nth-child(2) { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+.target-tracking i:nth-child(3) { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+.target-tracking i:nth-child(4) { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+.target-tracking span { position: absolute; bottom: 4px; left: 4px; font: 600 10px/1.4 monospace; letter-spacing: .12em; padding: 0 4px; background: var(--combat-ink); }
+.target-tracking__locked, .target-tracking[data-locked="true"] .target-tracking__acquiring { display: none; }
+.target-tracking[data-locked="true"] .target-tracking__locked { display: block; }
+.combat-accolades { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); width: min(440px, calc(100% - 32px)); text-align: center; color: var(--combat-paper); pointer-events: none; text-shadow: 0 2px 3px var(--combat-ink), 0 0 12px var(--combat-ink); }
+.combat-accolade, .combat-confirmation { animation: combat-acknowledge 200ms ease-out both; }
+.combat-accolade__insignia { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; filter: drop-shadow(0 2px 2px var(--combat-ink)); }
+.combat-accolade__insignia span { width: 48px; height: 4px; border-block: 1px solid var(--combat-paper); transform: skewX(-30deg); }
+.combat-accolade strong { display: block; font-size: clamp(24px, 3.5vw, 40px); font-weight: 900; font-style: italic; letter-spacing: -.035em; line-height: 1.1; }
+.combat-accolade__reward { display: inline-block; margin-top: 12px; font: 600 12px/1.5 monospace; letter-spacing: .2em; color: var(--combat-muted); }
+.combat-confirmation { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; font-size: 12px; letter-spacing: .12em; }
+.combat-confirmation span { font-family: monospace; color: var(--combat-muted); }
+@keyframes combat-acknowledge { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-height: 500px) { .combat-accolades { top: 25%; } .combat-accolade__insignia { display: none; } }
+@media (prefers-reduced-motion: reduce) { .combat-accolade, .combat-confirmation { animation: none; } }

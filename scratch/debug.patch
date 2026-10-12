@@ -1,0 +1,8 @@
+        assert.equal(executed, 1, `${ability}: executes once after vortex`);
+        if (scene.particleSystems.some(s => s.isStarted())) {
+            console.log("Failed! Active particle systems:");
+            scene.particleSystems.forEach(s => {
+                console.log(s.name, "isStarted:", s.isStarted(), "count:", s.particles.length);
+            });
+        }
+        assert.equal(scene.particleSystems.some(s => s.isStarted()), false, 'completed vortex leaves no active particles');
