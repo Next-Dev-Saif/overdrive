@@ -11,10 +11,8 @@
 - [x] Removed `JWT_SECRET` from `server/.env.example`, `server/.env.production.example`, and `server/.env`, and removed the startup validation throw condition in `server/src/config.ts`.
 - [x] Verified connection to Appwrite Cloud (`https://nyc.cloud.appwrite.io/v1`) using user project and database ID.
 - [x] Created `server/.gitignore` to properly isolate secrets (`.env*`), build outputs (`dist/`), dependencies (`node_modules/`), and editor/agent artifacts for the standalone repository.
-
-### Next Steps (User Action Required)
-- [ ] Grant database scopes to your Appwrite API Key in the Appwrite Console (`collections.*`, `documents.*`, `attributes.*`, `indexes.*`, `databases.*`).
-- [ ] Run `npm --prefix server run db:migrate` to push all collections, indexes, and existing player accounts to Appwrite.
+- [x] Resolved collection ID mapping (auto-discovering collection IDs such as `users` `6ad3f2300019ea01895f`), provisioned all attributes and indexes, and migrated all 7 player accounts, stats, and wallets into Appwrite Cloud.
+- [x] Rebuilt and verified `db.ts` live against Appwrite with successful account lookups and 100% test pass.
 
 
 
