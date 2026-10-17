@@ -1,5 +1,23 @@
 # Execution Log
 
+## 2026-10-18 — Database Migration: Prisma to Appwrite
+### Completed implementation
+- [x] Extracted and backed up all existing SQLite data (`User`, `PlayerStats`, `Wallet`, `VehicleInventory`, `WeaponInventory`) to `server/scripts/migrated-data.json`.
+- [x] Removed Prisma dependencies (`@prisma/client`, `prisma`), `prisma.config.js`, and the entire `server/prisma/` folder.
+- [x] Integrated `node-appwrite` and created a decoupled database service layer (`server/src/db.ts`) with typed models and zero-downtime offline fallback for unit tests.
+- [x] Configured environment variables across `server/src/config.ts`, `server/.env.example`, `server/.env.production.example`, and initialized `server/.env`.
+- [x] Refactored `server/src/auth.ts` and `server/src/index.ts` to use Appwrite data access methods with consistent error handling and 409 conflict detection.
+- [x] Built the idempotent setup and data migration tool `server/scripts/migrate-appwrite.mjs` with npm scripts `npm run db:setup` and `npm run db:migrate`.
+- [x] Removed `JWT_SECRET` from `server/.env.example`, `server/.env.production.example`, and `server/.env`, and removed the startup validation throw condition in `server/src/config.ts`.
+- [x] Verified connection to Appwrite Cloud (`https://nyc.cloud.appwrite.io/v1`) using user project and database ID.
+- [x] Created `server/.gitignore` to properly isolate secrets (`.env*`), build outputs (`dist/`), dependencies (`node_modules/`), and editor/agent artifacts for the standalone repository.
+
+### Next Steps (User Action Required)
+- [ ] Grant database scopes to your Appwrite API Key in the Appwrite Console (`collections.*`, `documents.*`, `attributes.*`, `indexes.*`, `databases.*`).
+- [ ] Run `npm --prefix server run db:migrate` to push all collections, indexes, and existing player accounts to Appwrite.
+
+
+
 ## 2026-10-08 — Imported Vehicle Asset Integration
 ### Completed implementation
 - [x] Integrated `Police_Sports.glb` as the Interceptor base and `Pickup.glb` as the Juggernaut base with proper scaling and low triangle counts.
