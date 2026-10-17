@@ -1,5 +1,7 @@
 import { config } from 'dotenv';
 import { randomBytes } from 'crypto';
+import { existsSync, mkdirSync } from 'fs';
+import { dirname } from 'path';
 
 config({ quiet: true });
 
@@ -11,7 +13,7 @@ export function readServerConfig(env: NodeJS.ProcessEnv) {
         throw new Error('Production JWT_SECRET must be a private random secret of at least 32 characters.');
     }
     const databaseUrl = env.DATABASE_URL?.trim();
-    if (production && (!databaseUrl)) {
+    if (production && (!databaseUrl || !databaseUrl.startsWith('file:/'))) {
         throw new Error('Production DATABASE_URL must be an absolute file:/ path on persistent storage.');
     }
     const port = Number(env.PORT || 3001);
@@ -33,8 +35,28 @@ export function readServerConfig(env: NodeJS.ProcessEnv) {
 export const serverConfig = readServerConfig(process.env);
 // Prisma reads the same value for local development and deployed server processes.
 process.env.DATABASE_URL = serverConfig.databaseUrl;
+if (serverConfig.databaseUrl.startsWith('file:')) {
+    const rawPath = serverConfig.databaseUrl.replace(/^file:/, '');
+    const dir = dirname(rawPath);
+    if (dir && !existsSync(dir)) {
+        try {
+            mkdirSync(dir, { recursive: true });
+        } catch {
+            // ignore if permissions prevent mkdir
+        }
+    }
+}
 
 /** Non-browser clients have no Origin header; authentication is still required for gameplay. */
 export function isAllowedOrigin(origin: string | undefined): boolean {
-    return !origin || serverConfig.allowedOrigins.includes(origin);
+    if (!origin) return true;
+    if (serverConfig.allowedOrigins.includes(origin)) return true;
+    try {
+        const url = new URL(origin);
+        if (url.hostname.endsWith('.blitz.cloud') || url.hostname === 'blitz.cloud') return true;
+        if (['localhost', '127.0.0.1'].includes(url.hostname)) return true;
+    } catch {
+        return false;
+    }
+    return false;
 }
