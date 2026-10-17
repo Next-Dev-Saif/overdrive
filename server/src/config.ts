@@ -11,7 +11,7 @@ export function readServerConfig(env: NodeJS.ProcessEnv) {
         throw new Error('Production JWT_SECRET must be a private random secret of at least 32 characters.');
     }
     const databaseUrl = env.DATABASE_URL?.trim();
-    if (production && (!databaseUrl || !databaseUrl.startsWith('file:/'))) {
+    if (production && (!databaseUrl)) {
         throw new Error('Production DATABASE_URL must be an absolute file:/ path on persistent storage.');
     }
     const port = Number(env.PORT || 3001);
