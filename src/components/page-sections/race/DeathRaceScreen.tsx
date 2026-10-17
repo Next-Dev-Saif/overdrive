@@ -46,9 +46,31 @@ export function DeathRaceScreen({ color, onBack }: { color: string; onBack: () =
         if (engine.current) engine.current.paused = confirmLeave || Boolean(error);
         if (confirmLeave && !error) leaveDialog.current?.showModal(); else leaveDialog.current?.close();
     }, [confirmLeave, error]);
+    const playHover = () => window.dispatchEvent(new CustomEvent('play-ui-hover'));
+    const playSelect = () => window.dispatchEvent(new CustomEvent('play-ui-select'));
+
     return <main className="death-race"><canvas ref={canvas} aria-label="Death Race driving view" />
         {ready && snapshot && localId && !error && <RaceHud state={snapshot} localId={localId} engine={engine} recover={() => connection.current?.recover()} leave={() => snapshot.phase === 'finished' ? onBack() : setConfirmLeave(true)} />}
-        {(!ready || error) && <div className="race-loading" role="status"><small>DEATH RACE</small><h1>{error ? 'Race unavailable' : 'Assembling the grid'}</h1><p>{error || status}</p><p>Interceptor only · Three laps · Trackside weapon pickups</p><button onClick={onBack}>{error ? 'Return to setup' : 'Cancel'}</button></div>}
-        <dialog ref={leaveDialog} className="race-leave-dialog" aria-labelledby="race-leave-title" onCancel={() => setConfirmLeave(false)}><h2 id="race-leave-title">Leave this race?</h2><p>The online race continues. Leaving records a DNF.</p><button autoFocus onClick={() => setConfirmLeave(false)}>Keep racing</button><button onClick={onBack}>Leave race</button></dialog>
+        {(!ready || error) && <div className="race-loading" role="status">
+            <small>DEATH RACE · BLACKTOP CIRCUIT</small>
+            <h1>{error ? 'RACE UNAVAILABLE' : 'SEARCHING FOR PLAYERS'}</h1>
+            <p>{error || status}</p>
+            <p>INTERCEPTOR · THREE LAPS · TRACK WEAPONS</p>
+            <button onMouseEnter={playHover} onClick={() => { playSelect(); onBack(); }}>
+                {error ? 'BACK TO LOBBY' : 'CANCEL'}
+            </button>
+        </div>}
+        <dialog ref={leaveDialog} className="race-leave-dialog" aria-labelledby="race-leave-title" onCancel={() => setConfirmLeave(false)} data-lenis-prevent="true">
+            <h2 id="race-leave-title">LEAVE RACE?</h2>
+            <p>The race is still in progress. Leaving now will count as a DNF.</p>
+            <div className="flex gap-3">
+                <button autoFocus onMouseEnter={playHover} onClick={() => { playSelect(); setConfirmLeave(false); }}>
+                    RESUME RACE
+                </button>
+                <button onMouseEnter={playHover} onClick={() => { window.dispatchEvent(new CustomEvent('play-ui-deselect')); onBack(); }}>
+                    LEAVE RACE
+                </button>
+            </div>
+        </dialog>
     </main>;
 }

@@ -1,8 +1,8 @@
 export const RACE_RULES = { racers: 6, laps: 3, queueMs: 5000, countdownMs: 4000, maxRaceMs: 600000, finishGraceMs: 45000, respawnMs: 3000, pickupRespawnMs: 10000, health: 600 } as const;
 export type RaceWeapon = 'minigun' | 'plasma' | 'missile' | 'mortar' | 'nuke';
 export const RACE_WEAPONS: Record<RaceWeapon, { ammo: number; damage: number; interval: number; range: number }> = {
-    minigun: { ammo: 40, damage: 12, interval: 120, range: 75 },
-    plasma: { ammo: 12, damage: 45, interval: 500, range: 90 },
+    minigun: { ammo: 40, damage: 24, interval: 120, range: 75 },
+    plasma: { ammo: 12, damage: 90, interval: 500, range: 90 },
     missile: { ammo: 3, damage: 160, interval: 700, range: 100 },
     mortar: { ammo: 3, damage: 120, interval: 1000, range: 80 },
     nuke: { ammo: 1, damage: 400, interval: 1500, range: 65 },

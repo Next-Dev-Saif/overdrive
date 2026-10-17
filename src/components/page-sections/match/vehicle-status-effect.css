@@ -1,0 +1,101 @@
+/* OVERDRIVE // VEHICLE STATUS & RELATIONSHIP TELEGRAPHS */
+.vehicle-status-effect {
+    --effect-color: #ffffff;
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    color: var(--effect-color);
+    filter: drop-shadow(0 2px 4px #000000) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+
+.vehicle-status-effect i {
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid currentColor;
+    border-radius: 0;
+    animation: vehicle-effect-wave 800ms ease-out both;
+}
+
+.vehicle-status-effect i:last-child {
+    animation-delay: 140ms;
+}
+
+.vehicle-status-effect--lift {
+    animation: vehicle-effect-lift 800ms ease-out both;
+}
+
+.vehicle-status-effect--lift i {
+    border-width: 0 0 2px;
+}
+
+.vehicle-status-effect--shield {
+    --effect-color: #ffffff;
+}
+
+.vehicle-status-effect--expired {
+    --effect-color: #d1d5db;
+}
+
+.vehicle-status-effect--electrical {
+    --effect-color: #ffffff;
+}
+
+.vehicle-status-effect--electrical i {
+    border-style: dashed;
+}
+
+.vehicle-status-effect--dash {
+    --effect-color: #ffffff;
+}
+
+.vehicle-status-effect--dash i {
+    border-width: 2px 0;
+}
+
+.vehicle-status-effect--cloak {
+    --effect-color: #9ca3af;
+}
+
+.vehicle-status-effect--cloak i {
+    border-style: dotted;
+}
+
+.vehicle-status-effect--radiation {
+    --effect-color: #ffffff;
+}
+
+.vehicle-relationship {
+    display: grid;
+    place-items: center;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 1px 2px #000000) drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+}
+
+.vehicle-relationship--ally {
+    color: #ffffff;
+}
+
+.vehicle-relationship--hostile {
+    color: #d1d5db;
+}
+
+@keyframes vehicle-effect-wave {
+    from { opacity: 0.9; transform: scale(0.6); }
+    to { opacity: 0; transform: scale(1.5); }
+}
+
+@keyframes vehicle-effect-lift {
+    from { transform: translateY(6px); }
+    to { transform: translateY(-10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vehicle-status-effect, .vehicle-status-effect i {
+        animation: none;
+    }
+    .vehicle-status-effect i:last-child {
+        display: none;
+    }
+}

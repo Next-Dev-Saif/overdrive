@@ -1,0 +1,432 @@
+category,file,bytes,details
+audio,air_bomb_whistle.ogg,7694,Vorbis; channels=1; sample_rate=16000; seconds=0.804
+audio,airblast.ogg,7156,Vorbis; channels=1; sample_rate=22050; seconds=0.665
+audio,airdrop_siren.ogg,43532,Vorbis; channels=1; sample_rate=44100; seconds=7.549
+audio,bang_nook.ogg,19156,Vorbis; channels=1; sample_rate=22050; seconds=2.801
+audio,capturepoint.ogg,31761,Vorbis; channels=1; sample_rate=44100; seconds=4.965
+audio,death_explosion.ogg,21314,Vorbis; channels=1; sample_rate=44100; seconds=3.109
+audio,flamethrower.ogg,19100,Vorbis; channels=1; sample_rate=44100; seconds=2.764
+audio,jetengine.ogg,25350,Vorbis; channels=1; sample_rate=11025; seconds=4.031
+audio,laser.ogg,6879,Vorbis; channels=1; sample_rate=44100; seconds=0.705
+audio,launch_nook.ogg,8787,Vorbis; channels=1; sample_rate=16000; seconds=1.008
+audio,minedrop.ogg,5722,Vorbis; channels=1; sample_rate=44100; seconds=0.409
+audio,missilelock.ogg,6440,Vorbis; channels=1; sample_rate=44100; seconds=0.888
+audio,pig_squeal.wav,9996,PCM; channels=1; sample_rate=11025; seconds=0.886
+audio,pig_squeal2.wav,35729,PCM; channels=1; sample_rate=11025; seconds=3.237
+audio,rebangmortar.ogg,7782,Vorbis; channels=1; sample_rate=44100; seconds=1.045
+audio,rebangrcrocket.ogg,8987,Vorbis; channels=1; sample_rate=22050; seconds=1.907
+audio,rebangrocketx4.ogg,8358,Vorbis; channels=1; sample_rate=44100; seconds=1.202
+audio,rebgun.ogg,6782,Vorbis; channels=1; sample_rate=44100; seconds=0.862
+audio,repickup.ogg,7581,Vorbis; channels=1; sample_rate=44100; seconds=1.019
+audio,rerocket2.ogg,7189,Vorbis; channels=1; sample_rate=44100; seconds=0.940
+audio,saber2.ogg,57754,Vorbis; channels=1; sample_rate=44100; seconds=9.708
+audio,schterminator.ogg,22153,Vorbis; channels=1; sample_rate=44100; seconds=3.311
+audio,singularity.ogg,21744,Vorbis; channels=1; sample_rate=44100; seconds=3.366
+audio,singularity_reverse.ogg,22452,Vorbis; channels=1; sample_rate=44100; seconds=3.366
+audio,sonic_shot.ogg,9361,Vorbis; channels=1; sample_rate=44100; seconds=1.123
+audio,speed_boost.ogg,28133,Vorbis; channels=1; sample_rate=44100; seconds=4.545
+audio,spider_splat.wav,28420,PCM; channels=1; sample_rate=44100; seconds=0.322
+audio,stealth.ogg,22102,Vorbis; channels=1; sample_rate=44100; seconds=6.896
+audio,superchargedpowerup.ogg,9884,Vorbis; channels=1; sample_rate=16000; seconds=3.240
+audio,tap2.ogg,11919,Vorbis; channels=2; sample_rate=44100; seconds=2.000
+audio,teleportin.ogg,31409,Vorbis; channels=1; sample_rate=44100; seconds=1.907
+audio,teleportout.ogg,11050,Vorbis; channels=1; sample_rate=44100; seconds=0.601
+audio,uberthon.ogg,22560,Vorbis; channels=1; sample_rate=44100; seconds=3.397
+audio,v8deep.ogg,62533,Vorbis; channels=1; sample_rate=44100; seconds=10.573
+audio,vloop.ogg,4681,Vorbis; channels=1; sample_rate=44100; seconds=0.116
+models,ChamferBox001.obj,20849,"vertices=138; faces=204; UVs=138; normals=138; material_refs=0; bounds=[5.292, 3.552, 2.17]"
+models,Cloud-Mesh.obj,57448,"vertices=550; faces=704; UVs=550; normals=550; material_refs=0; bounds=[2059.816, 378.763, 2037.663]"
+models,CombinedMeshrootscene.obj,1520228,"vertices=10855; faces=10294; UVs=10855; normals=10855; material_refs=0; bounds=[1793.589, 309.91, 1270.058]"
+models,HK.obj,363119,"vertices=2711; faces=1707; UVs=2711; normals=2711; material_refs=0; bounds=[4.651, 6.525, 1.861]"
+models,Object001.obj,2718,"vertices=20; faces=16; UVs=20; normals=20; material_refs=0; bounds=[1.915, 5.297, 1.681]"
+models,Sphere001.obj,13613,"vertices=97; faces=128; UVs=97; normals=97; material_refs=0; bounds=[2580.592, 3037.875, 2580.592]"
+models,SphereTrees.obj,12710,"vertices=100; faces=128; UVs=100; normals=100; material_refs=0; bounds=[2451.562, 2885.981, 2451.562]"
+models,airship.obj,100809,"vertices=812; faces=720; UVs=812; normals=812; material_refs=0; bounds=[15.317, 14.706, 29.111]"
+models,airstrikelauncher.obj,27516,"vertices=258; faces=158; UVs=258; normals=258; material_refs=0; bounds=[0.507, 1.824, 0.529]"
+models,balldome.obj,932634,"vertices=7069; faces=5260; UVs=7069; normals=7069; material_refs=0; bounds=[569.38, 570.963, 192.724]"
+models,bfg.obj,116456,"vertices=978; faces=550; UVs=978; normals=978; material_refs=0; bounds=[1.037, 0.53, 0.501]"
+models,bgun.obj,37532,"vertices=304; faces=202; UVs=304; normals=304; material_refs=0; bounds=[0.76, 0.339, 1.749]"
+models,bomb.obj,26059,"vertices=219; faces=142; UVs=219; normals=219; material_refs=0; bounds=[1.032, 1.085, 2.537]"
+models,bpc1.obj,22732,"vertices=181; faces=86; UVs=181; normals=181; material_refs=0; bounds=[0.94, 0.252, 1.153]"
+models,bpc2.obj,32803,"vertices=265; faces=125; UVs=265; normals=265; material_refs=0; bounds=[2.061, 0.776, 0.856]"
+models,bpc3.obj,33144,"vertices=262; faces=128; UVs=262; normals=262; material_refs=0; bounds=[1.275, 0.351, 1.153]"
+models,bpc4.obj,19723,"vertices=158; faces=76; UVs=158; normals=158; material_refs=0; bounds=[0.581, 0.252, 1.153]"
+models,bpc5.obj,14568,"vertices=118; faces=58; UVs=118; normals=118; material_refs=0; bounds=[0.694, 0.351, 0.322]"
+models,bpc6.obj,51639,"vertices=411; faces=188; UVs=411; normals=411; material_refs=0; bounds=[1.224, 0.996, 1.15]"
+models,bpc7.obj,68496,"vertices=554; faces=240; UVs=554; normals=554; material_refs=0; bounds=[1.973, 1.339, 1.768]"
+models,capturepoint.obj,196252,"vertices=1617; faces=1140; UVs=1617; normals=1617; material_refs=0; bounds=[115.298, 210.768, 115.298]"
+models,chaingun.obj,77612,"vertices=550; faces=512; UVs=550; normals=550; material_refs=0; bounds=[0.009, 0.008, 0.033]"
+models,columns.obj,22319,"vertices=304; faces=152; UVs=304; normals=304; material_refs=0; bounds=[152.485, 232.405, 66.603]"
+models,flamethrower.obj,28168,"vertices=245; faces=144; UVs=245; normals=245; material_refs=0; bounds=[0.307, 0.323, 2.352]"
+models,fortgun.obj,23145,"vertices=202; faces=126; UVs=202; normals=202; material_refs=0; bounds=[42.479, 27.595, 16.603]"
+models,glow.obj,20997,"vertices=173; faces=84; UVs=173; normals=173; material_refs=0; bounds=[65.636, 183.305, 65.636]"
+models,guidedmissile.obj,27232,"vertices=212; faces=136; UVs=212; normals=212; material_refs=0; bounds=[0.228, 0.228, 1.52]"
+models,guidedmissilelauncher.obj,61652,"vertices=526; faces=324; UVs=526; normals=526; material_refs=0; bounds=[0.411, 0.68, 1.118]"
+models,health.obj,27949,"vertices=248; faces=124; UVs=248; normals=248; material_refs=0; bounds=[1.8, 0.6, 1.8]"
+models,lasergun.obj,56250,"vertices=500; faces=260; UVs=500; normals=500; material_refs=0; bounds=[1.023, 0.242, 1.01]"
+models,laserturret.obj,26255,"vertices=215; faces=152; UVs=215; normals=215; material_refs=0; bounds=[0.232, 0.575, 0.314]"
+models,mflasergun.obj,1124,"vertices=12; faces=6; UVs=12; normals=12; material_refs=0; bounds=[1.046, 1.047, 2.529]"
+models,mfmgun.obj,1101,"vertices=12; faces=6; UVs=12; normals=12; material_refs=0; bounds=[1.841, 1.842, 3.446]"
+models,mgun.obj,44654,"vertices=367; faces=226; UVs=367; normals=367; material_refs=0; bounds=[0.348, 0.22, 1.749]"
+models,mgunx2.obj,77306,"vertices=624; faces=392; UVs=624; normals=624; material_refs=0; bounds=[0.428, 0.189, 1.299]"
+models,mine_air.obj,53230,"vertices=417; faces=248; UVs=417; normals=417; material_refs=0; bounds=[3.885, 3.357, 4.486]"
+models,mine_proximity.obj,7367,"vertices=61; faces=56; UVs=61; normals=61; material_refs=0; bounds=[1.079, 0.309, 1.079]"
+models,mine_remote.obj,20309,"vertices=167; faces=94; UVs=167; normals=167; material_refs=0; bounds=[0.998, 0.641, 0.998]"
+models,minelauncher.obj,19114,"vertices=176; faces=114; UVs=176; normals=176; material_refs=0; bounds=[0.884, 0.493, 0.648]"
+models,mortar.obj,21358,"vertices=172; faces=104; UVs=172; normals=172; material_refs=0; bounds=[0.388, 0.388, 1.065]"
+models,mortarlauncher.obj,61918,"vertices=542; faces=318; UVs=542; normals=542; material_refs=0; bounds=[0.872, 0.809, 0.816]"
+models,nook.obj,8359,"vertices=80; faces=56; UVs=80; normals=80; material_refs=0; bounds=[1.978, 1.132, 2.194]"
+models,nooklauncher.obj,18767,"vertices=170; faces=110; UVs=170; normals=170; material_refs=0; bounds=[0.754, 0.423, 1.756]"
+models,p1.obj,56041,"vertices=436; faces=281; UVs=436; normals=436; material_refs=0; bounds=[1.99, 1.426, 1.146]"
+models,p2.obj,19801,"vertices=159; faces=124; UVs=159; normals=159; material_refs=0; bounds=[0.803, 0.927, 1.146]"
+models,p3.obj,39015,"vertices=304; faces=188; UVs=304; normals=304; material_refs=0; bounds=[0.328, 0.617, 0.662]"
+models,p4.obj,36897,"vertices=285; faces=196; UVs=285; normals=285; material_refs=0; bounds=[1.541, 2.031, 0.537]"
+models,p5.obj,40581,"vertices=318; faces=188; UVs=318; normals=318; material_refs=0; bounds=[0.328, 0.661, 0.662]"
+models,p6.obj,43736,"vertices=334; faces=188; UVs=334; normals=334; material_refs=0; bounds=[0.54, 0.659, 0.66]"
+models,p7.obj,99248,"vertices=800; faces=496; UVs=800; normals=800; material_refs=0; bounds=[1.091, 0.701, 1.613]"
+models,p8.obj,32865,"vertices=265; faces=157; UVs=265; normals=265; material_refs=0; bounds=[1.225, 0.543, 0.753]"
+models,p9.obj,38588,"vertices=296; faces=188; UVs=296; normals=296; material_refs=0; bounds=[0.328, 0.661, 0.662]"
+models,pine2.obj,190611,"vertices=1318; faces=1228; UVs=1318; normals=1318; material_refs=0; bounds=[23.054, 41.101, 29.066]"
+models,planejane.obj,330,"vertices=4; faces=2; UVs=4; normals=4; material_refs=0; bounds=[0.095, 0.095, 0.0]"
+models,rcbomb.obj,73069,"vertices=586; faces=466; UVs=586; normals=586; material_refs=0; bounds=[0.452, 0.632, 0.826]"
+models,rcrocket.obj,79305,"vertices=615; faces=512; UVs=615; normals=615; material_refs=0; bounds=[1.806, 0.925, 2.621]"
+models,rcrocketlauncher.obj,110113,"vertices=886; faces=686; UVs=886; normals=886; material_refs=0; bounds=[1.201, 1.261, 1.744]"
+models,rock1.obj,33630,"vertices=232; faces=300; UVs=232; normals=232; material_refs=0; bounds=[39.971, 34.045, 30.824]"
+models,rock2.obj,32000,"vertices=216; faces=300; UVs=216; normals=216; material_refs=0; bounds=[24.851, 26.06, 21.261]"
+models,rock3.obj,32388,"vertices=219; faces=300; UVs=219; normals=219; material_refs=0; bounds=[28.507, 26.329, 22.732]"
+models,rocket.obj,15057,"vertices=124; faces=80; UVs=124; normals=124; material_refs=0; bounds=[0.461, 0.461, 1.305]"
+models,rocketlauncher.obj,46920,"vertices=415; faces=268; UVs=415; normals=415; material_refs=0; bounds=[0.411, 0.751, 0.892]"
+models,rocketlauncherx4.obj,36134,"vertices=286; faces=209; UVs=286; normals=286; material_refs=0; bounds=[0.709, 1.146, 1.362]"
+models,s_boxbase.obj,39219,"vertices=300; faces=214; UVs=300; normals=300; material_refs=0; bounds=[0.441, 1.101, 0.825]"
+models,s_cam.obj,51594,"vertices=381; faces=342; UVs=381; normals=381; material_refs=0; bounds=[0.494, 0.809, 0.539]"
+models,s_coverbackleg.obj,41029,"vertices=339; faces=204; UVs=339; normals=339; material_refs=0; bounds=[0.478, 0.322, 1.008]"
+models,s_coverbumleft.obj,29864,"vertices=238; faces=144; UVs=238; normals=238; material_refs=0; bounds=[0.403, 0.749, 1.606]"
+models,s_coverbumright.obj,29532,"vertices=238; faces=144; UVs=238; normals=238; material_refs=0; bounds=[0.403, 0.749, 1.606]"
+models,s_coverkneeleft.obj,18453,"vertices=149; faces=84; UVs=149; normals=149; material_refs=0; bounds=[0.304, 0.689, 1.37]"
+models,s_coverkneeright.obj,18336,"vertices=148; faces=84; UVs=148; normals=148; material_refs=0; bounds=[0.304, 0.689, 1.37]"
+models,s_covershoulderleft.obj,17096,"vertices=139; faces=112; UVs=139; normals=139; material_refs=0; bounds=[0.689, 0.809, 1.606]"
+models,s_covershoulderright.obj,16692,"vertices=136; faces=112; UVs=136; normals=136; material_refs=0; bounds=[0.689, 0.809, 1.606]"
+models,s_gunleft.obj,63093,"vertices=508; faces=394; UVs=508; normals=508; material_refs=0; bounds=[0.561, 0.326, 0.561]"
+models,s_gunright.obj,63228,"vertices=508; faces=394; UVs=508; normals=508; material_refs=0; bounds=[0.561, 0.326, 0.561]"
+models,s_loaderleft.obj,62719,"vertices=507; faces=352; UVs=507; normals=507; material_refs=0; bounds=[0.319, 0.372, 0.188]"
+models,s_loaderright.obj,61943,"vertices=495; faces=352; UVs=495; normals=495; material_refs=0; bounds=[0.319, 0.372, 0.188]"
+models,s_spine.obj,10495,"vertices=88; faces=78; UVs=88; normals=88; material_refs=0; bounds=[0.338, 0.338, 0.049]"
+models,s_trip_back_leg.obj,21074,"vertices=195; faces=120; UVs=195; normals=195; material_refs=0; bounds=[0.12, 0.559, 0.09]"
+models,s_trip_left_ankle.obj,14738,"vertices=122; faces=100; UVs=122; normals=122; material_refs=0; bounds=[0.148, 0.176, 0.491]"
+models,s_trip_left_foot01.obj,15123,"vertices=115; faces=100; UVs=115; normals=115; material_refs=0; bounds=[0.122, 0.807, 0.785]"
+models,s_trip_left_leg.obj,33317,"vertices=332; faces=120; UVs=332; normals=332; material_refs=0; bounds=[0.559, 0.12, 0.09]"
+models,s_trip_right_ankle.obj,17294,"vertices=143; faces=110; UVs=143; normals=143; material_refs=0; bounds=[0.148, 0.176, 0.491]"
+models,s_trip_right_foot.obj,15218,"vertices=118; faces=98; UVs=118; normals=118; material_refs=0; bounds=[0.122, 0.807, 0.785]"
+models,s_trip_right_leg.obj,20982,"vertices=196; faces=120; UVs=196; normals=196; material_refs=0; bounds=[0.559, 0.12, 0.09]"
+models,s_tripthighback.obj,16189,"vertices=148; faces=84; UVs=148; normals=148; material_refs=0; bounds=[0.011, 0.011, 0.025]"
+models,s_tripthighleft.obj,15739,"vertices=146; faces=84; UVs=146; normals=146; material_refs=0; bounds=[0.011, 0.011, 0.052]"
+models,s_tripthoghright.obj,15712,"vertices=146; faces=84; UVs=146; normals=146; material_refs=0; bounds=[0.011, 0.011, 0.052]"
+models,saber.obj,22687,"vertices=181; faces=136; UVs=181; normals=181; material_refs=0; bounds=[0.163, 0.141, 1.652]"
+models,shell.obj,3823,"vertices=34; faces=24; UVs=34; normals=34; material_refs=0; bounds=[0.199, 0.172, 0.247]"
+models,singularity_exp.obj,11277,"vertices=89; faces=120; UVs=89; normals=89; material_refs=0; bounds=[15.252, 15.252, 15.252]"
+models,soldier.obj,151279,"vertices=1109; faces=805; UVs=1109; normals=1109; material_refs=0; bounds=[6.395, 4.674, 4.111]"
+models,sonicgun.obj,97052,"vertices=757; faces=514; UVs=757; normals=757; material_refs=0; bounds=[1.144, 0.912, 1.057]"
+models,spawn.obj,43635,"vertices=368; faces=185; UVs=368; normals=368; material_refs=0; bounds=[126.123, 85.112, 78.568]"
+models,speed.obj,34923,"vertices=286; faces=172; UVs=286; normals=286; material_refs=0; bounds=[1.817, 0.402, 0.316]"
+models,staticgun.obj,134203,"vertices=1105; faces=702; UVs=1105; normals=1105; material_refs=0; bounds=[0.88, 2.853, 1.397]"
+models,staticturret.obj,27778,"vertices=250; faces=106; UVs=250; normals=250; material_refs=0; bounds=[1.106, 0.987, 1.78]"
+models,stealth.obj,36202,"vertices=324; faces=164; UVs=324; normals=324; material_refs=0; bounds=[2.571, 0.659, 2.234]"
+models,tank.obj,454029,"vertices=3733; faces=2285; UVs=3733; normals=3733; material_refs=0; bounds=[4.082, 1.809, 6.649]"
+models,tankbuster.obj,19380,"vertices=149; faces=133; UVs=149; normals=149; material_refs=0; bounds=[2.128, 1.843, 5.214]"
+models,teleporter.obj,33172,"vertices=292; faces=186; UVs=292; normals=292; material_refs=0; bounds=[1.918, 0.537, 1.918]"
+models,teleporter_swirl.obj,11338,"vertices=81; faces=128; UVs=81; normals=81; material_refs=0; bounds=[6.147, 6.511, 6.147]"
+models,teslacoil.obj,49247,"vertices=365; faces=400; UVs=365; normals=365; material_refs=0; bounds=[0.431, 0.432, 1.868]"
+models,thrust.obj,1918,"vertices=24; faces=12; UVs=24; normals=24; material_refs=0; bounds=[5.379, 1.513, 1.856]"
+models,trooper.obj,451973,"vertices=3075; faces=2530; UVs=3075; normals=3075; material_refs=0; bounds=[1.518, 0.671, 1.807]"
+models,turret.obj,34549,"vertices=301; faces=169; UVs=301; normals=301; material_refs=0; bounds=[1.016, 0.591, 1.293]"
+models,turret_flamethrower.obj,66310,"vertices=456; faces=491; UVs=456; normals=456; material_refs=0; bounds=[1.392, 0.779, 1.613]"
+models,turretround.obj,10515,"vertices=94; faces=68; UVs=94; normals=94; material_refs=0; bounds=[0.675, 0.295, 0.642]"
+models,waterPlaneMesh.obj,6220,"vertices=57; faces=80; UVs=57; normals=57; material_refs=0; bounds=[2.0, 0.0, 2.0]"
+models,wheel.obj,36836,"vertices=298; faces=188; UVs=298; normals=298; material_refs=0; bounds=[1.137, 2.289, 2.292]"
+textures,0.png,2084,dimensions=64x64
+textures,1.png,2306,dimensions=64x64
+textures,10.png,3730,dimensions=64x64
+textures,11.png,3529,dimensions=64x64
+textures,12.png,3157,dimensions=64x64
+textures,13.png,3442,dimensions=64x64
+textures,2.png,2871,dimensions=64x64
+textures,3.png,2652,dimensions=64x64
+textures,4.png,3082,dimensions=64x64
+textures,5.png,3003,dimensions=64x64
+textures,6.png,3181,dimensions=64x64
+textures,7.png,3317,dimensions=64x64
+textures,8.png,3396,dimensions=64x64
+textures,9.png,3560,dimensions=64x64
+textures,CliffLayeredRock.png,630849,dimensions=512x512
+textures,Default-Particle.png,4086,dimensions=64x64
+textures,Grass.png,90808,dimensions=256x256
+textures,Grass2.png,50938,dimensions=256x256
+textures,GrassHill.png,445081,dimensions=512x512
+textures,GrassRock.png,492364,dimensions=512x512
+textures,LightmapFar-0.png,366506,dimensions=512x512
+textures,NoiseEffectGrain.png,123329,dimensions=256x256
+textures,NoiseEffectScratch.png,4516,dimensions=512x512
+textures,SmokePuff.png,4931,dimensions=64x64
+textures,SplatAlpha0.png,263314,dimensions=512x512
+textures,WaterFresnel.png,2993,dimensions=256x32
+textures,Waterfallback.png,122072,dimensions=256x256
+textures,airship_blue.png,233177,dimensions=512x512
+textures,airship_red.png,235266,dimensions=512x512
+textures,bang_sparkels.png,40590,dimensions=256x256
+textures,bangairstrike.png,60552,dimensions=512x512
+textures,bangbgun.png,21491,dimensions=256x256
+textures,bangdead.png,79303,dimensions=512x512
+textures,bangsonic.png,12814,dimensions=256x256
+textures,bangspider.png,14821,dimensions=256x256
+textures,barkpine.png,23883,dimensions=128x128
+textures,bk_panel.png,11519,dimensions=1024x1024
+textures,black.png,74,dimensions=16x16
+textures,blackButton.png,334,dimensions=40x18
+textures,blackButtonDisabled.png,291,dimensions=40x18
+textures,blackButtonDown.png,309,dimensions=40x18
+textures,blackStop.png,219,dimensions=15x19
+textures,blackToWhite.png,828,dimensions=128x16
+textures,blocks.png,85521,dimensions=256x256
+textures,blocksmaster.png,60969,dimensions=256x256
+textures,blue.png,100,dimensions=16x16
+textures,blueprint.png,39972,dimensions=256x256
+textures,bomb.png,34644,dimensions=256x256
+textures,capturepoint.png,116119,dimensions=512x512
+textures,cartridges_opt.png,9688,dimensions=64x512
+textures,cliffbump.png,777735,dimensions=512x512
+textures,cloud-form-tex2.png,1277,dimensions=64x64
+textures,cloud-shade-tex.png,9008,dimensions=128x128
+textures,cloudy.png,73545,dimensions=512x512
+textures,concrete_panel.png,582177,dimensions=512x512
+textures,cover.png,845668,dimensions=1024x768
+textures,createIcon.png,174,dimensions=21x10
+textures,cyan.png,107,dimensions=16x16
+textures,cyanToBlue.png,710,dimensions=128x16
+textures,decal.png,10270,dimensions=64x64
+textures,decal_flamethrower.png,6567,dimensions=64x64
+textures,decal_laser.png,3109,dimensions=64x64
+textures,decal_schterminator.png,2096,dimensions=64x64
+textures,deleteButton.png,542,dimensions=18x18
+textures,deleteButtonDown.png,536,dimensions=18x18
+textures,erodeIcon.png,185,dimensions=21x10
+textures,facemap.png,17725,dimensions=128x128
+textures,fire4.png,15802,dimensions=128x128
+textures,gamevial.png,6531,dimensions=128x128
+textures,garage_door_bump.png,119296,dimensions=512x512
+textures,garage_door_diffuse_spec.png,131836,dimensions=512x512
+textures,glowbase.png,12865,dimensions=256x256
+textures,grass_paving.png,425486,dimensions=512x512
+textures,green.png,98,dimensions=16x16
+textures,greenToCyan.png,859,dimensions=128x16
+textures,grey.png,113,dimensions=16x16
+textures,greyStop.png,250,dimensions=15x19
+textures,gui_orange_bk.png,77,dimensions=2x2
+textures,guibocbk.png,78,dimensions=2x2
+textures,hillsIcon.png,146,dimensions=17x10
+textures,hk0.png,2022,dimensions=64x64
+textures,hk1.png,1987,dimensions=64x64
+textures,hk10.png,3557,dimensions=64x64
+textures,hk11.png,3703,dimensions=64x64
+textures,hk12.png,3475,dimensions=64x64
+textures,hk13.png,4216,dimensions=64x64
+textures,hk2.png,2764,dimensions=64x64
+textures,hk3.png,3014,dimensions=64x64
+textures,hk4.png,2966,dimensions=64x64
+textures,hk5.png,3165,dimensions=64x64
+textures,hk6.png,3233,dimensions=64x64
+textures,hk7.png,3315,dimensions=64x64
+textures,hk8.png,3376,dimensions=64x64
+textures,hk9.png,3533,dimensions=64x64
+textures,hk_blue1.png,192333,dimensions=512x512
+textures,hk_red.png,135527,dimensions=512x512
+textures,hk_red1.png,191351,dimensions=512x512
+textures,hud_rail.png,23355,dimensions=1024x512
+textures,i_airbomb.png,1282,dimensions=64x64
+textures,i_airstrike.png,2184,dimensions=64x64
+textures,i_bgun.png,1544,dimensions=64x64
+textures,i_blaster.png,2460,dimensions=64x64
+textures,i_chaingun.png,3083,dimensions=64x64
+textures,i_emptygun.png,2408,dimensions=64x64
+textures,i_flamethrower.png,2504,dimensions=64x64
+textures,i_guidedmissile.png,1923,dimensions=64x64
+textures,i_heal.png,1649,dimensions=64x64
+textures,i_hk.png,1080,dimensions=64x64
+textures,i_laser.png,2223,dimensions=64x64
+textures,i_mgun.png,1913,dimensions=64x64
+textures,i_mgunx2.png,2167,dimensions=64x64
+textures,i_mortar.png,2774,dimensions=64x64
+textures,i_nook.png,2703,dimensions=64x64
+textures,i_portal.png,1643,dimensions=64x64
+textures,i_proximitymine.png,3581,dimensions=64x64
+textures,i_railgun.png,2089,dimensions=64x64
+textures,i_rcbomb.png,2734,dimensions=64x64
+textures,i_rcrocket.png,2822,dimensions=64x64
+textures,i_remotemine.png,3486,dimensions=64x64
+textures,i_rocket.png,1801,dimensions=64x64
+textures,i_schterminator.png,2789,dimensions=64x64
+textures,i_sentry.png,2318,dimensions=64x64
+textures,i_singularity.png,2388,dimensions=64x64
+textures,i_sonicgun.png,2285,dimensions=64x64
+textures,i_speed.png,2582,dimensions=64x64
+textures,i_stealth.png,2477,dimensions=64x64
+textures,i_tank.png,1365,dimensions=64x64
+textures,i_tankbuster.png,2221,dimensions=64x64
+textures,i_thrusters.png,1976,dimensions=64x64
+textures,i_trooper.png,2688,dimensions=64x64
+textures,icon_buy.png,1571,dimensions=128x128
+textures,icon_calendar.png,1572,dimensions=128x128
+textures,icon_chat.png,2542,dimensions=128x128
+textures,icon_down.png,1438,dimensions=128x128
+textures,icon_download.png,1053,dimensions=128x128
+textures,icon_exit.png,3229,dimensions=128x128
+textures,icon_fight.png,4627,dimensions=128x128
+textures,icon_forward.png,1563,dimensions=128x128
+textures,icon_help.png,1358,dimensions=128x128
+textures,icon_help_i.png,2800,dimensions=128x128
+textures,icon_locked.png,363,dimensions=32x32
+textures,icon_play.png,1164,dimensions=128x128
+textures,icon_plus.png,775,dimensions=128x128
+textures,icon_quality.png,1573,dimensions=128x128
+textures,icon_rankkills.png,3656,dimensions=64x64
+textures,icon_resolution.png,1102,dimensions=128x128
+textures,icon_reverse.png,1522,dimensions=128x128
+textures,icon_savescores.png,1037,dimensions=128x128
+textures,icon_scores.png,4082,dimensions=128x128
+textures,icon_scores_r.png,4194,dimensions=128x128
+textures,icon_steam.png,2580,dimensions=128x128
+textures,icon_uberthon.png,12510,dimensions=128x128
+textures,icon_unlocked.png,361,dimensions=32x32
+textures,icon_up.png,1396,dimensions=128x128
+textures,icon_updatess.png,2165,dimensions=128x128
+textures,icon_upgrade.png,2831,dimensions=128x128
+textures,instructions_hk.png,87404,dimensions=1024x512
+textures,instructions_tank.png,90103,dimensions=1024x512
+textures,instructions_trooper.png,98320,dimensions=1024x512
+textures,makebutton_down.png,2000,dimensions=512x128
+textures,makebutton_norm.png,1310,dimensions=512x128
+textures,makebutton_over.png,1941,dimensions=512x128
+textures,menu_button_down.png,3339,dimensions=64x64
+textures,menu_button_norm.png,2401,dimensions=64x64
+textures,menu_button_over.png,3329,dimensions=64x64
+textures,mfadditive.png,7037,dimensions=128x128
+textures,mflaser.png,6179,dimensions=128x128
+textures,mine_air_blue.png,57926,dimensions=256x256
+textures,mine_air_red.png,59130,dimensions=256x256
+textures,mooreIcon.png,114,dimensions=13x10
+textures,mountainsIcon.png,128,dimensions=17x10
+textures,nightgradient.png,176,dimensions=32x4
+textures,nook.png,71874,dimensions=512x512
+textures,oilseedrape1_256.png,87990,dimensions=256x256
+textures,oilseedrape2_256.png,68533,dimensions=256x256
+textures,paypal.png,18523,dimensions=253x80
+textures,pickup_lightening.png,100201,dimensions=512x512
+textures,plateausIcon.png,130,dimensions=17x10
+textures,poppies_1.png,97013,dimensions=256x256
+textures,poppies_2.png,43650,dimensions=256x256
+textures,porkchoptex.png,51047,dimensions=256x256
+textures,red.png,96,dimensions=16x16
+textures,redToYellow.png,857,dimensions=128x16
+textures,redrocket.png,2652,dimensions=128x128
+textures,reflection_cubemap.png,2788,dimensions=64x64
+textures,room_chokepoint.png,27807,dimensions=512x128
+textures,room_grass3_button.png,64612,dimensions=512x128
+textures,room_mountain1_button.png,58093,dimensions=512x128
+textures,sb_grass_bot.png,75,dimensions=2x2
+textures,sb_grass_top.png,75,dimensions=2x2
+textures,sb_techno_bot.png,75,dimensions=2x2
+textures,sb_techno_top.png,68,dimensions=2x2
+textures,schterminator_spark_bw.png,715,dimensions=32x32
+textures,sentry_covers_bumps.png,57369,dimensions=256x256
+textures,sentry_covers_diffuse.png,18738,dimensions=256x256
+textures,sentry_covers_lightmap.png,19705,dimensions=256x256
+textures,sentry_master_red.png,28270,dimensions=256x256
+textures,sentry_parts_bump.png,19283,dimensions=256x256
+textures,sentry_parts_diffuse.png,12982,dimensions=256x256
+textures,shell.png,6247,dimensions=128x128
+textures,sign_glow.png,5378,dimensions=128x512
+textures,sign_namaball_glow.png,29818,dimensions=128x512
+textures,site_airstrikelauncher.png,450,dimensions=128x128
+textures,site_bgun.png,1210,dimensions=128x128
+textures,site_laser.png,700,dimensions=128x128
+textures,site_mgun.png,1224,dimensions=128x128
+textures,site_mortar.png,792,dimensions=128x128
+textures,site_nook.png,2332,dimensions=128x128
+textures,site_rocket.png,701,dimensions=128x128
+textures,site_sonicgun.png,1573,dimensions=128x128
+textures,skull.png,7169,dimensions=256x256
+textures,sky_grass.png,28979,dimensions=256x256
+textures,sky_grass3_nosky.png,74249,dimensions=512x512
+textures,skytechno.png,38836,dimensions=256x256
+textures,slopeStop1.png,260,dimensions=15x19
+textures,slopeStop2.png,274,dimensions=15x19
+textures,smoketest2.png,24588,dimensions=256x256
+textures,spawnbase.png,398922,dimensions=512x512
+textures,spider.png,419808,dimensions=512x512
+textures,splatter.png,188333,dimensions=512x512
+textures,spruce.png,470000,dimensions=1024x512
+textures,starflare.png,8094,dimensions=128x256
+textures,stealth_master.png,59487,dimensions=512x512
+textures,steamgreenlight.png,286483,dimensions=1024x512
+textures,tank_blue_diffuse-1.png,128567,dimensions=512x512
+textures,tank_bump.png,99660,dimensions=512x512
+textures,tank_lightmap.png,32833,dimensions=512x512
+textures,tank_red_diffuse-1.png,141221,dimensions=512x512
+textures,tank_red_diffuse.png,132964,dimensions=512x512
+textures,tank_weapon_bump.png,31669,dimensions=256x256
+textures,tank_weapon_diffuse.png,36331,dimensions=256x256
+textures,tankengine.png,31237,dimensions=256x256
+textures,tankengine_bump.png,62937,dimensions=256x256
+textures,tankengine_lm.png,12767,dimensions=256x256
+textures,tele_puff.png,81445,dimensions=256x256
+textures,teleporter_spiral.png,56928,dimensions=256x256
+textures,textureBar.png,167,dimensions=15x10
+textures,textureIcon.png,198,dimensions=21x10
+textures,thrust.png,29498,dimensions=256x256
+textures,tk0.png,2281,dimensions=64x64
+textures,tk1.png,2093,dimensions=64x64
+textures,tk10.png,3584,dimensions=64x64
+textures,tk11.png,3799,dimensions=64x64
+textures,tk12.png,3594,dimensions=64x64
+textures,tk13.png,4315,dimensions=64x64
+textures,tk2.png,2896,dimensions=64x64
+textures,tk3.png,2991,dimensions=64x64
+textures,tk4.png,3099,dimensions=64x64
+textures,tk5.png,3265,dimensions=64x64
+textures,tk6.png,3290,dimensions=64x64
+textures,tk7.png,3379,dimensions=64x64
+textures,tk8.png,3344,dimensions=64x64
+textures,tk9.png,3528,dimensions=64x64
+textures,torch_glow.png,13808,dimensions=128x128
+textures,torchcookie.png,18033,dimensions=256x256
+textures,tracer128.png,1382,dimensions=128x128
+textures,tracerlaser128.png,1666,dimensions=128x128
+textures,trooper_blue1.png,208841,dimensions=512x512
+textures,trooper_bump.png,39638,dimensions=512x512
+textures,trooper_lm.png,13015,dimensions=512x512
+textures,trooper_red.png,186831,dimensions=512x512
+textures,trooper_red1.png,209964,dimensions=512x512
+textures,uberthon.png,4325,dimensions=128x128
+textures,ubertrail_blank.png,1646,dimensions=128x128
+textures,ubertrail_blank_fuzz.png,1166,dimensions=128x128
+textures,ui_bar_bk.png,90,dimensions=4x4
+textures,ui_bug.png,6621,dimensions=256x256
+textures,ui_cross.png,702,dimensions=64x64
+textures,ui_hurtrot.png,15437,dimensions=256x256
+textures,ui_join.png,839,dimensions=32x32
+textures,ui_message.png,315,dimensions=32x32
+textures,ui_power_bar.png,103,dimensions=4x4
+textures,ui_save.png,1035,dimensions=128x128
+textures,ui_tick.png,852,dimensions=64x64
+textures,unbertricity_red.png,51006,dimensions=256x256
+textures,vonNeumannIcon.png,130,dimensions=13x10
+textures,weapon_panel_bump.png,15541,dimensions=256x256
+textures,weapon_panel_diffuse.png,19360,dimensions=256x256
+textures,wheels.png,11946,dimensions=128x128
+textures,white.png,113,dimensions=16x16
+textures,whiteStop.png,223,dimensions=15x19
+textures,whiteStopRollover.png,187,dimensions=15x19
+textures,whitesquare.png,76,dimensions=2x2
+textures,wood_panel.png,2065182,dimensions=1024x1024
+textures,yellow.png,105,dimensions=16x16
+textures,yellowToGreen.png,707,dimensions=128x16
+textures,zong.png,5503,dimensions=125x40

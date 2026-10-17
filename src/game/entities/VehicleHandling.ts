@@ -6,9 +6,9 @@ const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit,
 export function vehicleHandling(config: VehicleConfig, speed: number, lateralSpeed: number, yawSpeed: number, steeringAngle: number, throttle: number, dt: number) {
     const weight = Math.max(.8, Math.min(2.2, Math.sqrt(config.mass / 1200)));
     const wheelbase = Math.max(2.6, (config.depth ?? 4.5) * .64);
-    const maxLateralAcceleration = 10.2 / Math.sqrt(weight);
-    const desiredYaw = clamp(speed * Math.tan(steeringAngle) / wheelbase, Math.min(1.45, maxLateralAcceleration / Math.max(2, Math.abs(speed))));
-    const yawDelta = clamp((desiredYaw - yawSpeed) * (1 - Math.exp(-dt * 7 / weight)), 3.1 / weight * dt);
+    const maxLateralAcceleration = 17 / Math.sqrt(weight);
+    const desiredYaw = clamp(speed * Math.tan(steeringAngle) / wheelbase, Math.min(1.9, maxLateralAcceleration / Math.max(2, Math.abs(speed))));
+    const yawDelta = clamp((desiredYaw - yawSpeed) * (1 - Math.exp(-dt * 10 / weight)), 4.6 / weight * dt);
     const braking = throttle * speed < 0 && Math.abs(speed) > .15;
     let driveDelta: number;
     if (braking) {
@@ -33,6 +33,6 @@ export function vehicleHandling(config: VehicleConfig, speed: number, lateralSpe
 /** Mechanical steering rack: heavy cars take longer to change lock; fast cars use shallower lock. */
 export function advanceSteering(config: VehicleConfig, current: number, input: number, speed: number, dt: number): number {
     const weight = Math.max(.8, Math.sqrt(config.mass / 1200));
-    const lock = (.56 + Math.min(5, config.steeringSpeed) * .03) / (1 + Math.abs(speed) * .018);
-    return current + clamp(input * lock - current, 2.7 / weight * dt);
+    const lock = (.7 + Math.min(5, config.steeringSpeed) * .035) / (1 + Math.abs(speed) * .012);
+    return current + clamp(input * lock - current, 3.8 / weight * dt);
 }

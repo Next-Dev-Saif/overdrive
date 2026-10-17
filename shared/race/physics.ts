@@ -4,7 +4,7 @@ import type { Racer, RaceInput } from './types';
 /** Fixed-step road-constrained tire model with grade, progressive power and tire grip. Server owns position and impacts. */
 export function driveRacer(car: Racer, input: RaceInput, dt: number): number {
     const speed = car.vx * Math.sin(car.yaw) + car.vz * Math.cos(car.yaw);
-    const steerRate = Math.abs(speed) / (7 + Math.abs(speed) * .7);
+    const steerRate = Math.abs(speed) / (5.5 + Math.abs(speed) * .52);
     car.yaw = normalizeAngle(car.yaw + input.steer * steerRate * Math.sign(speed) * dt);
     const fx = Math.sin(car.yaw), fz = Math.cos(car.yaw), rx = fz, rz = -fx;
     let longitudinal = car.vx * fx + car.vz * fz;

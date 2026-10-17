@@ -1,3 +1,4 @@
+import { SoundManager } from "../engine/SoundManager";
 import { playAbilityActivation } from '../vfx/AbilityActivation';
 import { Mesh, Scene, Vector3, Quaternion, TransformNode, MeshBuilder, StandardMaterial, Color3, Animation } from "@babylonjs/core";
 import { VehicleController } from "./VehicleController";
@@ -122,6 +123,7 @@ export class RemoteVehicle {
         this.cancelAbilityActivation?.();
         if (this.isDead) return;
         this.isDead = true;
+        SoundManager.getInstance().playDeath(this.mesh.getAbsolutePosition());
         
         VfxManager.getInstance().triggerVehicleDestruction(this.mesh.getAbsolutePosition(), 8);
 
@@ -149,6 +151,7 @@ export class RemoteVehicle {
     public triggerAbility(abilityName: string) {
         if (this.isDead || this.scene.metadata?.combatEnded) return;
         this.cancelAbilityActivation?.();
+        const stopAbilitySound = SoundManager.getInstance().playAbility(abilityName, this.mesh.getAbsolutePosition(), false);
         this.cancelAbilityActivation = playAbilityActivation(this.mesh, abilityName, () => {
             this.cancelAbilityActivation = null;
             if (abilityName === 'shockwave') this.triggerShockwave();
@@ -158,7 +161,7 @@ export class RemoteVehicle {
             else if (abilityName === 'lightning') this.triggerLightningStrike();
             else if (abilityName === 'wraith') this.triggerGravPulse();
             else if (abilityName === 'behemoth') this.triggerAegisDome();
-        }, () => !this.isDead && !this.isEmped && !this.isStunned);
+        }, () => !this.isDead && !this.isEmped && !this.isStunned, stopAbilitySound);
     }
 
     private triggerEMPBurst() {

@@ -46,22 +46,13 @@ for (const theme of ['wasteland', 'facility', 'glacial', 'neon']) {
     }
     dressArena(scene, theme, size);
     const horizon = scene.meshes.filter(mesh => mesh.metadata?.outerLandscape);
-    assert.ok(horizon.length >= 4 && horizon.length <= 8, 'bounded horizon draw calls');
+    assert.equal(horizon.length, 1, 'one sky draw replaces every outer landscape batch');
+    assert.ok(horizon[0].infiniteDistance && horizon[0].metadata.skybox, 'sky follows the camera');
     for (const mesh of horizon) {
         assert.ok(!mesh.isPickable && !mesh.physicsBody && !mesh.metadata.terrain, 'outer scenery never becomes gameplay terrain');
         assert.equal(isProjectileCollisionCandidate(mesh, ground, rises[0]), false, 'projectiles ignore the horizon');
         assert.ok(mesh.material.fogEnabled === false, 'dense arena fog cannot erase the entire skyline');
         assert.ok(Array.from(mesh.getVerticesData('position')).every(Number.isFinite));
-    }
-    const ridges = horizon.filter(mesh => mesh.name === 'horizon-geography');
-    for (const ridge of ridges) {
-        const vertices = ridge.getVerticesData('position');
-        for (let i = 0; i < vertices.length; i += 3) assert.ok(Math.hypot(vertices[i], vertices[i + 2]) > size / 2 + 10, 'ridge stays beyond the collision wall');
-    }
-    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 32) {
-        const r = size / 2 + 180;
-        const ray = new Ray(new Vector3(Math.cos(angle) * r, 600, Math.sin(angle) * r), Vector3.Down(), 1000);
-        assert.ok(ray.intersectsMeshes(ridges).length > 0, 'continuous outer ground in every direction');
     }
     const layout = createArenaRoadLayout(size);
     const covers = scene.meshes.filter(mesh => mesh.metadata?.centralCover);
@@ -87,7 +78,7 @@ for (const theme of ['wasteland', 'facility', 'glacial', 'neon']) {
         assert.ok(covers.some(other=>Math.abs(other.position.x+cover.position.x)<.001&&Math.abs(other.position.z+cover.position.z)<.001),'opposite teams get symmetric cover');
     }
     const roads = scene.meshes.filter(mesh => mesh.metadata?.arenaRoad);
-    assert.equal(roads.length, 4, 'four terrain overlays rather than hundreds of road strips');
+    assert.equal(roads.length, 1 + rises.length, 'one overlay per gameplay terrain mesh');
     assert.equal(scene.meshes.filter(mesh => mesh.name === 'route-marker').length, 0, 'old disconnected markings removed');
     for (const road of roads) {
         const source = scene.getMeshByUniqueId(road.metadata.sourceTerrain);

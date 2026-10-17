@@ -1,3 +1,4 @@
+import { serverConfig, isAllowedOrigin } from './config';
 import { installDeathRace } from './race';
 import express from 'express';
 import { createServer } from 'http';
@@ -18,13 +19,29 @@ import {
 } from '../../shared/match';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.disable('x-powered-by');
+app.set('trust proxy', serverConfig.proxyHops);
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    if (!isAllowedOrigin(req.headers.origin)) { res.status(403).json({ error: 'Origin not allowed' }); return; }
+    next();
+});
+app.use(cors({ origin: serverConfig.allowedOrigins }));
+app.use(express.json({ limit: '16kb' }));
+app.get('/healthz', (_req, res) => { res.json({ status: 'ok' }); });
+app.get('/readyz', async (_req, res) => {
+    try { await prisma.user.findFirst({ select: { id: true } }); res.json({ status: 'ready' }); }
+    catch { res.status(503).json({ status: 'unavailable' }); }
+});
 app.use('/auth', authRoutes);
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-overdrive-key';
+const JWT_SECRET = serverConfig.jwtSecret;
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: '*', methods: ['GET', 'POST'] } });
+const io = new Server(httpServer, {
+    cors: { origin: serverConfig.allowedOrigins, methods: ['GET', 'POST'] },
+    allowRequest: (req, callback) => callback(null, isAllowedOrigin(req.headers.origin)),
+    maxHttpBufferSize: 64 * 1024,
+});
 
 const VEHICLE_HEALTH: Record<string, number> = {
     interceptor: 600, juggernaut: 1600, phantom: 450, manticore: 1200,
@@ -33,7 +50,7 @@ const VEHICLE_HEALTH: Record<string, number> = {
 const BOT_VEHICLES = Object.keys(VEHICLE_HEALTH);
 const BOT_WEAPONS = ['minigun', 'plasma', 'missile', 'mortar', 'nuke'];
 const DAMAGE_CAPS: Record<string, number> = {
-    minigun: 5, plasma: 15, missile: 45, mortar: 80, nuke: 1500,
+    minigun: 10, plasma: 30, missile: 45, mortar: 80, nuke: 1500,
     afterburner: 5, shockwave: 20, lightning: 25,
 };
 const DAMAGE_ABILITY_BY_VEHICLE: Partial<Record<string, string>> = {
@@ -258,7 +275,7 @@ function scheduleRespawn(session: MatchSession, target: MatchMember): void {
     }, TDM_RULES.respawnDelayMs);
 }
 
-setInterval(() => matches.forEach(evaluateMatchEnd), 500);
+const matchTimer = setInterval(() => matches.forEach(evaluateMatchEnd), 500);
 
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;
@@ -429,5 +446,17 @@ io.on('connection', (socket: Socket) => {
 const stopDeathRace = installDeathRace(io);
 httpServer.on('close', stopDeathRace);
 
-const PORT = process.env.PORT || 3001;
-httpServer.listen(PORT, () => console.log(`Overdrive TDM server running on ws://localhost:${PORT}`));
+let stopping = false;
+async function shutdown() {
+    if (stopping) return;
+    stopping = true;
+    clearInterval(matchTimer);
+    queueTimers.forEach(timer => clearTimeout(timer));
+    stopDeathRace();
+    const deadline = setTimeout(() => process.exit(1), 10000);
+    deadline.unref();
+    io.close(async () => { await prisma.$disconnect(); clearTimeout(deadline); process.exit(0); });
+}
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+httpServer.listen(serverConfig.port, serverConfig.host, () => console.log(`Overdrive TDM server listening on port ${serverConfig.port}`));

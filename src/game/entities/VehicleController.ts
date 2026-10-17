@@ -448,7 +448,7 @@ export class VehicleController {
         
         // Use VfxManager for realistic explosion
         VfxManager.getInstance().triggerVehicleDestruction(this.mesh.getAbsolutePosition(), 8.0);
-        SoundManager.getInstance().playExplosion(this.mesh.getAbsolutePosition());
+        SoundManager.getInstance().playDeath(this.mesh.getAbsolutePosition());
 
         // Hide mesh components
         this.mesh.getChildMeshes().forEach(m => m.isVisible = false);
@@ -542,6 +542,7 @@ export class VehicleController {
         this.lastAbilityTime = now;
         const abilityName = this.vehicleId === 'interceptor' ? 'lightning' : this.vehicleId === 'juggernaut' ? 'shockwave' : this.vehicleId;
         this.cancelAbilityActivation?.();
+        const stopAbilitySound = SoundManager.getInstance().playAbility(abilityName, this.mesh.getAbsolutePosition(), this.isPlayer);
         this.cancelAbilityActivation = playAbilityActivation(this.mesh, abilityName, () => {
             this.cancelAbilityActivation = null;
             if (abilityName === 'shockwave') this.triggerShockwave();
@@ -551,7 +552,7 @@ export class VehicleController {
             else if (abilityName === 'wraith') this.triggerGravPulse();
             else if (abilityName === 'behemoth') this.triggerAegisDome();
             else this.triggerLightningStrike();
-        }, () => !this.isDead && !this.isEmped && !this.isStunned);
+        }, () => !this.isDead && !this.isEmped && !this.isStunned, stopAbilitySound);
         // Broadcast the wind-up start so remote vehicles do not add a second delay.
         this.broadcastAbility(abilityName);
     }

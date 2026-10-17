@@ -37,6 +37,8 @@ const combat={id:'combat',phase:'racing',startsAt:1,endsAt:600000,serverTime:100
 const pickup=combat.pickups[0];Object.assign(attacker,trackPose(pickup.distance,pickup.lane));Object.assign(victim,trackPose(pickup.distance+18,pickup.lane));
 stepRace(combat,new Map(),10000,1/60);assert.equal(attacker.weapon,pickup.item);assert.ok(attacker.ammo>0);assert.equal(pickup.availableAt,20000);
 const ammo=attacker.ammo,health=victim.health;const firing=new Map([[attacker.id,{throttle:0,steer:0,brake:true,fire:true}]]);
+assert.equal(stepRace(combat,new Map(),10225,1/60).length,0,'lock alone never fires a human race weapon');
+assert.equal(attacker.ammo,ammo);assert.equal(victim.health,health);assert.equal(attacker.targetId,victim.id,'automatic aim still acquires with no trigger');
 assert.equal(stepRace(combat,firing,10230,1/60).length,1);assert.equal(attacker.ammo,ammo-1);assert.ok(victim.health<health);
 assert.equal(stepRace(combat,firing,10231,1/60).length,0,'fire cadence is enforced');
 victim.protectedUntil=20000;assert.equal(stepRace(combat,firing,10500,1/60).length,0,'respawn protection blocks damage');

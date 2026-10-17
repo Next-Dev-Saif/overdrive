@@ -29,15 +29,15 @@ export function VehicleSystems({ vehicleId, health, charge, cooldownSeconds, una
             <span className="overdrive-dial__status">{status}</span>
         </button>
         <div className="vehicle-systems__readout">
-            <div className="vehicle-systems__identity"><strong>{vehicleId}</strong><span>{ability} <kbd>SPACE</kbd></span></div>
+            <div className="vehicle-systems__identity"><strong>{vehicleId}</strong><span>{ability} <kbd>SHIFT</kbd></span></div>
             <div className="hull-meter" data-critical={hull <= 30}>
-                <div className="hull-meter__label"><span>HULL INTEGRITY</span><strong>{Math.round(hull)}<small>%</small></strong></div>
-                <div className="hull-meter__track" role="progressbar" aria-label="Hull integrity" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(hull)}>
+                <div className="hull-meter__label"><span>HEALTH</span><strong>{Math.round(hull)}<small>%</small></strong></div>
+                <div className="hull-meter__track" role="progressbar" aria-label="Health" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(hull)}>
                     <span style={{ transform: `scaleX(${hull / 100})` }} />
                 </div>
-                <span className="hull-meter__condition">{hull <= 0 ? 'SYSTEM FAILURE' : hull <= 30 ? 'CRITICAL DAMAGE' : 'SYSTEMS ONLINE'}</span>
+                <span className="hull-meter__condition">{hull <= 0 ? 'DESTROYED' : hull <= 30 ? 'LOW HEALTH' : 'NORMAL'}</span>
             </div>
-            {Number.isFinite(ammo.maxAmmo) && <div className="vehicle-ammo"><span>{ammo.isReloading ? `RELOADING ${Math.round(ammo.reloadPct)}%` : 'ORDNANCE'}</span><strong>{ammo.ammo}<span> / {ammo.maxAmmo}</span></strong></div>}
+            {Number.isFinite(ammo.maxAmmo) && <div className="vehicle-ammo"><span>{ammo.isReloading ? `RELOADING ${Math.round(ammo.reloadPct)}%` : 'AMMO'}</span><strong>{ammo.ammo}<span> / {ammo.maxAmmo}</span></strong></div>}
         </div>
     </section>;
 }

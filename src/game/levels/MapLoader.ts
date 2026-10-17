@@ -117,7 +117,6 @@ export class MapLoader {
         scene.fogColor = new Color3(0.6, 0.4, 0.2);
 
         scene.environmentTexture = CubeTexture.CreateFromPrefilteredData("https://playground.babylonjs.com/textures/environment.dds", scene);
-        scene.createDefaultSkybox(scene.environmentTexture, true, 3000, 0.1, true);
 
         // Materials
         const sandMat = new TerrainMaterial("sandMat", scene);
@@ -186,7 +185,6 @@ export class MapLoader {
         scene.fogColor = new Color3(0.4, 0.5, 0.6);
 
         scene.environmentTexture = CubeTexture.CreateFromPrefilteredData("https://playground.babylonjs.com/textures/environment.dds", scene);
-        scene.createDefaultSkybox(scene.environmentTexture, true, 3000, 0.1, true);
 
         const floorMat = new StandardMaterial("floorMat", scene);
         const floorTex = new Texture("https://playground.babylonjs.com/textures/rock.png", scene);
@@ -234,7 +232,6 @@ export class MapLoader {
         scene.fogColor = new Color3(0.7, 0.8, 0.9);
 
         scene.environmentTexture = CubeTexture.CreateFromPrefilteredData("https://playground.babylonjs.com/textures/environment.dds", scene);
-        scene.createDefaultSkybox(scene.environmentTexture, true, 3000, 0.1, true);
 
         const iceMat = new StandardMaterial("iceMat", scene);
         const iceBump = new Texture("https://playground.babylonjs.com/textures/waterbump.png", scene);
@@ -278,16 +275,6 @@ export class MapLoader {
         const dirLight = new DirectionalLight("neonMoon", new Vector3(0.5, -1, 0.5), scene);
         dirLight.intensity = 0.6; // Brighter moon
         dirLight.diffuse = new Color3(1.0, 0.6, 1.0);
-
-        // Dark skybox for neon city
-        const skybox = MeshBuilder.CreateBox("skyBox", { size: 3000.0 }, scene);
-        const skyboxMaterial = new StandardMaterial("skyBox", scene);
-        skyboxMaterial.backFaceCulling = false;
-        skyboxMaterial.emissiveColor = new Color3(0.02, 0.02, 0.02); // Monochrome dark slate/black
-        skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
-        skyboxMaterial.specularColor = new Color3(0, 0, 0);
-        skybox.material = skyboxMaterial;
-        skybox.isPickable = false;
 
         scene.fogMode = Scene.FOGMODE_EXP2;
         scene.fogDensity = 0.0005; // Reduced fog so it doesn't blur the field too much

@@ -1,3 +1,4 @@
+import { VehicleStatusEffect, VehicleRelationship } from '../page-sections/match/VehicleStatusEffect';
 import React, { useEffect, useState } from "react";
 import { GameEngine } from "../../game/engine/GameEngine";
 import { MobileControls } from "./MobileControls";
@@ -387,45 +388,74 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
             )}
 
             {mode === 'deathmatch' && matchState === 'ended' && winner && (
-                <div className="absolute inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-md" role="status" aria-live="assertive">
-                    <div className="flex flex-col items-center px-16 py-12 bg-black/60 border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                        <Trophy size={48} className={`mb-6 drop-shadow-[0_0_15px_currentColor] text-white`} />
-                        <p className="text-[10px] tracking-[0.4em] text-white/50 mb-2 font-mono uppercase">MATCH COMPLETE</p>
-                        <h1 className={`text-7xl font-black tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]`}>
+                <div className="absolute inset-0 z-[110] flex items-center justify-center bg-black/85 backdrop-blur-md" role="status" aria-live="assertive">
+                    <div className="relative flex flex-col items-center px-14 py-10 bg-[#0a0b0f] border border-white/25 shadow-[0_32px_100px_rgba(0,0,0,0.9)] max-w-lg w-full mx-4">
+                        {/* Tactical Corner Brackets */}
+                        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white pointer-events-none" />
+                        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white pointer-events-none" />
+                        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white pointer-events-none" />
+
+                        <Trophy size={40} className="mb-4 text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]" />
+                        <p className="text-[10px] tracking-[0.3em] text-white/50 mb-2 font-mono uppercase">
+                            MATCH RESULTS
+                        </p>
+                        <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-white uppercase font-sans">
                             {winner === 'draw' ? 'DRAW' : winner === localTeam ? 'VICTORY' : 'DEFEAT'}
                         </h1>
+                        <p className="text-xs font-mono tracking-widest text-white/60 uppercase mt-2">
+                            {winner === 'draw' ? 'DRAW' : winner === localTeam ? 'MATCH WON' : 'MATCH LOST'}
+                        </p>
                         
-                        <div className="flex items-center gap-6 mt-8 bg-white/5 px-8 py-3 rounded-full border border-white/10">
-                            <span className="font-mono text-white font-bold tracking-widest text-lg">TEAM 1: {scores.alpha}</span>
-                            <span className="text-white/30 text-sm">|</span>
-                            <span className="font-mono text-white font-bold tracking-widest text-lg">{scores.bravo} :TEAM 2</span>
+                        <div className="flex items-center justify-center gap-6 mt-8 w-full bg-white/5 py-3.5 px-6 border border-white/10 font-mono text-sm">
+                            <span className="text-white font-bold tracking-wider">TEAM 1: {String(scores.alpha).padStart(2, '0')}</span>
+                            <span className="text-white/25">|</span>
+                            <span className="text-white font-bold tracking-wider">{String(scores.bravo).padStart(2, '0')} :TEAM 2</span>
                         </div>
                     </div>
                 </div>
             )}
 
             {showRoster && roster.length > 0 && matchState !== 'ended' && (
-                <div className="absolute inset-0 z-[105] flex items-center justify-center bg-slate-950/55 backdrop-blur-sm" role="dialog" aria-label="Team roster">
-                    <div className="w-[min(760px,calc(100%-32px))] grid grid-cols-2 gap-6 bg-slate-900/95 p-6 rounded-xl border border-white/10 shadow-2xl">
-                        {(['alpha', 'bravo'] as const).map(teamId => <section key={teamId} aria-labelledby={`roster-${teamId}`}>
-                            <h2 id={`roster-${teamId}`} className={`text-white text-sm font-black tracking-[0.2em] mb-3`}>{teamId === 'alpha' ? 'TEAM 1' : 'TEAM 2'}</h2>
-                            <div className="space-y-2">{roster.filter(member => member.teamId === teamId).sort((a, b) => a.slot - b.slot).map(member => <div key={member.entityId} className="flex items-center gap-3 px-3 py-2 bg-white/5 rounded-md text-xs"><span className="text-white font-bold truncate">{member.displayName}</span><span className="ml-auto text-white/45 font-mono">{member.kind.toUpperCase()} · {member.connected ? 'ONLINE' : 'OFFLINE'}</span></div>)}</div>
-                        </section>)}
-                        <p className="col-span-2 text-center text-[10px] text-white/45 tracking-[0.18em]">HOLD TAB · TEAM ROSTER</p>
+                <div className="absolute inset-0 z-[105] flex items-center justify-center bg-black/75 backdrop-blur-sm" role="dialog" aria-label="Team roster">
+                    <div className="w-[min(760px,calc(100%-32px))] grid grid-cols-2 gap-6 bg-[#0a0b0f] p-6 border border-white/20 shadow-2xl relative font-mono">
+                        {(['alpha', 'bravo'] as const).map(teamId => (
+                            <section key={teamId} aria-labelledby={`roster-${teamId}`}>
+                                <h2 id={`roster-${teamId}`} className="text-white text-xs font-black tracking-[0.2em] mb-3 pb-2 border-b border-white/10 uppercase">
+                                    {teamId === 'alpha' ? 'TEAM 1' : 'TEAM 2'}
+                                </h2>
+                                <div className="space-y-1.5">
+                                    {roster.filter(member => member.teamId === teamId).sort((a, b) => a.slot - b.slot).map(member => (
+                                        <div key={member.entityId} className="flex items-center gap-3 px-3 py-2 bg-white/5 border border-white/5 text-xs">
+                                            <span className="text-white font-bold truncate">{member.displayName}</span>
+                                            <span className="ml-auto text-white/40 font-mono text-[10px] tracking-wider">
+                                                {member.kind === 'human' ? 'PLAYER' : 'BOT'} · {member.connected ? 'ONLINE' : 'OFFLINE'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
+                        <p className="col-span-2 text-center text-[10px] text-white/40 tracking-wider pt-2 border-t border-white/5 uppercase">
+                            HOLD [TAB] SCOREBOARD
+                        </p>
                     </div>
                 </div>
             )}
 
             {/* ── Cinematic Intro Overlay ── */}
             {(matchState === 'intro' || matchState === 'countdown') && (
-                <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none bg-black/10">
+                <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none bg-black/20">
                     {matchState === 'intro' && (
-                        <h1 className="text-white font-black text-6xl tracking-[0.2em] uppercase drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] animate-pulse">
-                            PREPARE FOR BATTLE
-                        </h1>
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="text-xs font-mono tracking-[0.3em] text-white/60 uppercase">GET READY</span>
+                            <h1 className="text-white font-black text-5xl sm:text-7xl tracking-[0.2em] uppercase font-sans drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]">
+                                PREPARE FOR BATTLE
+                            </h1>
+                        </div>
                     )}
                     {matchState === 'countdown' && (
-                        <h1 className="text-red-500 font-black text-9xl tracking-widest drop-shadow-[0_0_50px_rgba(239,68,68,1)] animate-bounce">
+                        <h1 className="text-white font-black text-9xl tracking-widest drop-shadow-[0_0_60px_rgba(255,255,255,0.9)] font-mono animate-pulse">
                             {Math.ceil(3 - (introTimer / 1000))}
                         </h1>
                     )}
@@ -436,36 +466,53 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
                 unavailable={health <= 0 || isEmped || isStunned || matchState !== 'playing'} ammo={ammoData}
                 onActivate={() => { if (engineRef.current) engineRef.current.inputManager.joystickAbility = true; }} />}
 
-            {/* ── Immersive Radar & Speed (Bottom-Right) ── */}
-            <div className="combat-radar absolute bottom-6 right-6 pointer-events-none flex items-end gap-4">
-                {/* Minimalist Speedometer */}
-                <div className="flex flex-col items-end pb-2">
-                    <span className="text-white/30 font-mono text-[9px] tracking-[0.4em] uppercase mb-1">Velocity</span>
+            {/* ── Immersive Tactical Radar & Speed (Bottom-Right) ── */}
+            <div className="combat-radar absolute bottom-6 right-6 pointer-events-none flex items-end gap-5">
+                {/* Minimalist Tactical Speedometer */}
+                <div className="flex flex-col items-end pb-2 font-mono">
+                    <span className="text-white/40 text-[9px] tracking-[0.25em] uppercase mb-1">SPEED</span>
                     <div className="flex items-baseline gap-1.5">
-                        <span className="text-white text-5xl font-light tracking-tighter tabular-nums leading-none drop-shadow-sm">{speed}</span>
-                        <span className="text-white/40 font-mono text-[10px] tracking-widest">KPH</span>
+                        <span className="text-white text-5xl font-black tracking-tighter tabular-nums leading-none">
+                            {speed}
+                        </span>
+                        <span className="text-white/50 text-[10px] tracking-widest font-bold">KM/H</span>
                     </div>
                 </div>
 
-                {/* Solid Tactical Radar */}
-                <div className="w-32 h-32 rounded-full border-2 border-white/20 bg-black backdrop-blur-xl relative overflow-hidden flex items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.9)]">
-                    <div className="absolute inset-0 border border-white/10 rounded-full m-5" />
-                    <div className="absolute inset-0 border border-white/10 rounded-full m-10" />
-                    <div className="absolute w-full h-[1px] bg-white/10" />
-                    <div className="absolute h-full w-[1px] bg-white/10" />
-                    <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_75%,rgba(255,255,255,0.2)_100%)] rounded-full animate-[spin_3s_linear_infinite]" />
-                    <div className="absolute w-2 h-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1)] z-10" />
+                {/* Precision Tactical Radar */}
+                <div className="w-32 h-32 border border-white/25 bg-[#08090d]/90 backdrop-blur-md relative overflow-hidden flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.9)]">
+                    {/* Cardinal ticks */}
+                    <span className="absolute top-1 text-[8px] font-mono text-white/40">N</span>
+                    <span className="absolute bottom-1 text-[8px] font-mono text-white/40">S</span>
+                    <span className="absolute left-1 text-[8px] font-mono text-white/40">W</span>
+                    <span className="absolute right-1 text-[8px] font-mono text-white/40">E</span>
+
+                    {/* Concentric rings */}
+                    <div className="absolute inset-0 border border-white/10 rounded-full m-5 pointer-events-none" />
+                    <div className="absolute inset-0 border border-white/10 rounded-full m-10 pointer-events-none" />
+                    <div className="absolute w-full h-[1px] bg-white/10 pointer-events-none" />
+                    <div className="absolute h-full w-[1px] bg-white/10 pointer-events-none" />
+                    
+                    {/* Sweep radar beam */}
+                    <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_75%,rgba(255,255,255,0.25)_100%)] rounded-full animate-[spin_3s_linear_infinite] pointer-events-none" />
+                    
+                    {/* Player Center Pin */}
+                    <div className="absolute w-2 h-2 bg-white shadow-[0_0_8px_#ffffff] z-10 pointer-events-none" />
+                    
                     {radarData.contacts.map(contact => {
                         const dx = contact.x - radarData.px, dz = contact.z - radarData.pz;
                         const rotX = dx * Math.cos(-radarData.yaw) - dz * Math.sin(-radarData.yaw);
                         const rotZ = dx * Math.sin(-radarData.yaw) + dz * Math.cos(-radarData.yaw);
-                        const scale = 64 / 80; // 80 game units to edge (w-32 is 128px, center is 64px)
+                        const scale = 64 / 80;
                         let screenX = rotX * scale, screenY = -rotZ * scale;
                         const distFromCenter = Math.sqrt(screenX * screenX + screenY * screenY);
-                        if (distFromCenter > 58) { screenX = (screenX / distFromCenter) * 58; screenY = (screenY / distFromCenter) * 58; }
+                        if (distFromCenter > 56) {
+                            screenX = (screenX / distFromCenter) * 56;
+                            screenY = (screenY / distFromCenter) * 56;
+                        }
                         return (
-                            <div key={contact.id} className="absolute z-10 flex flex-col items-center justify-center -translate-x-1/2 -translate-y-1/2" style={{ left: `${64 + screenX}px`, top: `${64 + screenY}px` }}>
-                                <div className={`w-2 h-2 ${contact.isAlly ? 'bg-cyan-400 rounded-sm' : 'bg-orange-400 rotate-45'} shadow-[0_0_5px_currentColor]`} />
+                            <div key={contact.id} className="absolute z-10 flex flex-col items-center justify-center -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ left: `${64 + screenX}px`, top: `${64 + screenY}px` }}>
+                                <div className={`w-2 h-2 ${contact.isAlly ? 'bg-white rounded-none border border-black shadow-[0_0_6px_#fff]' : 'bg-white rotate-45 border border-black shadow-[0_0_6px_#fff]'}`} />
                             </div>
                         );
                     })}
@@ -481,34 +528,32 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
             </div>
             <CombatAccolades medals={medals} now={frameTime} confirmed={killConfirm.active} confirmationId={killConfirm.timestamp} />
 
-            {/* ── Kill Feed ── */}
+            {/* ── Kill Feed (Top-Right) ── */}
             <div className="combat-kill-feed pointer-events-none z-50">
                 {killFeed.map((kf) => {
                     const age = frameTime - kf.time;
                     if (age > 4000) return null;
                     const opacity = 1 - Math.max(0, (age - 3500) / 500);
-                    const isKillerBravo = kf.killerTeam === 'bravo';
-                    const isVictimBravo = kf.victimTeam === 'bravo';
                     return (
                         <div 
                             key={kf.id} 
-                            className="flex items-center bg-black/60 backdrop-blur-xl rounded-full border border-white/5 pl-4 pr-1 py-1 shadow-2xl relative overflow-hidden" 
-                            style={{ opacity, animation: `kill-feed-slide 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards` }}
+                            className="flex items-center bg-[#090a0e]/95 border border-white/15 px-3 py-1.5 shadow-lg font-mono text-[10px]" 
+                            style={{ opacity, animation: `kill-feed-slide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards` }}
                         >
-                            <span className={`font-black text-[10px] tracking-widest uppercase mr-3 ${isKillerBravo ? 'text-white/80' : 'text-white'} drop-shadow-md`}>
+                            <span className="font-bold text-white uppercase mr-2 tracking-wider">
                                 {kf.killer}
                             </span>
                             
-                            <div className="relative w-12 h-6 flex items-center justify-center bg-gradient-to-r from-transparent via-white/5 to-transparent mx-1">
-                                <Crosshair size={12} className="text-white/40" />
+                            <div className="flex items-center justify-center px-1 text-white/50">
+                                <Crosshair size={11} />
                             </div>
                             
-                            <span className={`font-black text-[10px] tracking-widest uppercase ml-3 mr-3 ${isVictimBravo ? 'text-white/50' : 'text-white/60'}`}>
+                            <span className="font-bold text-white/60 uppercase ml-2 mr-3 tracking-wider">
                                 {kf.victim}
                             </span>
                             
-                            <div className="bg-red-500/20 px-2 py-1.5 rounded-full ml-1 border border-red-500/30 flex items-center">
-                                <Skull size={10} className="text-red-400" />
+                            <div className="border-l border-white/15 pl-2 flex items-center">
+                                <Skull size={11} className="text-white" />
                             </div>
                         </div>
                     );
@@ -517,34 +562,24 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
 
             {/* ── Flipped Warning ── */}
             {isFlipped && (
-                <div className="absolute top-[25%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-8 pointer-events-auto z-[70]">
-                    <div className="relative flex flex-col items-center justify-center p-8 bg-black/40 backdrop-blur-2xl border border-white/20 rounded-[2rem] shadow-[0_0_80px_rgba(255,255,255,0.15)] animate-pulse overflow-hidden before:absolute before:inset-0 before:rounded-[2rem] before:border-[3px] before:border-transparent before:[background:linear-gradient(45deg,rgba(255,255,255,0),rgba(255,255,255,0.8),rgba(255,255,255,0))_border-box] before:[WebkitMaskComposite:xor] before:[mask:linear-gradient(white_0_0)_padding-box,linear-gradient(white_0_0)]">
-                        {/* High-tech rotating scanline */}
-                        <div className="absolute w-[200%] h-4 bg-white/20 rotate-45 animate-[spin_4s_linear_infinite] blur-md" />
-                        
-                        <div className="relative z-10 flex flex-col items-center">
-                            <span className="font-black text-5xl tracking-[0.3em] uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] mix-blend-screen">
-                                CHASSIS INVERTED
-                            </span>
-                            <div className="flex items-center gap-6 mt-6 opacity-80">
-                                <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-white" />
-                                <span className="text-white font-mono text-[11px] font-black tracking-[0.5em] uppercase">
-                                    CRITICAL FAILURE
-                                </span>
-                                <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-white" />
-                            </div>
-                        </div>
+                <div className="absolute top-[25%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-6 pointer-events-auto z-[70] font-sans">
+                    <div className="relative flex flex-col items-center justify-center p-8 bg-[#090a0e]/95 border border-white/40 shadow-[0_0_60px_rgba(255,255,255,0.2)] rounded-lg">
+                        <span className="font-black text-3xl sm:text-4xl tracking-wider uppercase text-white">
+                            CAR FLIPPED
+                        </span>
+                        <span className="text-white/60 text-xs tracking-wider uppercase font-medium mt-2">
+                            Press [I] to Reset Car
+                        </span>
                     </div>
                     
                     <button 
+                        type="button"
                         onClick={handleSelfDestruct} 
-                        className="group relative px-10 py-4 bg-white/5 backdrop-blur-md border border-white/30 rounded-full hover:border-white hover:bg-white transition-all overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
+                        className="group relative px-8 py-3.5 bg-white text-black font-extrabold text-xs tracking-wider uppercase hover:bg-neutral-200 transition-all active:scale-[0.98] rounded cursor-pointer"
                     >
-                        <div className="relative flex items-center gap-4">
-                            <kbd className="font-sans font-black text-sm bg-white/20 px-4 py-1.5 rounded-md text-white group-hover:text-black group-hover:bg-black/10 border border-white/30 group-hover:border-black/30 transition-colors shadow-inner">I</kbd>
-                            <span className="font-black text-sm tracking-[0.4em] uppercase text-white group-hover:text-black transition-colors">
-                                INITIATE SELF-DESTRUCT
-                            </span>
+                        <div className="flex items-center gap-3">
+                            <kbd className="font-mono bg-black text-white px-2 py-0.5 text-xs font-bold rounded">I</kbd>
+                            <span>RESET CAR</span>
                         </div>
                     </button>
                 </div>
@@ -552,28 +587,16 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
 
             {/* ── Status Effects (EMP / STUN / BLASTED) ── */}
             {(isEmped || isStunned || isBlasted) && !isFlipped && (
-                <div className="absolute top-[30%] left-1/2 -translate-x-1/2 pointer-events-none z-[60]">
-                    <div className="relative flex flex-col items-center justify-center px-12 py-6 bg-black/40 backdrop-blur-xl rounded-[1.5rem] border border-white/20 overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.1)]">
-                        {/* Digital glitch effect layer */}
-                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,1)_0%,transparent_70%)] animate-pulse" />
-                        
-                        <div className="relative z-10 flex flex-col items-center">
-                            <span className="font-black text-4xl tracking-[0.25em] uppercase text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]">
-                                {isStunned ? "SYSTEM STUNNED" : isBlasted ? "GRAVITY DISRUPTION" : "EMP JAMMED"}
-                            </span>
-                            <div className="flex items-center gap-4 mt-4 opacity-70">
-                                <div className="h-[1px] w-8 bg-white" />
-                                <span className="font-mono text-[10px] tracking-[0.4em] text-white">
-                                    {isBlasted ? "STABILIZERS OFFLINE" : "CONTROLS OFFLINE"}
-                                </span>
-                                <div className="h-[1px] w-8 bg-white" />
-                            </div>
-                        </div>
+                <div className="absolute top-[30%] left-1/2 -translate-x-1/2 pointer-events-none z-[60] font-sans">
+                    <div className="relative flex flex-col items-center justify-center px-8 py-4 bg-[#090a0e]/95 border border-white/30 shadow-[0_0_40px_rgba(255,255,255,0.15)] rounded">
+                        <span className="font-black text-xl sm:text-2xl tracking-wider uppercase text-white">
+                            {isStunned ? "STUNNED" : isBlasted ? "BLASTED" : "EMP DISABLED"}
+                        </span>
                     </div>
                 </div>
             )}
 
-            {/* ── Floating Status Texts ── */}
+            {/* ── Floating Status Effects ── */}
             {statusTexts.map((st) => {
                 if (st.screenX === -100) return null;
                 const age = frameTime - st.createdAt;
@@ -590,27 +613,19 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
                             opacity: opacity,
                         }}
                     >
-                        <div className="skew-x-[-15deg] bg-black/70 backdrop-blur-md border border-white/40 px-5 py-2 flex items-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.15)] relative overflow-hidden">
-                            <div className="absolute left-0 top-0 w-1 h-full bg-white" />
-                            <div className="w-2 h-2 bg-white rounded-sm animate-ping opacity-75" />
-                            <span className="skew-x-[15deg] font-black uppercase tracking-[0.3em] text-[11px] text-white drop-shadow-md">
-                                {st.text}
-                            </span>
-                        </div>
+                        <VehicleStatusEffect status={st.text} />
                     </div>
                 );
             })}
 
-            {/* ── Nameplates ── */}
+            {/* ── Relationship markers ── */}
             {nameplates.map((np) => (
                 <div
                     key={np.id}
                     className="absolute flex flex-col items-center pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
                     style={{ left: `${np.screenX}px`, top: `${np.screenY}px` }}
                 >
-                    <span className={`${np.isAlly ? 'text-white border-white/50 bg-black/80' : 'text-white/70 border-white/20 bg-black/60'} text-[9px] font-mono font-bold uppercase tracking-[0.2em] px-2 py-0.5 skew-x-[-10deg] backdrop-blur-sm mb-1.5 border`}>
-                        <div className="skew-x-[10deg]"><span className={np.isAlly ? 'text-cyan-400' : 'text-orange-400'}>{np.isAlly ? '▲ ALLY' : '◆ HOSTILE'}</span> <span className="text-white/40 opacity-70">·</span> {np.name}</div>
-                    </span>
+                    <VehicleRelationship ally={np.isAlly} name={np.name} />
                     <div className="w-10 h-1 bg-black/60 rounded-sm border border-white/10 overflow-hidden relative">
                         <div 
                             className={`absolute top-0 left-0 h-full ${np.isAlly ? 'bg-cyan-400' : 'bg-orange-400'} rounded-sm transition-all duration-200`}

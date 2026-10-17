@@ -28,5 +28,5 @@ export function TargetTracking({ engineRef }: { engineRef: React.RefObject<any> 
         request = requestAnimationFrame(update);
         return () => cancelAnimationFrame(request);
     }, [engineRef]);
-    return <div ref={frameRef} hidden className="target-tracking" aria-hidden="true"><i /><i /><i /><i /><span className="target-tracking__acquiring">ACQUIRING</span><span className="target-tracking__locked">ENGAGING</span></div>;
+    return <div ref={frameRef} hidden className="target-tracking" aria-hidden="true"><i /><i /><i /><i /></div>;
 }

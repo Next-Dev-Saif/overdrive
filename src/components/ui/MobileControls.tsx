@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import { HoldFireButton } from './HoldFireButton';
+import React, { useCallback, useRef, useState } from "react";
 import { GameEngine } from "../../game/engine/GameEngine";
 
 interface MobileControlsProps {
@@ -6,6 +7,9 @@ interface MobileControlsProps {
 }
 
 export const MobileControls: React.FC<MobileControlsProps> = ({ engineRef }) => {
+    const setFiring = useCallback((held: boolean) => {
+        if (engineRef.current) engineRef.current.inputManager.joystickFiring = held;
+    }, [engineRef]);
     const joystickRef = useRef<HTMLDivElement>(null);
     const knobRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -82,10 +86,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ engineRef }) => 
 
     // Only render on touch devices (simple check via max-width or CSS media queries, here we use tailwind classes)
     return (
-        <div className="absolute inset-0 pointer-events-none z-50 md:hidden">
+        <div className="mobile-driving-controls absolute inset-0 pointer-events-none z-50">
+            <div className="arena-fire-control"><HoldFireButton onFiringChange={setFiring} /></div>
             {/* Left Joystick */}
             <div 
-                className="absolute bottom-12 left-12 w-32 h-32 bg-white/10 rounded-full border border-white/20 backdrop-blur-md pointer-events-auto touch-none"
+                className="absolute bottom-12 left-12 w-32 h-32 bg-black/70 rounded-full border border-white/30 backdrop-blur-md pointer-events-auto touch-none shadow-2xl relative flex items-center justify-center"
                 ref={joystickRef}
                 onTouchStart={handleStart}
                 onTouchMove={handleMove}
@@ -96,10 +101,13 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ engineRef }) => 
                 onMouseUp={handleEnd}
                 onMouseLeave={handleEnd}
             >
+                <div className="absolute inset-0 border border-white/10 rounded-full m-4 pointer-events-none" />
+                <div className="absolute w-full h-[1px] bg-white/10 pointer-events-none" />
+                <div className="absolute h-full w-[1px] bg-white/10 pointer-events-none" />
                 <div 
                     ref={knobRef}
-                    className="absolute top-1/2 left-1/2 w-12 h-12 bg-white/40 rounded-full shadow-lg -ml-6 -mt-6"
-                ></div>
+                    className="absolute top-1/2 left-1/2 w-12 h-12 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.8)] -ml-6 -mt-6 border border-black/50"
+                />
             </div>
 
         </div>

@@ -1,6 +1,6 @@
 import { buildOuterLandscape } from '../levels/OuterLandscape';
 import { Color3, Color4, HemisphericLight, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3, VertexData } from '@babylonjs/core';
-import { CHECKPOINTS, LENGTHS, ROAD_WIDTH, TRACK, TRACK_LENGTH, trackPose } from '../../../shared/race/track';
+import { CHECKPOINTS, LENGTHS, ROAD_WIDTH, TRACK, trackPose } from '../../../shared/race/track';
 
 /** Closed, seamless asphalt ribbon with continuous barriers and authored race markings. */
 export function buildRaceTrack(scene: Scene): void {
@@ -52,12 +52,6 @@ export function buildRaceTrack(scene: Scene): void {
         const distance = LENGTHS[checkpoint];
         for (const side of [-1, 1]) { const post = mark('race-checkpoint-post', distance, side * 13, .6, .6, 5, white); post.rotation.x = 0; }
         if (checkpoint === 0) { const gantry = mark('race-start-gantry', distance, 0, 27, .8, .7, dark); gantry.position.y = trackPose(distance).y + 6; }
-    }
-    // Trackside grandstands and pit buildings sit beyond the collision boundary.
-    for (let i = 0; i < 8; i++) {
-        const block = mark('race-pit-building', TRACK_LENGTH * i / 8, 38, 16, 28, 7 + i % 3 * 2, dark);
-        block.position.y = (7 + i % 3 * 2) / 2; block.rotation.x = 0;
-        block.receiveShadows = true;
     }
     // Batch only static scenery, leaving articulated vehicles and pickups independent.
     for (const mat of [white, dark, asphalt]) {

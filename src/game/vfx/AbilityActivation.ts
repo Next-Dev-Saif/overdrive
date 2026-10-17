@@ -15,7 +15,7 @@ const COLORS: Record<string, Color3> = {
 };
 
 /** A bounded, cancellable wind-up shared by local, bot and remote ability execution. */
-export function playAbilityActivation(parent: Mesh, ability: string, onComplete: () => void, canComplete: () => boolean): () => void {
+export function playAbilityActivation(parent: Mesh, ability: string, onComplete: () => void, canComplete: () => boolean, onCancel?: () => void): () => void {
     const scene = parent.getScene();
     const { center, size } = getVehicleChassisBounds(parent);
     const multiplier = GraphicsSettingsManager.getInstance().getConfig().particleLimitMultiplier;
@@ -34,7 +34,7 @@ export function playAbilityActivation(parent: Mesh, ability: string, onComplete:
         scene.onDisposeObservable.remove(sceneObserver);
         parent.onDisposeObservable.remove(parentObserver);
         vortex.dispose();
-        if (!completed) cancelMechanism();
+        if (!completed) { cancelMechanism(); onCancel?.(); }
     };
     const observer = scene.onBeforeRenderObservable.add(() => {
         if (!valid()) { cleanup(); return; }

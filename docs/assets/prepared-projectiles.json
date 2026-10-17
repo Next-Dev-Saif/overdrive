@@ -1,0 +1,44 @@
+[
+  {
+    "kind": "missile",
+    "source": "new-assets/models/rocket.obj",
+    "sha256": "47eac0678d5d8eb313578a22a66e9b8e261c2460e2bfe9c0b87c76d618e8db46",
+    "vertices": 124,
+    "triangles": 80,
+    "length": 1.8,
+    "dimensions": [
+      0.636137,
+      0.636137,
+      1.8
+    ],
+    "forward": "+Z"
+  },
+  {
+    "kind": "mortar",
+    "source": "new-assets/models/mortar.obj",
+    "sha256": "fd6150700cc7710d5f98826f1b9000a6d4d651021165d4764a8ffb54ce2bfe1c",
+    "vertices": 172,
+    "triangles": 104,
+    "length": 1.25,
+    "dimensions": [
+      0.455051,
+      0.455051,
+      1.25
+    ],
+    "forward": "+Z"
+  },
+  {
+    "kind": "nuke",
+    "source": "new-assets/models/nook.obj",
+    "sha256": "28c8f508168e392df213337da884f7243014fa82490b4d443686dc87efd41eb1",
+    "vertices": 80,
+    "triangles": 56,
+    "length": 3,
+    "dimensions": [
+      2.704479,
+      1.547424,
+      3
+    ],
+    "forward": "+Z"
+  }
+]

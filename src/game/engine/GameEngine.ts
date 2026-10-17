@@ -44,7 +44,10 @@ export class GameEngine {
     private matchEndDispatched = false;
     private mvpShowcase: MvpShowcase | null = null;
     private eventAbort = new AbortController();
-    private resize = () => this.engine.resize();
+    private resize = () => {
+        this.engine.setHardwareScalingLevel(GraphicsSettingsManager.getInstance().getConfig().hardwareScalingLevel);
+        this.engine.resize();
+    };
     private graphicsChanged = () => this.handleGraphicsSettingsChanged();
 
     /** A live-session menu suspends this driver's input, not the network world. */
@@ -54,6 +57,7 @@ export class GameEngine {
         this.inputManager.joystickThrottle = 0;
         this.inputManager.joystickSteer = 0;
         this.inputManager.joystickAbility = false;
+        this.inputManager.joystickFiring = false;
         if (this.playerWeapon) this.playerWeapon.controlsEnabled = !open;
     }
     private mapId: string;
@@ -164,7 +168,7 @@ export class GameEngine {
                         this.playerVehicle.throttleInput = t;
                         this.playerVehicle.steerInput = s;
 
-                        if (this.inputManager.isKeyDown(" ") || this.inputManager.joystickAbility) {
+                        if (this.inputManager.isKeyDown("shift") || this.inputManager.joystickAbility) {
                             this.playerVehicle.triggerAbility();
                             this.inputManager.joystickAbility = false; // consume
                         }
@@ -245,7 +249,10 @@ export class GameEngine {
                 this.scene.metadata ??= {};
                 this.scene.metadata.combatEnded = combatEnded;
                 this.scene.physicsEnabled = !combatEnded;
-                if (this.playerWeapon) this.playerWeapon.controlsEnabled = this.matchState === 'playing' && !this.menuOpen;
+                if (this.playerWeapon) {
+                    this.playerWeapon.controlsEnabled = this.matchState === 'playing' && !this.menuOpen;
+                    this.playerWeapon.firingRequested = this.playerWeapon.controlsEnabled && (this.inputManager.isKeyDown(' ') || this.inputManager.joystickFiring);
+                }
                 this.updateCamera();
                 this.scene.render();
             }
@@ -280,6 +287,7 @@ export class GameEngine {
         if (settings.enableGlow) {
             this.glowLayer = new GlowLayer("glow", this.scene);
             this.glowLayer.intensity = 1.0;
+            for (const mesh of this.scene.meshes) if (mesh.metadata?.skybox) this.glowLayer.addExcludedMesh(mesh as Mesh);
         }
 
         // Run SceneOptimizer based on Quality
@@ -763,6 +771,7 @@ export class GameEngine {
             if (!this.glowLayer) {
                 this.glowLayer = new GlowLayer("glow", this.scene);
                 this.glowLayer.intensity = 1.0;
+                for (const mesh of this.scene.meshes) if (mesh.metadata?.skybox) this.glowLayer.addExcludedMesh(mesh as Mesh);
             }
         } else {
             if (this.glowLayer) {

@@ -45,28 +45,28 @@ export class GraphicsSettingsManager {
     }
 
     public getConfig(): GraphicsConfig {
+        const dpr = window.devicePixelRatio || 1;
         switch (this.currentQuality) {
             case 'LOW':
                 return {
                     shadowResolution: 0, // Disabled
                     enableGlow: false,
-                    hardwareScalingLevel: 2.0, // Render at half resolution
+                    hardwareScalingLevel: 1 / dpr, // Keep native sharpness; reduce effects instead
                     particleLimitMultiplier: 0.0 // Disable non-essential particles
                 };
             case 'MEDIUM':
                 return {
                     shadowResolution: 512,
                     enableGlow: false,
-                    hardwareScalingLevel: 1.5, // Slight downscale
+                    hardwareScalingLevel: 1 / dpr, // Native device pixels
                     particleLimitMultiplier: 0.5
                 };
             case 'HIGH':
             default:
-                const dpr = window.devicePixelRatio || 1;
                 return {
                     shadowResolution: 2048,
                     enableGlow: true,
-                    hardwareScalingLevel: dpr > 1 ? 1.0 : 1.0, // Native resolution 
+                    hardwareScalingLevel: 1 / dpr, // Native device pixels 
                     particleLimitMultiplier: 1.0
                 };
         }

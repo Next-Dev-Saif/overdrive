@@ -6,9 +6,12 @@
   "scripts": {
     "start": "node dist/server/src/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "test": "npm run build && node scripts/verify-tdm.mjs",
-    "postinstall": "prisma skills sync || exit 0"
+    "postinstall": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "package": "npm run build && node scripts/package-server.mjs"
   },
   "keywords": [],
   "author": "",

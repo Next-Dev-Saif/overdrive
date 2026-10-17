@@ -1,0 +1,175 @@
+/* OVERDRIVE // TACTICAL MATCHMAKING DIALOG */
+.queue-dialog {
+    margin: auto;
+    width: min(520px, calc(100% - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    padding: 36px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    background: #0d0e12;
+    color: #f5f6f8;
+    box-shadow: 0 32px 100px rgba(0, 0, 0, 0.95);
+    color-scheme: dark;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, monospace, sans-serif;
+    position: relative;
+}
+
+/* Tactical Corner Accents */
+.queue-dialog::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    pointer-events: none;
+}
+
+.queue-dialog::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+    pointer-events: none;
+}
+
+.queue-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.queue-dialog h2 {
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 900;
+    margin: 8px 0 12px;
+    text-transform: uppercase;
+}
+
+.queue-dialog p {
+    color: #8c93a0;
+    font-size: 13px;
+    font-family: monospace;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+}
+
+.queue-dialog .queue-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    font-family: monospace;
+    color: #ffffff;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.queue-dialog .queue-label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #ffffff;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+.queue-summary {
+    margin: 24px 0;
+    padding: 16px 0;
+    border-block: 1px solid rgba(255, 255, 255, 0.12);
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.queue-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 8px 0;
+}
+
+.queue-summary dt {
+    color: #8c93a0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.queue-summary dd {
+    text-align: right;
+    color: #ffffff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.queue-time {
+    font-family: monospace;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 8px 12px;
+    text-align: center;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 16px;
+}
+
+.queue-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.queue-actions button {
+    flex: 1;
+    min-height: 48px;
+    padding: 12px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: #14171d;
+    color: #f5f6f8;
+    transition: all 120ms ease;
+    cursor: pointer;
+}
+
+.queue-actions button:hover {
+    background: #1f232b;
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+
+.queue-actions .queue-retry {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+.queue-actions .queue-retry:hover {
+    background: #e2e4e9;
+    color: #000000;
+}
+
+.queue-dialog button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}

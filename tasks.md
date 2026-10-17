@@ -489,3 +489,126 @@
 - Screenshot confirms a successful WebSocket upgrade followed by the server's generic authentication rejection. It does not establish whether the token expired or became invalid for another reason.
 - The server queue already starts a five-second timer and fills vacancies with bots. Rejected connections never enter that queue; no legitimate match can be created by bypassing authentication.
 - Tests/browser checks remain paused under the user's prior instruction.
+
+## 2026-10-15 — Arena backgrounds, steering and combat readability
+### Completed
+- [x] Replaced outer terrain/tree/rock/district batches and duplicate skies with one camera-centred panoramic sky per map, including race. Procedural illustrations show dunes, snowy peaks, refinery silhouettes, a lit city and wooded hills. Removed extra outer neon towers and race pit blocks; retained gameplay terrain, walls and cover.
+- [x] Increased steering lock/rack speed, yaw response and lateral force budget across all seven arena classes. Updated shared race steering so server simulation and client prediction agree. Weight, reverse steering, braking-before-reverse and speed limits remain intact.
+- [x] All graphics presets use 1 / window.devicePixelRatio. Arena/race resize and garage resize update scaling; automatic optimization cannot downscale the framebuffer. Updated settings copy. Excluded sky from arena bloom.
+- [x] Replaced floating relationship/name labels with shield/crosshair markers, and status sentences with distinct animated effects (lift, shield, electrical, dash, cloak, radiation). Kept accessible descriptions, health bars and reduced-motion support. Target acquisition/lock uses frame styling without floating words.
+### Verification
+- Passed production build and TypeScript; build reports the existing large Babylon bundle warning.
+- Passed scenery and race suites, including all six race bots completing the course.
+- Added and passed scripts/verify-driving-presentation.mjs: all seven vehicle configurations turn at least 20% faster under simultaneous forward/steer; reverse, braking and frame-rate checks; native DPR for all presets; optimizer guard; five seamless skies and texture disposal.
+- Updated stale scenery expectations from the removed outer terrain and old four-mesh road arrangement to one sky and one overlay per current terrain mesh.
+- Changed-file lint clean. App-wide lint has ten warnings in existing React/auth files.
+- Browser and visual playtesting left to the user under Agent-execution-guide.md. Native DPI increases pixel workload on high-density displays; lower presets still reduce shadows/particles/glow.
+
+## 2026-10-16 — Visible themed skies and manual firing
+### Completed
+- [x] Fixed white sky output: StandardMaterial adds emissiveColor to emissiveTexture, so the white base saturated every pixel. Set the base to black and retained all five distinct, seamless map illustrations.
+- [x] Kept automatic target acquisition/tracking; human arena weapons require a held firing request. Race input now sends the held trigger instead of unconditional fire; server targeting remains automatic and bots retain their own firing behavior.
+- [x] Space fires; E activates chassis abilities in both modes. Added reusable mobile HoldFireButton with pointer capture, pressed feedback, accessible label and release/cancel/blur/visibility/unmount cleanup. Touch controls also appear on coarse-pointer tablets.
+- [x] Cleared held input on lost focus, hidden documents, menus and teardown. Updated loading, settings, ability and race hints.
+### Verification
+- Production build and TypeScript passed; existing large Babylon bundle warning remains.
+- Battle, race and driving/presentation checks pass, including lock-without-shots, trigger/release, disabled/dead driver gates, distinct sky pixels and additive-color saturation regression.
+- Browser/visual verification remains for the user under project guidance. Headless checks do not confirm the final on-screen appearance.
+
+## 2026-10-16 — Shift ability binding
+- [x] Changed the special-ability keyboard trigger from E to Shift in arena and race. Space continues firing; touch ability controls remain available. Updated HUD, loading and settings hints.
+- Verification: TypeScript and targeted lint checks passed.
+
+## 2026-10-16 — Gun and plasma damage increase
+- [x] Doubled arena minigun damage 5 → 10 and plasma damage 15 → 30 in the shared vehicle weapon controller; synchronized multiplayer server damage caps. Applies equally to local players, host bots and remote attackers.
+- [x] Doubled race minigun damage 12 → 24 and plasma damage 45 → 90 in the shared race weapon definitions. Fire rate, ammo and other weapons unchanged.
+- Verification: client TypeScript, server build, targeted lint and race combat/simulation checks passed. Restart the running server to load the updated arena damage caps.
+
+## 2026-10-16 — Separate production deployments
+### In progress
+- [ ] Validate frontend backend-origin env at build time; configure Netlify and provide env examples.
+- [ ] Validate server runtime env, restrict HTTP/WebSocket origins, remove production secret/database fallbacks, add health and shutdown handling.
+- [ ] Provide SQLite migrations and a self-contained backend package including compiled shared game rules.
+- [ ] Verify production configuration, clean database setup, authentication/network behavior and builds. Confirm exact Blitz service/URLs with user; do not deploy.
+
+## 2026-10-17 — New asset audit and audio integration
+### Completed
+- [x] Inventory the 35 audio clips, 109 OBJ meshes and 287 PNG textures; document suitability and import constraints.
+- [x] Integrate a curated audio subset with existing combat, abilities and driving; retain music/UI and volume controls.
+- [x] Verify audio asset paths, lifecycle behavior, TypeScript and lint; leave browser listening/playtesting to the user.
+- [x] Deliver a prioritized model/texture adoption plan without changing the current visuals.
+### Decisions
+- Reuse the existing Web Audio SoundManager, with no new dependencies. Copy only used clips into public assets.
+
+### Verification
+- Passed `npm run test:audio`: 17 copied clips (277,523 bytes), playback, 32-voice budget, mute, cleanup/re-entry, pitch cap and failed-load behavior.
+- Passed TypeScript, targeted lint, battle checks and race checks. App-wide lint reports ten existing warnings in unchanged UI/auth files.
+- Production build could not proceed past the existing configuration guard: `VITE_SERVER_URL` is not set to the public HTTPS backend origin. No deployment configuration was changed for this audio task.
+- No browser was opened. Listening, codec compatibility and final mix/loop quality remain manual checks per project guidance.
+- Full 431-file structural inventory: docs/assets/new-assets-inventory.csv. Adoption priorities, remaining audio roles and manual QA: docs/assets/new-assets-plan.md.
+
+## 2026-10-17 — OBJ projectile visuals only
+### Completed
+- [x] Prepare rocket.obj, mortar.obj and nook.obj as lightweight reusable projectile geometry.
+- [x] Replace missile/mortar/nuke projectile visuals only; preserve mounted weapons, trajectory, damage and network behavior.
+- [x] Keep tail trails/glow readable and verify pooling, collision exclusions, orientation, types and regressions.
+### Decisions
+- Inspected offline top/side wireframe projections. Choose the finned rocket over the narrow guidedmissile for silhouette readability.
+- Bake these three small OBJ meshes into typed vertex data offline, avoiding asynchronous per-shot loading or an additional runtime parser. Original files remain intact.
+
+### Verification
+- Passed TypeScript and targeted lint; projectile tests validate source hashes, 240 triangles, winding/normals, centered bounds, shared geometry/materials, non-colliding visuals, tail anchors, pool reuse and separate scene ownership.
+- Passed battle, VFX and race regression suites.
+- Production bundle passed into /tmp/overdrive-projectile-build using a command-scoped https://build-validation.invalid backend placeholder solely for compilation. No deployment/env configuration changed; that temporary build is not configured for live backend use. Existing Babylon chunk-size warning remains.
+- Browser playtesting remains for the user per project instructions. Existing mounted weapon models, bullet/plasma tracers and gameplay rules were not edited.
+
+## 2026-10-17 — Audible abilities and louder laser shots
+### Completed
+- [x] Raise laser/plasma shot gain; preserve its projectile appearance per user clarification.
+- [x] Play supplied special-ability clips at accepted activation, increase gain and prevent chase-camera attenuation for the local player.
+- [x] Prioritize ability cues during dense combat, cancel interrupted wind-ups and verify arena/remote/race paths.
+
+### Verification
+- TypeScript, targeted lint, audio, VFX, battle and race checks passed. Extended tests cover all seven clips, louder gains, local listener-relative routing, priority during voice saturation and cancellation on interrupted wind-ups.
+- Production bundle passed with a command-only validation backend placeholder into /tmp/overdrive-audio-mix-build; no environment/deployment settings changed. Existing large Babylon bundle warning remains.
+- Projectile appearance and weapon models unchanged. Manual listening remains for the user; no browser opened.
+
+## 2026-10-17 — Simplified black-and-white match setup
+### Completed
+- [x] Replace disconnected home/map/lobby/garage steps with one accessible setup screen and explicit start action.
+- [x] Keep working modes/settings; remove spectator and placeholder operations routes from the menu.
+- [x] Preserve selections, expose race restrictions, simplify matchmaking status/cancel/retry, and support small screens.
+- [x] Verify selection/launch rules, markup, TypeScript, lint and build without browser testing per project guidance.
+
+### Decisions and verification
+- One signed-in setup page replaces home/mode/map/lobby/garage hops. Removed the retired page implementations and placeholder operations screen; old hashes resolve safely to setup. Functional settings and paint remain available.
+- Native selection controls apply immediately; setup is validated/persisted. Race shows its fixed chassis/unarmed start without changing arena choices. A single explicit action enters arena/race/queue.
+- Native matchmaking dialog adds focus containment, cancel/Escape and retry; reconnect clears the error state. Existing transport ownership/handoff remains unchanged.
+- Passed setup interaction/headless markup checks, TypeScript and changed-file lint. App-wide lint has five existing warnings in AuthContext, AuthScreen and GameCanvas.
+- Production bundle passed with a temporary validation backend URL into /tmp/overdrive-menu-build; existing Babylon chunk warning remains. No deployment configuration changed.
+- Manual responsive, preview, keyboard/dialog and live-server checks remain for the user per project guidance; no browser opened. Details: docs/match-setup-flow.md.
+
+## 2026-10-17 — Game-first hangar presentation correction
+### Completed
+- [x] Replace the dashboard-like setup layout with a vehicle-dominant combat hangar, direct chassis/armament buttons, a compact arena strip and deploy control.
+- [x] Preserve existing launch rules, saved choices, keyboard operation and mobile layout; verify without opening a browser.
+
+- Verification: setup interaction tests, TypeScript, targeted lint and production bundle passed (temporary validation backend URL; existing Babylon chunk-size warning). Browser appearance remains for user verification per project guidance.
+
+## 2026-10-17 — Tactical Minimalist Black & White UI/UX Redesign
+### Completed implementation
+- [x] Redesigned **Before Battle** screens:
+  - `AuthScreen`: Transformed from a generic web login box into an immersive tactical combat uplink terminal with corner brackets, monospace callsign inputs, mode toggles, and zero-latency audio hooks.
+  - `MatchSetupScreen` & `EquipmentPicker`: Upgraded into a military-spec combat hangar HUD with index numerals, chassis telemetry, tactile paint swatches, sector map cards, and high-impact deployment CTA.
+  - `MatchmakingOverlay`: Converted to an orbital satellite uplink modal with live telemetry, radar sweep animation, and responsive tactical action buttons.
+  - `SettingsScreen`: Overhauled into a tactical configuration matrix with segmented graphics presets, custom audio gain slider, and combat keymap table.
+- [x] Redesigned **In Match (Combat HUD)**:
+  - `MatchStrip`: Precision tournament scoreline with dual-team brackets, digital clock alarm, and clean typography.
+  - `VehicleSystems`: Cockpit status console with Overdrive ability dial, segmented armor bar, and high-contrast ordnance counter.
+  - `HUD`: High-contrast tactical radar with cardinal marks and distinct pip silhouettes, digital KPH speedometer, horizontal combat log kill feed, and high-stakes debriefing screen.
+  - `SessionMenu`: Transformed from a bubbly web dialog into a high-stakes tactical pause HUD (`TACTICAL OVERRIDE // LIVE THREAT ACTIVE`).
+- [x] Redesigned **In Race (Death Race)**:
+  - `RaceHud`: Motorsport telemetry HUD (`POS 01 / 08`, `LAP 02 / 03`, `CIRCUIT TIME`), circuit vector minimap, live standings column, cockpit status, and post-race podium leaderboard.
+  - `DeathRaceScreen`: Grid assembly telemetry and tactical confirm leave dialog.
+- [x] Preserved 100% of functional game logic, state management, socket transport, and test assertions. Strict black-and-white theme, zero SaaS/web UI elements.
+- [x] Verified `npm run test:setup`, `npm run test:match`, `npm run test:race`, `npm run test:vfx`, `npm run lint:app`, and production compilation.

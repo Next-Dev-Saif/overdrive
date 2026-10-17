@@ -1,0 +1,51 @@
+/* OVERDRIVE // MOBILE FIRE TRIGGER */
+.hold-fire-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 68px;
+    min-height: 68px;
+    padding: 12px;
+    border: 2px solid #ffffff;
+    border-radius: 0;
+    background: #0a0b10ea;
+    color: #ffffff;
+    font: 800 11px/1.2 monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    touch-action: none;
+    user-select: none;
+    pointer-events: auto;
+    transition: all 100ms ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+.hold-fire-button[aria-pressed="true"] {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.8);
+    transform: scale(0.96);
+}
+
+.hold-fire-button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}
+
+.arena-fire-control {
+    position: absolute;
+    right: max(24px, env(safe-area-inset-right));
+    bottom: max(32px, env(safe-area-inset-bottom));
+}
+
+.mobile-driving-controls {
+    display: none;
+}
+
+@media (max-width: 767px), (pointer: coarse) {
+    .mobile-driving-controls {
+        display: block;
+    }
+}

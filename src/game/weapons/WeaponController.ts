@@ -4,6 +4,7 @@ import { VfxManager, type WeaponVfxKind } from "../vfx/VfxManager";
 import { SoundManager } from "../engine/SoundManager";
 import { canAffect, getCombatantMetadata, isAuthoritativeBotSource } from "../match/CombatRules";
 import { isProjectileCollisionCandidate } from './ProjectileCollision';
+import { createProjectileModel, PROJECTILE_PROFILES, type ProjectileKind } from '../models/ProjectileModel';
 
 export interface WeaponConfig {
     fireRateMs: number;
@@ -14,6 +15,7 @@ export interface WeaponConfig {
 
 export class WeaponController {
     public controlsEnabled = true;
+    public firingRequested = false;
     private scene: Scene;
     private ownerMesh: Mesh;
     public ownerId: string;
@@ -53,7 +55,7 @@ export class WeaponController {
     private readonly TURRET_SLEW_SPEED = 0.08;      // lerp speed (snappy but smooth)
 
     // Projectile Object Pool
-    private static projectilePools: Map<string, TransformNode[]> = new Map();
+    private static projectilePools = new WeakMap<Scene, Map<string, TransformNode[]>>();
 
     private tracerMat: StandardMaterial;
 
@@ -72,7 +74,7 @@ export class WeaponController {
         this.weaponId = weaponId;
 
         if (weaponId === "plasma") {
-            this.config = { fireRateMs: 500, damage: 15, range: 180, tracerColor: new Color3(0.1, 0.9, 1) };
+            this.config = { fireRateMs: 500, damage: 30, range: 180, tracerColor: new Color3(0.1, 0.9, 1) };
             this.maxAmmo = Infinity;
         } else if (weaponId === "missile") {
             this.config = { fireRateMs: 400, damage: 45, range: 200, tracerColor: new Color3(1, 0.2, 0.2) };
@@ -88,7 +90,7 @@ export class WeaponController {
             this.reloadTimeMs = 12000; // Increased charge time
         } else {
             // minigun
-            this.config = { fireRateMs: 120, damage: 5, range: 150, tracerColor: new Color3(1, 0.8, 0.2) };
+            this.config = { fireRateMs: 120, damage: 10, range: 150, tracerColor: new Color3(1, 0.8, 0.2) };
             this.maxAmmo = Infinity;
         }
         this.currentAmmo = this.maxAmmo;
@@ -209,8 +211,8 @@ export class WeaponController {
         // 5. Set aim point for camera & shooting
         this.aimPoint = bestTarget.getAbsolutePosition().clone();
 
-        // 6. Auto-fire when locked
-        if (this.isLocked && this.isPlayer && this.presentationTarget === undefined) {
+        // 6. Keep acquisition independent from the player-held trigger.
+        if (this.isLocked && this.isPlayer && this.firingRequested && this.presentationTarget === undefined) {
             this.fire();
         }
 
@@ -302,10 +304,7 @@ export class WeaponController {
     // ─── FX Helpers (Delegated to VfxManager) ─────────────────────────────────
 
     private playFireSound(origin: Vector3) {
-        if (this.weaponId === "minigun") SoundManager.getInstance().playGunshot(origin);
-        else if (this.weaponId === "plasma") SoundManager.getInstance().playProceduralPlasma(origin);
-        else if (this.weaponId === "missile") SoundManager.getInstance().playProceduralMissile(origin);
-        else SoundManager.getInstance().playExplosion(origin);
+        SoundManager.getInstance().playWeapon(this.weaponId, origin);
     }
 
     public fire(): void {
@@ -520,10 +519,15 @@ export class WeaponController {
     }
 
     private getPooledProjectile(weaponId: string): TransformNode {
-        let pool = WeaponController.projectilePools.get(weaponId);
+        let scenePools = WeaponController.projectilePools.get(this.scene);
+        if (!scenePools) {
+            scenePools = new Map();
+            WeaponController.projectilePools.set(this.scene, scenePools);
+        }
+        let pool = scenePools.get(weaponId);
         if (!pool) {
             pool = [];
-            WeaponController.projectilePools.set(weaponId, pool);
+            scenePools.set(weaponId, pool);
         }
         
         if (pool.length > 0) {
@@ -535,54 +539,24 @@ export class WeaponController {
             return p;
         }
 
-        const isMortar = weaponId === "mortar";
         const isNuke = weaponId === "nuke";
         
-        let mesh: TransformNode;
-        if (isNuke) {
-            mesh = MeshBuilder.CreateSphere("projectile", { diameter: 3 }, this.scene);
-            const mat = new StandardMaterial("projMat", this.scene);
-            mat.emissiveColor = new Color3(1, 0.42, 0.06);
-            mat.diffuseColor = Color3.Black();
-            mat.disableLighting = true;
-            (mesh as Mesh).material = mat;
-        } else if (isMortar) {
-            mesh = MeshBuilder.CreateSphere("projectile", { diameter: 1 }, this.scene);
-            const mat = new StandardMaterial("projMat", this.scene);
-            mat.emissiveColor = new Color3(1, 0.5, 0.08);
-            mat.diffuseColor = Color3.Black();
-            mat.disableLighting = true;
-            (mesh as Mesh).material = mat;
-        } else {
-            // Missile
-            mesh = new TransformNode("missileNode", this.scene);
-            const body = MeshBuilder.CreateCylinder("body", { diameter: 0.4, height: 1.2 }, this.scene);
-            const tip = MeshBuilder.CreateCylinder("tip", { diameterTop: 0, diameterBottom: 0.4, height: 0.6 }, this.scene);
-            body.rotation.x = Math.PI / 2;
-            tip.rotation.x = Math.PI / 2;
-            tip.position.z = 0.9;
-            body.parent = mesh;
-            tip.parent = mesh;
-
-            const mat = new StandardMaterial("projMat", this.scene);
-            mat.emissiveColor = new Color3(0.72, 0.16, 0.04);
-            mat.diffuseColor = new Color3(0.08, 0.04, 0.02);
-            body.material = mat;
-            tip.material = mat;
-        }
+        const kind = weaponId as ProjectileKind;
+        const profile = PROJECTILE_PROFILES[kind];
+        const mesh = createProjectileModel(this.scene, kind);
 
         // Persistent emissive layers make the ordnance readable between particle
         // emissions and let the scene glow layer produce a compact airborne bloom.
-        const glowCore = MeshBuilder.CreateSphere(`${weaponId}-flight-core`, { diameter: isNuke ? 2.2 : isMortar ? 0.8 : 0.72, segments: 10 }, this.scene);
+        const glowCore = MeshBuilder.CreateSphere(`${weaponId}-flight-core`, { diameter: profile.glow, segments: 10 }, this.scene);
         glowCore.parent = mesh;
-        glowCore.position.z = weaponId === 'missile' ? -0.72 : 0;
+        glowCore.position.z = -profile.length / 2;
         const glowCoreMaterial = new StandardMaterial(`${weaponId}-flight-core-material`, this.scene);
         glowCoreMaterial.emissiveColor = isNuke ? new Color3(1, 0.92, 0.48) : new Color3(1, 0.52, 0.08);
         glowCoreMaterial.diffuseColor = Color3.Black();
         glowCoreMaterial.disableLighting = true;
         glowCore.material = glowCoreMaterial;
 
-        const glowHalo = MeshBuilder.CreateSphere(`${weaponId}-flight-halo`, { diameter: isNuke ? 4.5 : isMortar ? 1.7 : 1.45, segments: 10 }, this.scene);
+        const glowHalo = MeshBuilder.CreateSphere(`${weaponId}-flight-halo`, { diameter: profile.halo, segments: 10 }, this.scene);
         glowHalo.parent = mesh;
         glowHalo.position.copyFrom(glowCore.position);
         const glowHaloMaterial = new StandardMaterial(`${weaponId}-flight-halo-material`, this.scene);
@@ -600,7 +574,7 @@ export class WeaponController {
         const projectileKind = weaponId as 'missile' | 'mortar' | 'nuke';
         const trailEmitter = new TransformNode(`${weaponId}-trail-emitter`, this.scene);
         trailEmitter.parent = mesh;
-        trailEmitter.position.z = weaponId === 'missile' ? -0.92 : isNuke ? -1.35 : -0.48;
+        trailEmitter.position.z = -profile.length / 2 - 0.05;
         (mesh as any).trail = vfx.attachSmokeTrail(trailEmitter, projectileKind);
         (mesh as any).fireTrail = vfx.attachFireTrail(trailEmitter, projectileKind);
 
@@ -612,7 +586,7 @@ export class WeaponController {
         if ((mesh as any).fireTrail) (mesh as any).fireTrail.stop();
         mesh.setEnabled(false);
         
-        const pool = WeaponController.projectilePools.get(this.weaponId);
+        const pool = WeaponController.projectilePools.get(this.scene)?.get(this.weaponId);
         if (pool) pool.push(mesh);
     }
 
@@ -667,6 +641,9 @@ export class WeaponController {
             const dir = targetPosition.subtract(origin).normalize();
             velocity = dir.scale(150); // standard fast projectile speed
         }
+
+        // Reset pooled orientation before the first rendered frame.
+        if (velocity.lengthSquared() > 0.01) mesh.lookAt(mesh.position.add(velocity));
 
         // Unique parameters to desync missile tracking wobbles
         const wobblePhase = (Math.abs(origin.x) + Math.abs(origin.z)) % (Math.PI * 2);
@@ -780,7 +757,7 @@ export class WeaponController {
         const isNuke = this.weaponId === "nuke";
         
         VfxManager.getInstance().triggerExplosion(position, radius, isNuke);
-        SoundManager.getInstance().playExplosion(position);
+        SoundManager.getInstance().playExplosion(position, this.weaponId);
 
         if (isNuke && this.isPlayer) {
             window.dispatchEvent(new CustomEvent('camera-shake', { detail: { intensity: 1.5, duration: 1500 } }));

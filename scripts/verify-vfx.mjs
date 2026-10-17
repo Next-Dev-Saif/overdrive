@@ -171,8 +171,8 @@ try {
     for (const reason of ['cancel', 'disabled', 'match-end', 'parent-dispose', 'scene-dispose']) {
         const effectScene = reason === 'scene-dispose' ? new Scene(engine) : scene;
         const actor = new Mesh('cancelled-vortex', effectScene);
-        let eligible = true, executed = false;
-        const cancel = playAbilityActivation(actor, 'wraith', () => { executed = true; }, () => eligible);
+        let eligible = true, executed = false, soundStops = 0;
+        const cancel = playAbilityActivation(actor, 'wraith', () => { executed = true; }, () => eligible, () => { soundStops++; });
         if (reason === 'cancel') cancel();
         if (reason === 'disabled') eligible = false;
         if (reason === 'match-end') scene.metadata = { combatEnded: true };
@@ -180,6 +180,7 @@ try {
         if (reason === 'scene-dispose') effectScene.dispose();
         advance(ABILITY_ACTIVATION_MS);
         assert.equal(executed, false, `${reason}: pending ability cannot execute`);
+        assert.equal(soundStops, 1, `${reason}: interrupted wind-up stops its sound exactly once`);
         assert.equal(effectScene.getMeshByName('ability-activation-vortex'), null, `${reason}: vortex cleaned up`);
         scene.metadata = null;
         if (!actor.isDisposed() && !effectScene.isDisposed) {

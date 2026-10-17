@@ -1,37 +1,613 @@
-.death-race { position: relative; width: 100%; height: 100%; background: #101216; color: #f4f4f2; font-variant-numeric: tabular-nums; overflow: hidden; }
-.death-race > canvas { width: 100%; height: 100%; display: block; touch-action: none; }
-.death-race button { min-height: 44px; padding: 8px 16px; border: 1px solid #686e76; border-radius: 8px; background: #161b23ed; color: #f4f4f2; font-weight: 700; }
-.death-race button:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
-.race-hud__top { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 24px; padding: 12px 24px; border-radius: 8px; background: #101216e8; }
-.race-hud__top > div { display: flex; flex-direction: column; gap: 4px; }
-.race-hud__top small { font: 10px monospace; color: #bdc3cc; letter-spacing: .12em; }
-.race-hud__top strong { font: 700 24px monospace; white-space: nowrap; }.race-hud__top strong span { font-size: 12px; color: #bdc3cc; }
-.race-exit { position: absolute; right: 16px; top: 16px; }
-.race-map { position: absolute; left: 16px; top: 16px; width: 144px; padding: 8px; border-radius: 8px; background: #101216c9; }
-.race-map span { display: block; text-align: center; font: 8px monospace; letter-spacing: .08em; }
-.race-standings { position: absolute; top: 96px; right: 16px; width: 176px; padding: 8px; background: #101216d9; border-radius: 8px; }
-.race-standings li { display: flex; gap: 8px; align-items: center; padding: 4px; font: 10px monospace; color: #bbc1ca; }.race-standings strong { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.race-standings li[data-local="true"] { color: #fff; border-left: 2px solid #fff; }
-.race-vehicle { position: absolute; bottom: 24px; left: 24px; display: flex; gap: 16px; align-items: center; background: #101216de; border-radius: 12px; padding: 16px; }
-.race-vehicle .vehicle-glyph { width: 40px; height: 64px; margin: 0; }.race-vehicle > div { display: flex; flex-direction: column; gap: 8px; }.race-vehicle strong { font-size: 12px; letter-spacing: .12em; }.race-vehicle label,.race-vehicle span { font: 10px monospace; }.race-vehicle meter { display: block; width: 100%; height: 8px; accent-color: #eee; margin-top: 4px; }.race-vehicle b { font: 700 28px monospace; }.race-vehicle b small { display: block; font: 10px monospace; color: #bdc3cc; }
-.race-controls { position: absolute; bottom: 24px; right: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font: 10px monospace; text-shadow: 0 1px 3px #101216; }
-.race-callout { position: absolute; inset: 32% 0 auto; display: flex; align-items: center; flex-direction: column; gap: 16px; font-weight: 900; text-shadow: 0 4px 16px #101216; pointer-events: none; }.race-callout strong { font-size: clamp(40px,10vw,96px); }.race-callout small { font: 12px monospace; letter-spacing: .12em; }
-.race-finished { position: absolute; left: 50%; top: 28%; transform: translateX(-50%); text-align: center; padding: 16px; background: #101216df; font-weight: 800; }.race-finished span { display: block; margin-top: 8px; font: 12px monospace; }
-.race-loading,.race-results { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; background: #101216e8; padding: 24px; overflow-y: auto; }.race-loading h1 { font-size: clamp(24px,5vw,48px); font-weight: 900; }.race-loading p { color: #c7cbd2; text-align: center; }.race-loading small { font: 12px monospace; letter-spacing: .2em; }
-.race-results { z-index: 10; }.race-results section { max-width: 640px; width: 100%; margin: auto; background: #161b23; padding: 32px; border-radius: 16px; }.race-results h1 { font-size: clamp(24px,4vw,40px); font-weight: 900; margin: 16px 0; }.race-results h2 { font-size: 24px; font-weight: 800; }.race-results ol { margin: 24px 0; }.race-results li { display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #3c424c; padding: 12px 0; }.race-results li strong { flex: 1; }.race-results small { font: 10px monospace; color: #c1c7cf; }.race-results button { margin: 8px 8px 0 0; }
-.race-touch { display: none; }
-@media (max-width: 900px) {
- .race-hud__top { padding: 8px 12px; gap: 16px; }.race-hud__top strong { font-size: 18px; }.race-hud__top small { font-size: 8px; }
- .race-map { top: 88px; width: 96px; }.race-standings { width: 136px; }.race-exit { font-size: 10px; padding: 8px !important; }
- .race-vehicle { left: 16px; bottom: 88px; padding: 8px; gap: 8px; }.race-vehicle .vehicle-glyph { display: none; }.race-vehicle b { font-size: 20px; }
- .race-controls { bottom: 88px; right: 16px; }.race-controls > span { display: none; }.race-controls button { max-width: 120px; font-size: 10px; }
- .race-touch { position: absolute; bottom: max(16px,env(safe-area-inset-bottom)); left: 16px; right: 16px; display: flex; justify-content: space-between; gap: 8px; }.race-touch > div { display: flex; gap: 8px; }.race-touch button { touch-action: none; min-width: 48px; padding: 8px; user-select: none; }
+/* OVERDRIVE // DEATH RACE TELEMETRY HUD & SCREENS */
+.death-race {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #08090b;
+    color: #f5f6f8;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, monospace, sans-serif;
 }
-@media (max-width: 480px) { .race-hud__top { left: 16px; transform: none; }.race-standings { top: 80px; }.race-results section { padding: 16px; }.race-results li { gap: 8px; font-size: 12px; } }
-@media (max-height: 520px) { .race-standings { display: none; }.race-map { width: 80px; }.race-vehicle { bottom: 76px; }.race-vehicle label { display: none; } }
-@media (prefers-reduced-motion: reduce) { .death-race * { transition: none !important; animation: none !important; } }
 
-.race-leave-dialog { margin: auto; max-width: min(480px, calc(100% - 32px)); padding: 32px; border: 1px solid #686e76; border-radius: 12px; background: #161b23; color: #f4f4f2; }.race-leave-dialog::backdrop { background: #101216da; }.race-leave-dialog h2 { font-size: 24px; font-weight: 800; }.race-leave-dialog p { margin: 16px 0; }.race-leave-dialog button { margin: 8px 8px 0 0; }
+.death-race > canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+}
 
-.death-race button:disabled { opacity: .55; cursor: not-allowed; }
-.race-ability { font-size: 11px; letter-spacing: .06em; }
-@media (max-width: 900px) { .race-controls .race-ability { max-width: 148px; } .race-vehicle { max-width: calc(100% - 184px); } }
+.death-race button {
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0;
+    background: #0e1014;
+    color: #f5f6f8;
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 120ms ease;
+    cursor: pointer;
+}
+
+.death-race button:hover:not(:disabled) {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+.death-race button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}
+
+/* Race HUD Top Bar */
+.race-hud__top {
+    position: absolute;
+    top: max(16px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 28px;
+    padding: 10px 24px;
+    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: #090a0ee6;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+}
+
+.race-hud__top > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.race-hud__top small {
+    font: 700 9px monospace;
+    color: #8c93a0;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.race-hud__top strong {
+    font: 800 24px monospace;
+    white-space: nowrap;
+    color: #ffffff;
+}
+
+.race-hud__top strong span {
+    font-size: 12px;
+    color: #8c93a0;
+}
+
+.race-exit {
+    position: absolute;
+    right: max(16px, env(safe-area-inset-right));
+    top: max(16px, env(safe-area-inset-top));
+    pointer-events: auto;
+    z-index: 20;
+}
+
+/* Circuit Minimap (Top-Left) */
+.race-map {
+    position: absolute;
+    left: max(16px, env(safe-area-inset-left));
+    top: max(16px, env(safe-area-inset-top));
+    width: 148px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+    background: #090a0ed9;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+}
+
+.race-map span {
+    display: block;
+    text-align: center;
+    font: 700 9px monospace;
+    letter-spacing: 0.15em;
+    color: #8c93a0;
+    margin-top: 6px;
+    text-transform: uppercase;
+}
+
+/* Standings Column (Top-Right) */
+.race-standings {
+    position: absolute;
+    top: 76px;
+    right: max(16px, env(safe-area-inset-right));
+    width: 180px;
+    padding: 8px;
+    background: #090a0ed9;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+    list-style: none;
+    margin: 0;
+    pointer-events: none;
+}
+
+.race-standings li {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 6px;
+    font: 11px monospace;
+    color: #8c93a0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.race-standings li:last-child {
+    border-bottom: none;
+}
+
+.race-standings strong {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #f5f6f8;
+    font-weight: 700;
+}
+
+.race-standings small {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+}
+
+.race-standings li[data-local="true"] {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 2px solid #ffffff;
+}
+
+/* Cockpit Telemetry (Bottom-Left) */
+.race-vehicle {
+    position: absolute;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    left: max(24px, env(safe-area-inset-left));
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background: #090a0ee6;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0;
+    padding: 16px 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+}
+
+.race-vehicle .vehicle-glyph {
+    width: 36px;
+    height: 56px;
+    margin: 0;
+}
+
+.race-vehicle > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.race-vehicle strong {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.race-vehicle label,
+.race-vehicle span {
+    font: 10px monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8c93a0;
+}
+
+.race-vehicle meter {
+    display: block;
+    width: 100%;
+    height: 6px;
+    accent-color: #ffffff;
+    margin-top: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.race-vehicle b {
+    font: 900 32px monospace;
+    color: #ffffff;
+    line-height: 1;
+    margin-left: 8px;
+    text-align: right;
+}
+
+.race-vehicle b small {
+    display: block;
+    font: 700 9px monospace;
+    color: #8c93a0;
+    letter-spacing: 0.15em;
+    margin-top: 2px;
+}
+
+/* Race Controls (Bottom-Right) */
+.race-controls {
+    position: absolute;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    right: max(24px, env(safe-area-inset-right));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    font: 10px monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: auto;
+}
+
+.race-controls > span {
+    color: #8c93a0;
+    text-shadow: 0 1px 3px #000;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 3px 8px;
+}
+
+.race-ability {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+.race-ability:disabled {
+    background: #0e1014 !important;
+    color: #6b7280 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Callouts */
+.race-callout {
+    position: absolute;
+    inset: 30% 0 auto;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 12px;
+    font-weight: 900;
+    text-shadow: 0 4px 20px #000000;
+    pointer-events: none;
+    font-family: monospace;
+}
+
+.race-callout strong {
+    font-size: clamp(48px, 11vw, 108px);
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.race-callout small {
+    font: 700 12px monospace;
+    letter-spacing: 0.3em;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 4px 12px;
+    text-transform: uppercase;
+}
+
+.race-finished {
+    position: absolute;
+    left: 50%;
+    top: 26%;
+    transform: translateX(-50%);
+    text-align: center;
+    padding: 20px 32px;
+    background: #090a0ef0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 900;
+    box-shadow: 0 16px 60px rgba(0, 0, 0, 0.9);
+    font-family: monospace;
+    text-transform: uppercase;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+}
+
+.race-finished span {
+    display: block;
+    margin-top: 8px;
+    font: 11px monospace;
+    color: #8c93a0;
+    letter-spacing: 0.15em;
+}
+
+/* Loading & Results Screens */
+.race-loading,
+.race-results {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(8, 9, 12, 0.95);
+    backdrop-filter: blur(12px);
+    padding: 24px;
+    overflow-y: auto;
+    font-family: monospace;
+}
+
+.race-loading h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+}
+
+.race-loading p {
+    color: #8c93a0;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.race-loading small {
+    font: 700 11px monospace;
+    letter-spacing: 0.3em;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+}
+
+.race-results {
+    z-index: 100;
+}
+
+.race-results section {
+    max-width: 600px;
+    width: 100%;
+    margin: auto;
+    background: #0d0e14;
+    padding: 36px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    position: relative;
+    box-shadow: 0 32px 100px rgba(0, 0, 0, 0.95);
+}
+
+.race-results section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+}
+
+.race-results section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+}
+
+.race-results h1 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 900;
+    margin: 12px 0 20px;
+    text-transform: uppercase;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.race-results ol {
+    margin: 20px 0;
+    list-style: none;
+    padding: 0;
+}
+
+.race-results li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 0;
+    font-size: 12px;
+}
+
+.race-results li strong {
+    flex: 1;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.race-results small {
+    font: 700 9px monospace;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 6px;
+}
+
+.race-results button {
+    margin-top: 16px;
+    width: 100%;
+    min-height: 48px;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+}
+
+.race-results button:hover {
+    background: #e2e4e9;
+}
+
+/* Touch controls */
+.race-touch {
+    display: none;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+    .race-hud__top {
+        padding: 8px 14px;
+        gap: 16px;
+    }
+    .race-hud__top strong {
+        font-size: 18px;
+    }
+    .race-hud__top small {
+        font-size: 8px;
+    }
+    .race-map {
+        top: 76px;
+        width: 100px;
+    }
+    .race-standings {
+        width: 140px;
+        top: 76px;
+    }
+    .race-exit {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+    .race-vehicle {
+        left: 16px;
+        bottom: 84px;
+        padding: 10px 14px;
+        gap: 10px;
+        max-width: calc(100% - 180px);
+    }
+    .race-vehicle .vehicle-glyph {
+        display: none;
+    }
+    .race-vehicle b {
+        font-size: 22px;
+    }
+    .race-controls {
+        bottom: 84px;
+        right: 16px;
+    }
+    .race-controls > span {
+        display: none;
+    }
+    .race-controls .race-ability {
+        max-width: 148px;
+        font-size: 10px;
+    }
+    .race-touch {
+        position: absolute;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        left: 16px;
+        right: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        pointer-events: auto;
+    }
+    .race-touch > div {
+        display: flex;
+        gap: 8px;
+    }
+    .race-touch button {
+        touch-action: none;
+        min-width: 48px;
+        padding: 10px;
+        user-select: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .race-hud__top {
+        left: 16px;
+        transform: none;
+    }
+    .race-standings {
+        top: 72px;
+    }
+    .race-results section {
+        padding: 20px;
+    }
+    .race-results li {
+        gap: 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-height: 520px) {
+    .race-standings {
+        display: none;
+    }
+    .race-map {
+        width: 80px;
+    }
+    .race-vehicle {
+        bottom: 76px;
+    }
+    .race-vehicle label {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .death-race * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Leave Dialog */
+.race-leave-dialog {
+    margin: auto;
+    max-width: min(480px, calc(100% - 32px));
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    background: #0d0e14;
+    color: #f5f6f8;
+    font-family: monospace;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
+}
+
+.race-leave-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.race-leave-dialog h2 {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    font-family: 'Outfit', sans-serif;
+}
+
+.race-leave-dialog p {
+    margin: 14px 0 24px;
+    color: #8c93a0;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.race-leave-dialog button {
+    margin: 4px 8px 0 0;
+}

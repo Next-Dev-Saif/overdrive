@@ -31,11 +31,20 @@ export class RaceEngine {
     private localId: string;
     private send: (input: RaceInput) => void;
     private abilityEffects = new Map<string, () => void>();
-    private resize = () => this.engine.resize();
+    private resize = () => {
+        this.engine.setHardwareScalingLevel(GraphicsSettingsManager.getInstance().getConfig().hardwareScalingLevel);
+        this.engine.resize();
+    };
     private blur = () => { this.touch = { throttle: 0, steer: 0, brake: false, fire: false, ability: false }; };
-    public paused = false;
+    private isPaused = false;
+    public get paused(): boolean { return this.isPaused; }
+    public set paused(value: boolean) {
+        this.isPaused = value;
+        if (value) { this.blur(); this.input.keys = {}; this.abilityRequested = false; }
+    }
     public touch = { throttle: 0, steer: 0, brake: false, fire: false, ability: false };
     private abilityRequested = false;
+    public setFiring(held: boolean): void { this.touch.fire = held && !this.paused; }
     public activateAbility(): void { this.abilityRequested = true; }
     private lastAbilities = new Map<string, number>();
 
@@ -80,6 +89,12 @@ export class RaceEngine {
 
     setSnapshot(state: RaceSnapshot): void {
         if (this.disposed) return;
+        const previousLocal = this.snapshot.racers.find(car => car.id === this.localId);
+        const nextLocal = state.racers.find(car => car.id === this.localId);
+        if (previousLocal && nextLocal && previousLocal.health > 0 && nextLocal.health > 0 && nextLocal.weapon &&
+            (nextLocal.weapon !== previousLocal.weapon || nextLocal.ammo > previousLocal.ammo)) {
+            SoundManager.getInstance().playPickup();
+        }
         this.snapshot = state; this.scene.metadata = { ...this.scene.metadata, combatEnded: state.phase === 'finished' }; this.lastSnapshot = performance.now();
         const local = state.racers.find(car => car.id === this.localId);
         if (local) {
@@ -103,10 +118,11 @@ export class RaceEngine {
             const previousAbility = this.lastAbilities.get(car.id) ?? 0;
             if (car.lastAbility > previousAbility && car.abilityImpactAt > state.serverTime && car.health > 0) {
                 this.abilityEffects.get(car.id)?.();
+                const stopAbilitySound = SoundManager.getInstance().playAbility('lightning', model.vehicle.mesh.getAbsolutePosition(), car.id === this.localId);
                 this.abilityEffects.set(car.id, playAbilityActivation(model.vehicle.mesh, 'lightning', () => {}, () => {
                     const current = this.snapshot.racers.find(racer => racer.id === car.id);
                     return Boolean(current?.connected && current.health > 0 && current.abilityTarget && current.finishedAt === null);
-                }));
+                }, stopAbilitySound));
             }
             if (!car.abilityTarget || car.health <= 0 || !car.connected || state.phase === 'finished') {
                 this.abilityEffects.get(car.id)?.(); this.abilityEffects.delete(car.id);
@@ -122,8 +138,8 @@ export class RaceEngine {
         const controls: RaceInput = this.paused ? { throttle: 0, steer: 0, brake: true, fire: false, ability: false } : {
             throttle: this.touch.throttle || (Number(this.input.isKeyDown('w') || this.input.isKeyDown('arrowup')) - Number(this.input.isKeyDown('s') || this.input.isKeyDown('arrowdown'))),
             steer: this.touch.steer || (Number(this.input.isKeyDown('d') || this.input.isKeyDown('arrowright')) - Number(this.input.isKeyDown('a') || this.input.isKeyDown('arrowleft'))),
-            brake: this.touch.brake || this.input.isKeyDown('b'), fire: true,
-            ability: this.abilityRequested || this.touch.ability || this.input.isKeyDown('shift') || this.input.isKeyDown('e') || this.input.isKeyDown(' ')
+            brake: this.touch.brake || this.input.isKeyDown('b'), fire: this.touch.fire || this.input.isKeyDown(' '),
+            ability: this.abilityRequested || this.touch.ability || this.input.isKeyDown('shift')
         };
         if (now - this.lastSent >= 50) { this.send(controls); this.abilityRequested = false; this.lastSent = now; }
         const local = this.predicted;
@@ -136,7 +152,9 @@ export class RaceEngine {
             const desired = new Vector3(position.x - Math.sin(local.yaw) * 13, Math.max(position.y + 6, trackPose(nearestTrack({ x: position.x - Math.sin(local.yaw) * 13, z: position.z - Math.cos(local.yaw) * 13 }).along).y + 4), position.z - Math.cos(local.yaw) * 13);
             this.camera.position = Vector3.Lerp(this.camera.position, desired, 1 - Math.exp(-7 * dt));
             this.camera.setTarget(new Vector3(position.x + Math.sin(local.yaw) * 8, position.y + 1, position.z + Math.cos(local.yaw) * 8));
-            SoundManager.getInstance().updateEngineSound(Math.hypot(local.vx, local.vz) * 3.6, controls.throttle > 0);
+            if (!this.paused && local.health > 0 && local.finishedAt === null && this.snapshot.phase === 'racing') {
+                SoundManager.getInstance().updateEngineSound(Math.hypot(local.vx, local.vz) * 3.6, controls.throttle !== 0);
+            } else SoundManager.getInstance().stopEngineSound();
         }
         for (const mesh of this.pickups.values()) {
             if (mesh.isEnabled()) {

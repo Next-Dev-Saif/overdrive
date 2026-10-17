@@ -31,7 +31,7 @@ export function dressArena(scene: Scene, theme: string, size: number) {
         if (collide) new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0, friction: 0.6 }, scene);
         solids.push(mesh); return mesh;
     };
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < (city ? 0 : 12); i++) {
         const a = (i + 0.35) * Math.PI / 6, r = size * (city ? 0.55 : 0.38);
         const x = Math.cos(a) * r, z = Math.sin(a) * r;
         foundationHeight = heightAt(x, z) ?? 0;
@@ -42,11 +42,6 @@ export function dressArena(scene: Scene, theme: string, size: number) {
             rock.receiveShadows = true; solids.push(rock);
             new PhysicsAggregate(rock, PhysicsShapeType.CONVEX_HULL, { mass: 0, friction: 0.7 }, scene);
             if (icy) box('snow-drift', x + 5, 0.3, z - 3, 14, 0.6, 10, snow);
-        } else if (city) {
-            const height = 30 + (i * 17) % 65;
-            box('city-tower', x, height / 2, z, 26, height, 24, trim);
-            for (let row = 0; row < 5; row++) box('window-band', x, 8 + row * (height - 10) / 5, z - 12.1, 21, 0.8, 0.15, lightMat);
-            box('roof-sign', x, height + 3, z, 18, 5, 1, metal);
         } else {
             const tank = MeshBuilder.CreateCylinder('storage-tank', { diameter: 14, height: 24, tessellation: 24 }, scene);
             tank.position.set(x, foundationHeight + 12, z); tank.material = metal; solids.push(tank);

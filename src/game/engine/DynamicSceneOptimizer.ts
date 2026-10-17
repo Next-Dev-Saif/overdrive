@@ -1,4 +1,5 @@
 import {
+    HardwareScalingOptimization,
     MergeMeshesOptimization,
     ParticlesOptimization,
     SceneOptimizerOptions,
@@ -18,9 +19,10 @@ export function createDynamicSceneOptimizerOptions(quality: GraphicsQuality): Sc
         : SceneOptimizerOptions.ModerateDegradationAllowed();
 
     options.optimizations = options.optimizations.filter(
+        // Preserve native display resolution even when reducing other effects.
         // Particle density is already tiered by GraphicsSettingsManager. A global
         // shutdown permanently hides ability telegraphs after the first FPS dip.
-        optimization => !(optimization instanceof MergeMeshesOptimization) && !(optimization instanceof ParticlesOptimization),
+        optimization => !(optimization instanceof HardwareScalingOptimization) && !(optimization instanceof MergeMeshesOptimization) && !(optimization instanceof ParticlesOptimization),
     );
 
     return options;

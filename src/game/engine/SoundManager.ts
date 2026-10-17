@@ -1,4 +1,6 @@
 import { Scene, Vector3 } from "@babylonjs/core";
+import { AUDIO_ASSETS, AUDIO_ASSET_ROOT } from "./AudioAssets";
+import type { AudioCue } from "./AudioAssets";
 
 export class SoundManager {
     private static instance: SoundManager;
@@ -7,11 +9,13 @@ export class SoundManager {
     private audioCtx: AudioContext;
     private masterGain: GainNode;
     private volume = 1;
+    private priorityVoices = new Set<AudioBufferSourceNode>();
+    private voices = new Map<AudioBufferSourceNode, () => void>();
 
     /** Session master gain controls all WebAudio sources and the streaming music element. */
     public getVolume() { return this.volume; }
     public setVolume(value: number) {
-        this.volume = Math.max(0, Math.min(1, value));
+        this.volume = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : this.volume;
         this.masterGain.gain.value = this.volume;
         if (this.bgmAudio) this.bgmAudio.volume = 0.15 * this.volume;
     }
@@ -22,7 +26,7 @@ export class SoundManager {
     // BGM
     private bgmAudio: HTMLAudioElement | null = null;
 
-    // Procedural Engine Noise
+    // Sample-based engine loop
     private engineNoiseNode: AudioBufferSourceNode | null = null;
     private engineGainNode: GainNode | null = null;
 
@@ -32,21 +36,22 @@ export class SoundManager {
         this.masterGain = this.audioCtx.createGain();
         this.masterGain.connect(this.audioCtx.destination);
 
-        // Auto-resume audio context on user interaction (fixes browser autoplay policies)
+        // Keep gesture retries available after an autoplay rejection or tab suspension.
         const resumeAudio = () => {
             if (this.audioCtx.state === 'suspended') {
-                this.audioCtx.resume();
+                void this.audioCtx.resume().catch(error => console.warn('Audio resume failed:', error));
             }
-            window.removeEventListener('click', resumeAudio);
-            window.removeEventListener('keydown', resumeAudio);
+            if (this.scene && this.bgmAudio?.paused) {
+                void this.bgmAudio.play().catch(() => { /* Retry at the next gesture. */ });
+            }
         };
-        window.addEventListener('click', resumeAudio);
+        window.addEventListener('pointerdown', resumeAudio);
         window.addEventListener('keydown', resumeAudio);
 
         this.loadUiSounds();
-        this.loadBattleSounds();
+        void this.loadBattleSounds();
         this.setupAudioEventHooks();
-        this.buildProceduralEngine();
+
     }
 
     public static getInstance(): SoundManager {
@@ -59,6 +64,7 @@ export class SoundManager {
     private async loadAudioBuffer(name: string, url: string) {
         try {
             const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const arrayBuffer = await response.arrayBuffer();
             const audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
             this.buffers.set(name, audioBuffer);
@@ -73,42 +79,18 @@ export class SoundManager {
         this.loadAudioBuffer("ui_deselect", "/assets/audio/sfx/deselect.mp3");
     }
 
-    private loadBattleSounds() {
-        // Minigun (heavy metal impacts for ballistic punch)
-        this.loadAudioBuffer("gunshot_1", "/assets/audio/sfx/scifi/Audio/impactMetal_000.ogg");
-        this.loadAudioBuffer("gunshot_2", "/assets/audio/sfx/scifi/Audio/impactMetal_001.ogg");
-        this.loadAudioBuffer("gunshot_3", "/assets/audio/sfx/scifi/Audio/impactMetal_002.ogg");
-        this.loadAudioBuffer("gunshot_4", "/assets/audio/sfx/scifi/Audio/impactMetal_003.ogg");
-
-        // Explosions (real explosion crunches)
-        this.loadAudioBuffer("explosion_1", "/assets/audio/sfx/scifi/Audio/explosionCrunch_000.ogg");
-        this.loadAudioBuffer("explosion_2", "/assets/audio/sfx/scifi/Audio/explosionCrunch_001.ogg");
-        this.loadAudioBuffer("explosion_3", "/assets/audio/sfx/scifi/Audio/explosionCrunch_002.ogg");
-        this.loadAudioBuffer("explosion_4", "/assets/audio/sfx/scifi/Audio/lowFrequency_explosion_000.ogg");
-
-        // Plasma (heavy lasers)
-        this.loadAudioBuffer("plasma_1", "/assets/audio/sfx/scifi/Audio/laserLarge_000.ogg");
-        this.loadAudioBuffer("plasma_2", "/assets/audio/sfx/scifi/Audio/laserLarge_001.ogg");
-        this.loadAudioBuffer("plasma_3", "/assets/audio/sfx/scifi/Audio/laserLarge_002.ogg");
-        this.loadAudioBuffer("plasma_4", "/assets/audio/sfx/scifi/Audio/laserLarge_003.ogg");
-
-        // Missiles (rocket engines launching)
-        this.loadAudioBuffer("missile_1", "/assets/audio/sfx/scifi/Audio/spaceEngineSmall_000.ogg");
-        this.loadAudioBuffer("missile_2", "/assets/audio/sfx/scifi/Audio/spaceEngineSmall_001.ogg");
-        this.loadAudioBuffer("missile_3", "/assets/audio/sfx/scifi/Audio/spaceEngineSmall_002.ogg");
-
-        // Abilities (forcefield hums)
-        this.loadAudioBuffer("ability_wave", "/assets/audio/sfx/scifi/Audio/forceField_000.ogg");
-
-        // Engine (steady large engine)
-        this.loadAudioBuffer("engine", "/assets/audio/sfx/scifi/Audio/spaceEngineLarge_000.ogg");
+    private async loadBattleSounds() {
+        await Promise.all(Object.entries(AUDIO_ASSETS).map(async ([name, file]) => {
+            await this.loadAudioBuffer(name, AUDIO_ASSET_ROOT + file);
+            if (name === 'engine') this.buildEngineLoop();
+        }));
     }
 
     public init(scene: Scene) {
         this.scene = scene;
         
         if (this.audioCtx.state === 'suspended') {
-            this.audioCtx.resume();
+            void this.audioCtx.resume().catch(error => console.warn('Audio resume failed:', error));
         }
 
         // Initialize Background Music (Streaming via HTML5 Audio)
@@ -122,9 +104,16 @@ export class SoundManager {
         }
     }
 
-    private playBuffer(name: string, volume: number = 1.0, position?: Vector3, pitchShift?: number) {
+    private playBuffer(name: string, volume: number = 1.0, position?: Vector3, pitchShift?: number, priority = false): () => void {
         const buffer = this.buffers.get(name);
-        if (!buffer || this.audioCtx.state === 'suspended') return;
+        const noSound = () => {};
+        if (!buffer || this.audioCtx.state !== 'running' || this.volume === 0) return noSound;
+        if (this.voices.size >= 32) {
+            const expendable = [...this.voices.keys()].find(voice => !this.priorityVoices.has(voice));
+            if (!priority || !expendable) return noSound;
+            expendable.stop();
+            this.voices.get(expendable)?.();
+        }
 
         const source = this.audioCtx.createBufferSource();
         source.buffer = buffer;
@@ -136,12 +125,13 @@ export class SoundManager {
         const gainNode = this.audioCtx.createGain();
         gainNode.gain.value = volume;
 
+        let panner: PannerNode | undefined;
         if (position && this.scene && this.scene.activeCamera) {
             // Very simple spatial audio
-            const panner = this.audioCtx.createPanner();
+            panner = this.audioCtx.createPanner();
             panner.panningModel = 'HRTF';
             panner.distanceModel = 'inverse';
-            panner.refDistance = 5;
+            panner.refDistance = priority ? 20 : 5;
             panner.maxDistance = 300;
             panner.rolloffFactor = 1;
             
@@ -171,7 +161,19 @@ export class SoundManager {
             gainNode.connect(this.masterGain);
         }
 
+        const release = () => {
+            source.disconnect(); gainNode.disconnect(); panner?.disconnect();
+            this.voices.delete(source);
+            this.priorityVoices.delete(source);
+        };
+        this.voices.set(source, release);
+        source.onended = release;
+        if (priority) this.priorityVoices.add(source);
         source.start(0);
+        return () => {
+            if (!this.voices.has(source)) return;
+            source.stop(); release();
+        };
     }
 
     // --- UI Audio ---
@@ -181,62 +183,49 @@ export class SoundManager {
         window.addEventListener('play-ui-deselect', () => this.playBuffer("ui_deselect", 0.6));
     }
 
-    // --- Battle Audio ---
-    public playGunshot(position: Vector3) {
-        const variant = Math.floor(Math.random() * 4) + 1; // 1 to 4
-        this.playBuffer(`gunshot_${variant}`, 0.5, position);
+    /** Shared weapon events cover local, bot and network presentation. */
+    public playWeapon(weapon: string, position: Vector3) {
+        const cue = weapon === 'minigun' ? 'gunshot' : weapon;
+        if (cue in AUDIO_ASSETS) this.playBuffer(cue, cue === 'gunshot' ? 0.35 : cue === 'plasma' ? 0.95 : 0.55, position, 0.96 + Math.random() * 0.08);
     }
 
-    public playExplosion(position: Vector3) {
-        // Random pitch for variety
-        const pitch = 0.8 + Math.random() * 0.4;
-        const variant = Math.floor(Math.random() * 4) + 1; // 1 to 4
-        this.playBuffer(`explosion_${variant}`, 0.8, position, pitch);
+    public playGunshot(position: Vector3) { this.playWeapon('minigun', position); }
+    public playProceduralPlasma(position: Vector3) { this.playWeapon('plasma', position); }
+    public playProceduralMissile(position: Vector3) { this.playWeapon('missile', position); }
+    public playExplosion(position: Vector3, weapon?: string) {
+        this.playBuffer(weapon === 'nuke' ? 'nukeExplosion' : 'explosion', 0.7, position, 0.9 + Math.random() * 0.2);
+    }
+    public playDeath(position: Vector3) { this.playBuffer('death', 0.75, position); }
+    public playPickup() { this.playBuffer('pickup', 0.45); }
+    /** Local activation is listener-relative; distant opponents retain spatial cues. Returns cancellation. */
+    public playAbility(ability: string, position: Vector3, localPlayer = false): () => void {
+        if (ability in AUDIO_ASSETS) return this.playBuffer(ability as AudioCue, 0.95, localPlayer ? undefined : position, undefined, true);
+        return () => {};
     }
 
-    public playProceduralPlasma(position: Vector3) {
-        const variant = Math.floor(Math.random() * 4) + 1; // 1 to 4
-        this.playBuffer(`plasma_${variant}`, 0.6, position);
-    }
-    
-    public playProceduralMissile(position: Vector3) {
-        const variant = Math.floor(Math.random() * 3) + 1; // 1 to 3
-        this.playBuffer(`missile_${variant}`, 0.7, position);
-    }
-
-    // --- Procedural Engine Noise ---
-    private buildProceduralEngine() {
-        const ctx = this.audioCtx;
-        
-        this.engineGainNode = ctx.createGain();
+    /** Start once after decoding; failed loads do not leave a polling timer alive. */
+    private buildEngineLoop() {
+        const buffer = this.buffers.get('engine');
+        if (!buffer || this.engineNoiseNode) return;
+        this.engineGainNode = this.audioCtx.createGain();
         this.engineGainNode.gain.value = 0;
         this.engineGainNode.connect(this.masterGain);
-
-        // We will start the buffer source once it's loaded, 
-        // polling until the buffer exists
-        const checkBuffer = setInterval(() => {
-            const buffer = this.buffers.get("engine");
-            if (buffer) {
-                clearInterval(checkBuffer);
-                this.engineNoiseNode = ctx.createBufferSource();
-                this.engineNoiseNode.buffer = buffer;
-                this.engineNoiseNode.loop = true;
-                this.engineNoiseNode.connect(this.engineGainNode!);
-                this.engineNoiseNode.start();
-            }
-        }, 200);
+        this.engineNoiseNode = this.audioCtx.createBufferSource();
+        this.engineNoiseNode.buffer = buffer;
+        this.engineNoiseNode.loop = true;
+        this.engineNoiseNode.connect(this.engineGainNode);
+        this.engineNoiseNode.start();
     }
 
     public updateEngineSound(speedKmH: number, isAccelerating: boolean) {
-        if (!this.engineGainNode || !this.engineNoiseNode) return;
+        if (!this.scene || !this.engineGainNode || !this.engineNoiseNode) return;
         
         const targetVol = isAccelerating || Math.abs(speedKmH) > 5 ? 0.3 : 0.05;
         this.engineGainNode.gain.setTargetAtTime(targetVol, this.audioCtx.currentTime, 0.2);
 
         // Pitch shift the engine loop based on speed
-        // Assuming base sample sounds like it's idling. 
-        // 1.0 = idle, up to 3.0 at max speed
-        const targetPitch = Math.max(0.8, 1.0 + (Math.abs(speedKmH) / 60));
+        // Bound pitch to keep the V8 sample recognizable at racing speeds.
+        const targetPitch = Math.min(2.4, Math.max(0.8, 0.8 + (Math.abs(speedKmH) / 100)));
         this.engineNoiseNode.playbackRate.setTargetAtTime(targetPitch, this.audioCtx.currentTime, 0.1);
     }
 
@@ -251,5 +240,7 @@ export class SoundManager {
             this.bgmAudio.currentTime = 0;
         }
         this.stopEngineSound();
+        for (const [source, release] of this.voices) { source.stop(); release(); }
+        this.scene = null;
     }
 }

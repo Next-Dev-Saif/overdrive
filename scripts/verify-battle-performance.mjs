@@ -158,5 +158,36 @@ const engine = new NullEngine({ renderWidth: 1280, renderHeight: 720 });
     assert.equal(casters[0] === body, true, 'vehicle geometry casts shadows');
     scene.dispose();
 }
+{
+    const scene = new Scene(engine);
+    const owner = MeshBuilder.CreateBox('manual-driver', {}, scene);
+    owner.metadata = { teamId: 'alpha', vehicle: { isDead: false } };
+    const enemy = MeshBuilder.CreateBox('manual-target', {}, scene);
+    enemy.position.z = 30;
+    enemy.metadata = { teamId: 'bravo', vehicle: { isDead: false } };
+    owner.computeWorldMatrix(true); enemy.computeWorldMatrix(true);
+    const weapon = new WeaponController(scene, owner, 'minigun', 'driver', true);
+    weapon.setTargetPool([enemy]);
+    let shots = 0;
+    weapon.fire = () => { shots++; };
+    const frame = () => scene.onBeforeRenderObservable.notifyObservers(scene);
+    frame();
+    assert.equal(weapon.currentTarget, enemy, 'auto aim acquires without holding fire');
+    assert.ok(weapon.isLocked);
+    assert.equal(shots, 0, 'target lock alone never fires');
+    weapon.firingRequested = true; frame();
+    assert.equal(shots, 1, 'held trigger fires at the acquired target');
+    weapon.firingRequested = false; frame();
+    assert.equal(shots, 1, 'release stops shots without losing the lock');
+    assert.equal(weapon.currentTarget, enemy);
+    weapon.firingRequested = true; weapon.controlsEnabled = false; frame();
+    assert.equal(shots, 1, 'menu disables shooting');
+    weapon.controlsEnabled = true; owner.metadata.vehicle.isDead = true; frame();
+    assert.equal(shots, 1, 'dead drivers cannot shoot');
+    owner.metadata.vehicle.isDead = false; weapon.setPresentationTarget(enemy); frame();
+    assert.equal(shots, 1, 'race presentation never applies local damage even with a trigger');
+    scene.dispose();
+    console.log('PASS: automatic target lock with manual press/release, menu/death gates and race presentation authority.');
+}
 engine.dispose();
 console.log('PASS: post-match timing/fallback, dead/remote MVP framing, orbit, source isolation, reduced motion, cleanup, terrain cache, cloak and occlusion.');

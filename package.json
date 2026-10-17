@@ -17,7 +17,11 @@
     "lint:app": "oxlint src scripts vite.config.ts",
     "test:race": "node scripts/verify-race.mjs",
     "test:race:network": "node scripts/verify-race-network.mjs",
-    "prepare:vehicles": "node scripts/prepare-downloaded-vehicles.mjs"
+    "prepare:vehicles": "node scripts/prepare-downloaded-vehicles.mjs",
+    "test:audio": "node scripts/verify-audio.mjs",
+    "prepare:projectiles": "node scripts/prepare-projectiles.mjs",
+    "test:projectiles": "node scripts/verify-projectiles.mjs",
+    "test:setup": "node scripts/verify-setup.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "^9.28.0",
