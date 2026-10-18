@@ -1,3 +1,4 @@
+import { buildWeaponBay } from './WeaponBay';
 import { TransformNode } from '@babylonjs/core';
 import { ModelBuilder } from './ModelBuilder';
 import { buildWeaponModel, type WeaponHousing } from './WeaponModel';
@@ -32,12 +33,15 @@ export const WEAPON_ATTACHMENTS: Record<string, AttachmentProfile> = {
     behemoth: { placement: 'sides', housing: 'industrial', scale: 0.28, forward: 0.27, elevation: 0.53, accent: '#d2a34f' },
 };
 
+// Apply after the chassis clamp so every bay, weapon and support shrinks consistently.
+const WEAPON_ASSEMBLY_SCALE = 0.65;
+
 /** Build stationary load-bearing brackets and independent articulated weapon pods. */
 export function buildVehicleWeapons(parent: TransformNode, vehicleId: string, weaponId: string, envelope: WeaponEnvelope): void {
     parent.metadata = { ...parent.metadata, weaponEnvelope: { ...envelope } };
     if (weaponId === 'none') return;
     const profile = WEAPON_ATTACHMENTS[vehicleId] ?? WEAPON_ATTACHMENTS.interceptor;
-    const scale = Math.min(1.05, Math.max(0.32, envelope.width * profile.scale));
+    const scale = Math.min(1.05, Math.max(0.32, envelope.width * profile.scale)) * WEAPON_ASSEMBLY_SCALE;
     const sides = profile.placement === 'sides' ? [-1, 1] : [0];
     for (const side of sides) {
         const mount = new TransformNode(`weapon_mount_${side < 0 ? 'left' : side > 0 ? 'right' : 'bonnet'}`, parent.getScene());
@@ -65,6 +69,7 @@ export function buildVehicleWeapons(parent: TransformNode, vehicleId: string, we
         b.box('mount-saddle', scale * 1.05, scale * 0.12, scale * 1.1, steel);
         b.box('mount-id-stripe', scale * 0.65, scale * 0.025, scale * 0.1, accent, 0, scale * 0.07, -scale * 0.44);
         b.compact();
-        buildWeaponModel(mount, weaponId, scale * 0.13, scale, profile.housing, profile.accent, side);
+        const turret = buildWeaponModel(mount, weaponId, scale * 0.13, scale, profile.housing, profile.accent, side);
+        buildWeaponBay(mount, turret, scale);
     }
 }

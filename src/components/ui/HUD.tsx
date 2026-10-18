@@ -37,7 +37,7 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
     const [isEmped, setIsEmped] = useState(false);
     const [isStunned, setIsStunned] = useState(false);
     const [isBlasted, setIsBlasted] = useState(false);
-    const [ammoData, setAmmoData] = useState({ ammo: 4, maxAmmo: 4, isReloading: false, reloadPct: 100 });
+    const [ammoData, setAmmoData] = useState({ ammo: 4, maxAmmo: 4, isReloading: false, reloadPct: 100, ready: false, cyclePct: 100 });
 
     const [damageNumbers, setDamageNumbers] = useState<Array<{
         id: string;
@@ -104,7 +104,7 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
                     } else if (ammo === 0) {
                         reloadPct = 0;
                     }
-                    setAmmoData({ ammo, maxAmmo, isReloading, reloadPct });
+                    setAmmoData({ ammo, maxAmmo, isReloading, reloadPct, ready: weapon.isReadyToFire, cyclePct: weapon.cycleProgress * 100 });
                 }
 
                 const vehicle = engineRef.current.playerVehicle as any;

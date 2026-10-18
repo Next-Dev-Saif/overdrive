@@ -21,6 +21,10 @@ export function TargetTracking({ engineRef }: { engineRef: React.RefObject<any> 
                     element.style.width = `${frame.width}px`;
                     element.style.height = `${frame.height}px`;
                     element.dataset.locked = String(frame.locked);
+                    const ready = frame.locked && target.ready;
+                    element.dataset.ready = String(Boolean(ready));
+                    const label = element.querySelector('span');
+                    if (label) label.textContent = ready ? 'FIRE · SPACE / FIRE BUTTON' : frame.locked ? 'LOCKED · PREPARING' : 'ACQUIRING';
                 }
             }
             request = requestAnimationFrame(update);
@@ -28,5 +32,5 @@ export function TargetTracking({ engineRef }: { engineRef: React.RefObject<any> 
         request = requestAnimationFrame(update);
         return () => cancelAnimationFrame(request);
     }, [engineRef]);
-    return <div ref={frameRef} hidden className="target-tracking" aria-hidden="true"><i /><i /><i /><i /></div>;
+    return <div ref={frameRef} hidden className="target-tracking" aria-hidden="true"><i /><i /><i /><i /><span /></div>;
 }

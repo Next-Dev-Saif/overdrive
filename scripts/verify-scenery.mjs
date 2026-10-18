@@ -8,7 +8,7 @@ import HavokPhysics from '@babylonjs/havok';
 import { NullEngine, Scene, MeshBuilder, StandardMaterial, Vector3, VertexBuffer, HavokPlugin, Ray } from '@babylonjs/core';
 const out = resolve('node_modules/.cache/overdrive-scenery-check');
 await mkdir(out, { recursive: true });
-for (const [name, folder] of [['LandscapeTerrain', 'levels'], ['OuterLandscape', 'levels'], ['SceneryPlacement', 'levels'], ['ArenaCentralCover', 'levels'], ['ProjectileCollision', 'weapons'], ['ArenaRoadLayout', 'levels'], ['ArenaRoads', 'levels'], ['ArenaScenery', 'levels'], ['ArenaTerrain', 'levels'], ['GraphicsSettingsManager', 'settings']]) {
+for (const [name, folder] of [['Grass', 'levels'], ['LandscapeTerrain', 'levels'], ['OuterLandscape', 'levels'], ['SceneryPlacement', 'levels'], ['ArenaCentralCover', 'levels'], ['ProjectileCollision', 'weapons'], ['ArenaRoadLayout', 'levels'], ['ArenaRoads', 'levels'], ['ArenaScenery', 'levels'], ['ArenaTerrain', 'levels'], ['GraphicsSettingsManager', 'settings']]) {
     const source = await readFile(`src/game/${folder}/${name}.ts`, 'utf8');
     const code = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext } }).outputText
         .replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager').replace(/from '(\.\/[^']+)'/g, "from '$1.js'");
@@ -45,6 +45,16 @@ for (const theme of ['wasteland', 'facility', 'glacial', 'neon']) {
         assert.ok(Math.abs(heightAt(x, z) - hit.pickedPoint.y) < 1e-4, `sampler at ${x},${z}: ${heightAt(x,z)} versus ray ${hit.pickedPoint.y}`);
     }
     dressArena(scene, theme, size);
+    const grass = scene.getMeshByName('clutter-grass');
+    assert.ok(grass && grass.thinInstanceCount === 600, `${theme}: grass exists at low quality`);
+    assert.equal(grass.isPickable, false);
+    assert.equal(grass.material.diffuseTexture.url, '/assets/scenery/Grass.png');
+    assert.equal(grass.material.transparencyMode, StandardMaterial.MATERIAL_OPAQUE, 'blade geometry defines coverage, not overlapping alpha cards');
+    assert.equal(grass.material.twoSidedLighting, true);
+    const bladePositions = grass.getVerticesData(VertexBuffer.PositionKind);
+    assert.ok(bladePositions.every(Number.isFinite));
+    assert.ok(grass.getTotalVertices() <= 100, 'tuft geometry remains bounded');
+    assert.ok(Math.max(...bladePositions.filter((_, i) => i % 3 === 1)) < .8, 'tufts stay low rather than forming tall panels');
     const horizon = scene.meshes.filter(mesh => mesh.metadata?.outerLandscape);
     assert.equal(horizon.length, 1, 'one sky draw replaces every outer landscape batch');
     assert.ok(horizon[0].infiniteDistance && horizon[0].metadata.skybox, 'sky follows the camera');

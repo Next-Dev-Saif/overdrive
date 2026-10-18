@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { HoldFireButton } from '../../ui/HoldFireButton';
 import type { RefObject } from 'react';
 import type { RaceSnapshot } from '../../../../shared/race/types';
-import { RACE_ABILITY, RACE_RULES } from '../../../../shared/race/types';
+import { RACE_ABILITY, RACE_RULES, RACE_WEAPONS } from '../../../../shared/race/types';
 import { raceStandings } from '../../../../shared/race/simulation';
 import { TRACK } from '../../../../shared/race/track';
 import { VehicleGlyph } from '../match/VehicleGlyph';
@@ -31,6 +31,8 @@ export function RaceHud({ state, localId, engine: engineRef, recover, leave }: {
     const place = standings.findIndex(car => car.id === localId) + 1;
     const cooldown = local.lastAbility ? Math.max(0, Math.ceil((local.lastAbility + RACE_ABILITY.cooldownMs - state.serverTime) / 1000)) : 0;
     const abilityUnavailable = state.phase !== 'racing' || local.health <= 0 || local.finishedAt !== null || cooldown > 0;
+    const weaponCycle = local.weapon ? Math.min(1, (state.serverTime - local.lastShot) / RACE_WEAPONS[local.weapon].interval) : 0;
+    const weaponReady = state.phase === 'racing' && local.health > 0 && local.finishedAt === null && !!local.weapon && local.ammo > 0 && weaponCycle >= 1 && !!local.targetId && state.serverTime - local.targetSince >= 220;
     const ended = state.phase === 'finished';
 
     const inputButton = (label: string, key: 'throttle' | 'steer' | 'brake' | 'fire' | 'ability', value: number | boolean) => (
@@ -123,8 +125,10 @@ export function RaceHud({ state, localId, engine: engineRef, recover, leave }: {
                         HEALTH {Math.ceil(local.health / RACE_RULES.health * 100)}%
                         <meter min="0" max={RACE_RULES.health} value={local.health} />
                     </label>
-                    <span>
-                        {local.weapon ? `${local.weapon.toUpperCase()} · ${local.ammo} AMMO` : 'UNARMED · TRACK WEAPONS ACTIVE'}
+                    <span className="race-ammo" data-ready={weaponReady}>
+                        <strong>{local.weapon ? `${local.weapon.toUpperCase()} · ${local.ammo} AMMO` : 'UNARMED · COLLECT A PICKUP'}</strong>
+                        <small>{weaponReady ? 'READY · SPACE / FIRE' : local.weapon ? weaponCycle < 1 ? 'CYCLING' : 'ACQUIRING TARGET' : 'TRACK WEAPONS ACTIVE'}</small>
+                        {local.weapon && <meter aria-label="Weapon cycle" min="0" max="1" value={weaponCycle} />}
                     </span>
                 </div>
                 <b>

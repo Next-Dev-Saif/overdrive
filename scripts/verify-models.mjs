@@ -5,10 +5,10 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { NullEngine, Scene, Mesh, Color3, VertexBuffer, Ray, Vector3, TransformNode } from '@babylonjs/core';
-import { MergeMeshesOptimization, ParticlesOptimization, SceneOptimizerOptions } from '@babylonjs/core/Misc/sceneOptimizer.js';
+import { HardwareScalingOptimization, MergeMeshesOptimization, ParticlesOptimization, SceneOptimizerOptions } from '@babylonjs/core/Misc/sceneOptimizer.js';
 const out = resolve('node_modules/.cache/overdrive-model-check');
 await mkdir(out, { recursive: true });
-for (const name of ['VehicleScale', 'ModelBounds', 'ModelBuilder', 'WeaponModel', 'WeaponAttachments', 'VehicleStyle', 'VehicleModel', 'ImportedVehicleModel']) {
+for (const name of ['VehicleScale', 'ModelBounds', 'ModelBuilder', 'WeaponModel', 'WeaponBay', 'WeaponAttachments', 'VehicleStyle', 'VehicleModel', 'ImportedVehicleModel']) {
     let source = await readFile(`src/game/models/${name}.ts`, 'utf8');
     if (name === 'ImportedVehicleModel') {
         for (const match of [...source.matchAll(/import (\w+) from '(\.\.\/\.\.\/assets\/[^']+)\?url';/g)]) {
@@ -37,12 +37,13 @@ for (const quality of ['LOW', 'MEDIUM', 'HIGH']) {
         ? SceneOptimizerOptions.HighDegradationAllowed()
         : SceneOptimizerOptions.ModerateDegradationAllowed();
     const options = createDynamicSceneOptimizerOptions(quality);
-    assert.equal(options.optimizations.length, baseline.optimizations.length - 2, `${quality}: preserve optimizations except merging and global particle shutdown`);
+    assert.equal(options.optimizations.length, baseline.optimizations.filter(item => !(item instanceof HardwareScalingOptimization) && !(item instanceof MergeMeshesOptimization) && !(item instanceof ParticlesOptimization)).length, `${quality}: preserve resolution, articulation and telegraphs`);
     assert.ok(
         options.optimizations.every(optimization => !(optimization instanceof MergeMeshesOptimization) && !(optimization instanceof ParticlesOptimization)),
         `${quality}: articulated meshes must never enter the global merge optimizer`,
     );
 }
+const { poseWeaponBay } = await import(pathToFileURL(`${out}/WeaponBay.js`));
 const { ModelBuilder } = await import(pathToFileURL(`${out}/ModelBuilder.js`));
 {
     const scene = new Scene(engine);
@@ -87,6 +88,12 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
             wheel.rotation.x = 0;
         }
     }
+    const turrets = root.getChildMeshes().filter(mesh => mesh.name === 'turret_base');
+    const doors = root.getChildTransformNodes().filter(node => node.name === 'weapon-bay-door');
+    assert.ok(turrets.every(turret => !turret.isEnabled()), 'weapons start inside closed bays');
+    poseWeaponBay(turrets, doors, 1);
+    assert.ok(turrets.every(turret => turret.isEnabled()), 'locked weapons rise out of bays');
+    assert.ok(doors.every(door => Math.abs(door.position.x) > Math.abs(door.metadata.closedX)), 'doors slide clear of lift');
     const mountCount = ['juggernaut', 'phantom', 'manticore', 'behemoth'].includes(id) ? 2 : 1;
     const mounts = root.getChildTransformNodes(false).filter(node => node.name.startsWith('weapon_mount_'));
     assert.equal(mounts.length, mountCount, `${id}: vehicle-specific hardpoints`);
@@ -165,7 +172,7 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
     const renderMeshes = meshes.filter(m => m.getTotalVertices() > 0).length;
     maxMeshes = Math.max(maxMeshes, renderMeshes);
     maxVertices = Math.max(maxVertices, meshes.reduce((n, m) => n + m.getTotalVertices(), 0));
-    assert.ok(renderMeshes < 50, `${id}/${weapon}: static details must stay merged`);
+    assert.ok(renderMeshes < 50 + mountCount * 3, `${id}/${weapon}: static details must stay merged`);
     const visual = root.getChildTransformNodes(true).find(node => node.name === 'visualRoot');
     const beforeScale = visual.getHierarchyBoundingVectors(true, isVisibleModelMesh);
     const beforeSize = beforeScale.max.subtract(beforeScale.min);

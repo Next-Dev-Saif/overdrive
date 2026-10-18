@@ -87,11 +87,12 @@ for (const [name, source] of [
     ['DynamicSceneOptimizer', await readFile('src/game/engine/DynamicSceneOptimizer.ts', 'utf8')],
     ['AbilityActivation', await readFile('src/game/vfx/AbilityActivation.ts', 'utf8')],
     ['VfxAssets', manifest],
+    ['ElectricSurface', await readFile('src/game/vfx/ElectricSurface.ts', 'utf8')],
     ['GraphicsSettingsManager', await readFile('src/game/settings/GraphicsSettingsManager.ts', 'utf8')],
 ]) {
     const code = ts.transpileModule(source, {
         compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext },
-    }).outputText.replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js').replace("'./VfxAssets'", "'./VfxAssets.js'").replace("'./AbilityMechanism'", "'./AbilityMechanism.js'").replaceAll("'./AbilityVortex'", "'./AbilityVortex.js'").replace("'../models/VehicleBounds'", "'./VehicleBounds.js'").replace("@babylonjs/core/Misc/sceneOptimizer'", "@babylonjs/core/Misc/sceneOptimizer.js'");
+    }).outputText.replace("'./ElectricSurface'", "'./ElectricSurface.js'").replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js').replace("'./VfxAssets'", "'./VfxAssets.js'").replace("'./AbilityMechanism'", "'./AbilityMechanism.js'").replaceAll("'./AbilityVortex'", "'./AbilityVortex.js'").replace("'../models/VehicleBounds'", "'./VehicleBounds.js'").replace("@babylonjs/core/Misc/sceneOptimizer'", "@babylonjs/core/Misc/sceneOptimizer.js'");
     await writeFile(`${out}/${name}.js`, code);
 }
 const { playAbilityActivation, vortexPosition, ABILITY_ACTIVATION_MS } = await import(pathToFileURL(`${out}/AbilityActivation.js`));

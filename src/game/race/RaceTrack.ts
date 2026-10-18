@@ -1,3 +1,4 @@
+import { plantGrass } from '../levels/Grass';
 import { buildOuterLandscape } from '../levels/OuterLandscape';
 import { Color3, Color4, HemisphericLight, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3, VertexData } from '@babylonjs/core';
 import { CHECKPOINTS, LENGTHS, ROAD_WIDTH, TRACK, trackPose } from '../../../shared/race/track';
@@ -12,6 +13,10 @@ export function buildRaceTrack(scene: Scene): void {
     const white = material('race-paint', '#e5e4dc'), dark = material('race-barrier', '#686f76');
     const ground = MeshBuilder.CreateGround('race-surrounds', { width: 1000, height: 1000 }, scene); ground.position.y = -.12; ground.material = gravel;
     buildOuterLandscape(scene, 'race', 370);
+    plantGrass(scene, 'race', () => {
+        const pose = trackPose(Math.random() * LENGTHS[LENGTHS.length - 1], (Math.random() < .5 ? -1 : 1) * (ROAD_WIDTH / 2 + 4 + Math.random() * 25));
+        return { x: pose.x, z: pose.z, y: -.12 };
+    });
     const positions: number[] = [], indices: number[] = [], uvs: number[] = [];
     for (let i = 0; i <= TRACK.length; i++) {
         const pose = trackPose(i === TRACK.length ? 0 : LENGTHS[i]);

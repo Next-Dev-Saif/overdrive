@@ -703,12 +703,12 @@ export class GameEngine {
     }
 
     /** Exposes only a living hostile acquired by the weapon's existing LOS scan. */
-    public getTargetedHostile(): { mesh: Mesh; locked: boolean } | null {
+    public getTargetedHostile(): { mesh: Mesh; locked: boolean; ready: boolean } | null {
         const target = this.playerWeapon?.currentTarget;
         if (this.matchState !== 'playing' || !this.playerVehicle || this.playerVehicle.isDead || !target || target.isDisposed() || !target.isEnabled()) return null;
         if (target.metadata?.vehicle?.isDead || target.metadata?.vehicle?.isCloaked) return null;
         if (this.localTeam && target.metadata?.teamId === this.localTeam) return null;
-        return { mesh: target, locked: this.playerWeapon.isLocked };
+        return { mesh: target, locked: this.playerWeapon.isLocked, ready: this.playerWeapon.isReadyToFire };
     }
 
     public projectToScreen(x: number, y: number, z: number): { x: number, y: number, z: number } | null {

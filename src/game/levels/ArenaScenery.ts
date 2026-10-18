@@ -1,3 +1,4 @@
+import { plantGrass } from './Grass';
 import { buildOuterLandscape } from './OuterLandscape';
 import { buildCentralCover } from './ArenaCentralCover';
 import { buildArenaRoads } from './ArenaRoads';
@@ -65,7 +66,6 @@ export function dressArena(scene: Scene, theme: string, size: number) {
     }
     // Map Clutter via Thin Instances (Performance optimized)
     const numStones = icy ? 3000 : desert ? 2500 : 1500;
-    const numGrass = desert ? 3500 : 0;
     const numGarbage = city ? 3000 : 1000;
 
     const populateInstances = (mesh: Mesh, count: number, scaleMin: number, scaleMax: number, yOffset: number) => {
@@ -86,20 +86,10 @@ export function dressArena(scene: Scene, theme: string, size: number) {
         stoneMesh.material = material('clutter-stone-mat', icy ? '#8eaebf' : city ? '#364048' : '#7d6148');
         populateInstances(stoneMesh, numStones, 0.05, 0.35, -0.4);
     }
-    if (numGrass > 0) {
-        // Low-poly triangular spikes for dead scrub grass
-        const grassMesh = MeshBuilder.CreateCylinder('clutter-grass', { diameterTop: 0, diameterBottom: 0.3, height: 1, tessellation: 3 }, scene);
-        grassMesh.material = material('clutter-grass-mat', '#68593a');
-        const matrices = new Float32Array(numGrass * 16);
-        for (let i = 0; i < numGrass; i++) {
-            const { x, z } = sampleRoadsidePoint(roads);
-            const s = 0.2 + Math.random() * 0.4;
-            const rot = Quaternion.RotationYawPitchRoll(Math.random() * Math.PI * 2, (Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3);
-            Matrix.Compose(new Vector3(s * 0.6, s, s * 0.6), rot, new Vector3(x, (heightAt(x, z) ?? 0) + s * 0.3, z)).copyToArray(matrices, i * 16);
-        }
-        grassMesh.thinInstanceSetBuffer('matrix', matrices, 16, false);
-        grassMesh.receiveShadows = true;
-    }
+    plantGrass(scene, theme, () => {
+        const { x, z } = sampleRoadsidePoint(roads);
+        return { x, z, y: heightAt(x, z) };
+    });
     if (numGarbage > 0) {
         const garbMesh = MeshBuilder.CreateBox('clutter-garbage', { size: 1 }, scene);
         garbMesh.material = material('clutter-garbage-mat', icy ? '#3d4750' : city ? '#232e37' : '#5a4238');

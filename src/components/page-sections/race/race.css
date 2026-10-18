@@ -611,3 +611,7 @@
 .race-leave-dialog button {
     margin: 4px 8px 0 0;
 }
+
+.race-ammo { display: grid; gap: 4px; padding-top: 8px; color: #edf3f7; }
+.race-ammo[data-ready="true"] { color: #80edff; }
+.race-ammo small { font-size: 10px; }

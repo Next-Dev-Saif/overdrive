@@ -196,6 +196,7 @@ export class SoundManager {
         this.playBuffer(weapon === 'nuke' ? 'nukeExplosion' : 'explosion', 0.7, position, 0.9 + Math.random() * 0.2);
     }
     public playDeath(position: Vector3) { this.playBuffer('death', 0.75, position); }
+    public playWeaponDeploy(position: Vector3, localPlayer = false) { this.playBuffer('weaponDeploy', .55, localPlayer ? undefined : position); }
     public playPickup() { this.playBuffer('pickup', 0.45); }
     /** Local activation is listener-relative; distant opponents retain spatial cues. Returns cancellation. */
     public playAbility(ability: string, position: Vector3, localPlayer = false): () => void {

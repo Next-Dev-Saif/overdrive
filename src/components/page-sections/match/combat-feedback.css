@@ -120,3 +120,7 @@
 @media (prefers-reduced-motion: reduce) {
     .combat-accolade, .combat-confirmation { animation: none; }
 }
+
+.target-tracking[data-ready="true"] { color: #80edff; border-color: #80edff; box-shadow: 0 0 12px #80edff40; }
+.target-tracking[data-ready="true"] i { border-color: currentColor; }
+.target-tracking span { position: absolute; top: 100%; left: 0; margin-top: 6px; padding: 4px 6px; width: max-content; max-width: 240px; background: #111b24e6; color: inherit; font: 700 10px/1.4 monospace; }

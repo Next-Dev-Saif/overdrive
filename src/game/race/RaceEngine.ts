@@ -1,3 +1,4 @@
+import { RACE_WEAPONS } from '../../../shared/race/types';
 import { Engine, FreeCamera, GlowLayer, Quaternion, Scene, Vector3, Mesh, Matrix } from '@babylonjs/core';
 import { driveRacer } from '../../../shared/race/physics';
 import { nearestTrack, normalizeAngle, trackPose } from '../../../shared/race/track';
@@ -203,13 +204,13 @@ export class RaceEngine {
         }
     }
 
-    public getTargetedHostile(): { mesh: Mesh; locked: boolean } | null {
+    public getTargetedHostile(): { mesh: Mesh; locked: boolean; ready: boolean } | null {
         const car = this.snapshot.racers.find(racer => racer.id === this.localId);
         if (!car || this.snapshot.phase !== 'racing' || car.health <= 0 || car.finishedAt !== null || !car.weapon || car.ammo <= 0 || !car.targetId) return null;
         const target = this.snapshot.racers.find(racer => racer.id === car.targetId);
         const model = this.vehicles.get(car.targetId);
         if (!target || target.health <= 0 || !target.connected || !model || model.vehicle.mesh.isDisposed()) return null;
-        return { mesh: model.vehicle.mesh, locked: this.snapshot.serverTime - car.targetSince >= 220 };
+        return { mesh: model.vehicle.mesh, locked: this.snapshot.serverTime - car.targetSince >= 220, ready: this.snapshot.serverTime - car.lastShot >= RACE_WEAPONS[car.weapon].interval };
     }
 
     public projectToScreen(x: number, y: number, z: number): { x: number, y: number, z: number } | null {

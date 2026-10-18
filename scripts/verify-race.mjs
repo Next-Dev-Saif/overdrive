@@ -55,8 +55,12 @@ const terrainSource=await readFile('src/game/levels/LandscapeTerrain.ts','utf8')
 await writeFile(`${out}/LandscapeTerrain.js`,ts.transpileModule(terrainSource,{compilerOptions:{target:ts.ScriptTarget.ES2023,module:ts.ModuleKind.ESNext}}).outputText);
 const horizonSource=await readFile('src/game/levels/OuterLandscape.ts','utf8');
 await writeFile(`${out}/OuterLandscape.js`,ts.transpileModule(horizonSource,{compilerOptions:{target:ts.ScriptTarget.ES2023,module:ts.ModuleKind.ESNext}}).outputText.replace('./LandscapeTerrain','./LandscapeTerrain.js'));
+for (const [name, folder] of [['Grass', 'levels'], ['GraphicsSettingsManager', 'settings']]) {
+ const source = await readFile(`src/game/${folder}/${name}.ts`, 'utf8');
+ await writeFile(`${out}/${name}.js`, ts.transpileModule(source, {compilerOptions:{target:ts.ScriptTarget.ES2023,module:ts.ModuleKind.ESNext}}).outputText.replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js'));
+}
 const trackSource=await readFile('src/game/race/RaceTrack.ts','utf8');
-const trackCode=ts.transpileModule(trackSource,{compilerOptions:{target:ts.ScriptTarget.ES2023,module:ts.ModuleKind.ESNext}}).outputText.replace('../../../shared/race/track','./track.js').replace('../levels/OuterLandscape','./OuterLandscape.js');
+const trackCode=ts.transpileModule(trackSource,{compilerOptions:{target:ts.ScriptTarget.ES2023,module:ts.ModuleKind.ESNext}}).outputText.replace('../../../shared/race/track','./track.js').replace('../levels/OuterLandscape','./OuterLandscape.js').replace('../levels/Grass','./Grass.js');
 await writeFile(`${out}/RaceTrack.js`,trackCode);
 const {buildRaceTrack}=await import(pathToFileURL(`${out}/RaceTrack.js`));
 const engine=new NullEngine(),scene=new Scene(engine);buildRaceTrack(scene);

@@ -628,3 +628,55 @@
   - `DeathRaceScreen`: Grid assembly telemetry and tactical confirm leave dialog.
 - [x] Preserved 100% of functional game logic, state management, socket transport, and test assertions. Strict black-and-white theme, zero SaaS/web UI elements.
 - [x] Verified `npm run test:setup`, `npm run test:match`, `npm run test:race`, `npm run test:vfx`, `npm run lint:app`, and production compilation.
+
+## 2026-10-18 — Arena detail, deployable weapons, combat feedback and room browser
+### Completed
+- [x] Use supplied Grass.png as terrain-following, instanced grass in every arena and race surroundings.
+- [x] Repair turret articulation, align launchers to upward trajectories, animate weapon bays with supplied audio.
+- [x] Show cyan fire-ready lock frames and prominent ammo/reload/cycle status for every weapon.
+- [x] Add fluid electrical Aegis shell and distinct EMP electrical waves.
+- [x] Browse server rooms after team-battle setup; create/join waiting rooms with bot fill and validated availability.
+- [x] Run headless behavioral checks, types, lint and production compilation; document manual visual/audio/server QA.
+### Decisions
+- Reuse Babylon/React/Socket.IO already installed; no animation dependency needed.
+- Preserve free-roam and server-authoritative race launch flows. Room membership is server-owned; combat rooms are listed but not joinable mid-match, avoiding replacing host-owned bots during combat.
+- Follow Agent-execution-guide: do not open a browser; user will perform visual verification.
+
+### Verification and delivery notes
+- Client TypeScript, server build and production bundling passed. Bundle used a command-scoped validation-only backend URL and /tmp/overdrive-combat-room-build; no deployment settings changed.
+- Passed model checks for all 70 imported/procedural combinations, plus repeated race pickup mounting/removal. Bays add three bounded render meshes per mount (54 maximum total in the model fixture).
+- Passed projectile/bay checks for all five weapons: deploy/retract, single deployment cue, upward muzzle direction, EMP readiness and reload completion without trigger input. New weapons no longer incur a first-shot cooldown from page-load time.
+- Passed scenery checks for all four arenas including supplied texture, quality budget, terrain contact and road exclusion; race simulation/track/pickup checks passed.
+- Passed VFX lifecycle, audio, battle targeting, setup and match-rule checks. Aegis now also cleans up immediately on parent/scene disposal.
+- Passed isolated real Socket.IO room tests: loadouts, map mismatch, duplicate account, full room, stale room, host-only start and disconnect host reassignment. Passed existing TDM integration with APPWRITE_MOCK=true, including bot fill, damage, respawn and team protection.
+- Updated test harness dependency lists for new modules and corrected an existing optimizer assertion to account for the already-disabled hardware scaling optimizer.
+- Changed-code lint passes. App-wide lint still reports four existing AuthContext/GameCanvas warnings. Existing large Babylon bundle warning remains.
+- No browser opened, no deployment or Git commands performed. Manual visual/shader/audio, responsive dialog and two-browser acceptance steps are in docs/combat-presentation.md and docs/match-setup-flow.md.
+- Room browsing applies to team battle. Started rooms are visible but unavailable; friends gather before host launch. Free roam and the death-race queue retain their existing launch behavior. Both client and server need the updated code.
+
+
+## 2026-10-18 — Smaller weapon assemblies
+### Completed
+- [x] Reduce every weapon, bay, door, bracket and lift distance to 65% of its previous size using the shared chassis attachment builder.
+- [x] Reduce side-mount stand-off proportionally, bringing the assemblies closer to the body while retaining their articulation clearance.
+- [x] Model checks (70 loadouts and race pickup swaps), five-weapon bay/projectile checks, TypeScript, targeted lint and production compilation passed. Existing Babylon bundle-size warning remains. Compilation used a validation-only backend URL and /tmp/overdrive-smaller-weapons-build; deployment settings unchanged. Browser appearance remains for user verification.
+
+## 2026-10-18 — Replace grass cards with shaped blades
+### Completed
+- [x] Replace crossed rectangular grass cards with curved, tapered, folded blade geometry; use Grass.png only for blade surface color.
+- [x] Retain instancing, terrain placement, road clearance and quality budgets; verify scenery/race regressions, types, lint and build.
+
+- Replaced large crossed sprite rectangles with 4/6/9 curved, folded, pointed blades per low/medium/high-quality tuft. Reduced overall height and varied blade lean, orientation, scale and root-to-tip shading. Grass.png remains the surface-color source; alpha blending/testing no longer defines the silhouette.
+- Passed four-arena scenery/terrain/road-clearance checks, race gameplay/track/pickup regressions, targeted lint, TypeScript and production compilation. Existing large Babylon bundle warning remains. Validation build is /tmp/overdrive-grass-blades-build with a command-scoped placeholder backend; no deployment configuration changed.
+- No browser opened per project guidance; in-game appearance remains for user verification.
+
+## 2026-10-18 — Full-screen pause overlay
+### Completed
+- [x] Remove native dialog size limits responsible for exposed right/bottom game edges; preserve modal focus behavior.
+- [x] Keep pause actions and controls readable on short/mobile screens without overlapping or clipping.
+- [x] Verify types, lint and production compilation without opening a browser.
+
+- Screenshot diagnosis: native dialog max-width/max-height constrained the full-size utility classes, leaving exposed game edges. Added scoped viewport sizing with explicit unlimited maximums and zero margins/borders.
+- Resume receives focus after showModal; the dialog shell no longer draws a viewport-sized focus ring, while action buttons retain visible keyboard focus. Added dialog title/description associations.
+- Replaced absolute positioning of content/footer with a scrollable grid and safe-area padding; controls remain below actions on short screens.
+- Targeted lint, TypeScript and production compilation passed; existing Babylon chunk warning remains. Validation build: /tmp/overdrive-pause-overlay-build using a command-scoped placeholder backend. No deployment changes or browser verification.

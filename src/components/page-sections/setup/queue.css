@@ -173,3 +173,17 @@
     outline: 2px solid #ffffff;
     outline-offset: 3px;
 }
+
+.room-browser { width: min(640px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; }
+.room-list { list-style: none; padding: 0; margin: 20px 0; display: grid; gap: 8px; }
+.room-list li { display: flex; align-items: center; gap: 16px; justify-content: space-between; padding: 12px; background: #20252b; }
+.room-list li > div { display: grid; gap: 6px; min-width: 0; }
+.room-list strong, .room-members h3 { color: #f1f4f6; overflow-wrap: anywhere; }
+.room-list span, .room-list code, .room-members code { color: #c3ccd5; font-size: 12px; overflow-wrap: anywhere; }
+.room-browser button { min-width: 64px; min-height: 44px; padding: 8px 12px; cursor: pointer; }
+.room-browser button:disabled { opacity: .45; cursor: not-allowed; }
+.room-browser button:focus-visible { outline: 2px solid #80edff; outline-offset: 3px; }
+.room-members { margin: 20px 0; padding: 16px; background: #20252b; }
+.room-members li { color: #e6ebef; margin: 8px 0; }
+.room-error { color: #ffd59d !important; }
+@media (max-width: 480px) { .room-browser .queue-actions { flex-wrap: wrap; } }

@@ -1,0 +1,13 @@
+# Combat presentation update — 2026-10-18
+
+- Grass uses the supplied `new-assets/textures/Grass.png`, copied unchanged to the public scenery directory. Each tuft now uses curved, tapered blades with a folded center ridge; the image supplies surface color only, with opaque geometry defining the silhouette. Low/medium/high tiers use 4/6/9 blades per tuft, with varied height, lean, orientation and root-to-tip shading. All four arenas use existing terrain samplers and road exclusions. Race vegetation sits beyond the track barriers. Low/medium/high tiers use 600/1500/3000 tufts in one instanced draw per map.
+- Every chassis mounts weapons in an armored bay with two sliding doors. Lock opens the doors and lifts the weapon; losing lock, EMP/stun, death or disabled combat retracts it. One supplied `missilelock.ogg` cue plays when deployment begins. Weapons cannot fire through a closed bay. Race uses a faster presentation lift to match its server-owned acquisition timing.
+- Mortar/nuke pitch follows the existing ballistic launch velocity; missiles follow their upward-biased launch direction. Straight weapons retain direct aiming. Projectile damage and trajectory rules are preserved.
+- Lock brackets turn cyan only when locked and fire-ready. Text names the Space/fire-button action. Ammo displays include unlimited weapons, cadence, reload progress and disabled status. Reloads finish without requiring another trigger attempt. Race uses its authoritative ammo/cadence and pickup rules.
+- Aegis uses moving electrical filaments and fluid vertex displacement on the GPU. EMP uses a distinct blue electrical wave surface with branches and expanding wave bands. These are procedural shader textures with no added image downloads. Aegis resources clean up on expiry, parent disposal and scene disposal.
+
+## Manual acceptance
+
+No browser was opened, following project guidance. Inspect all four maps and the race circuit at low/high quality, including terrain contact and grass transparency. Check all five weapons on bonnet and side mounts, keeping a target locked while firing and reloading; verify upward muzzle alignment, doors and deployment audio. Test Aegis and EMP repeatedly and after death. Check the HUD at mobile widths and with the fire button. With two accounts, select the same map, create/join the same room, start with bots, and confirm both players reach the same battle. Verify keyboard/Escape navigation and disconnect/rejoin handling.
+
+The production compilation used a command-scoped validation backend URL and wrote to `/tmp/overdrive-combat-room-build`; it is not a deployment build for the live server.

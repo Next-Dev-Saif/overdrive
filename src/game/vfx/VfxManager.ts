@@ -1,3 +1,4 @@
+import { electricSurface } from './ElectricSurface';
 import { Scene, Vector3, ParticleSystem, Texture, RawTexture, Color4, Color3, PointLight, Mesh, MeshBuilder, StandardMaterial, Animation, FresnelParameters } from "@babylonjs/core";
 import { GraphicsSettingsManager } from "../settings/GraphicsSettingsManager";
 import { VFX_SPRITE_SHEETS, type VfxSpriteSheetId } from './VfxAssets';
@@ -721,25 +722,8 @@ export class VfxManager {
         dome.parent = parent;
         dome.position = Vector3.Zero();
         
-        const domeMaterial = new StandardMaterial('aegis-energy-dome-material', this.scene);
-        domeMaterial.diffuseColor = Color3.Black();
-        domeMaterial.emissiveColor = new Color3(1, 0.4, 0.1);
-        domeMaterial.alpha = 0.2;
-        domeMaterial.disableLighting = true;
-        domeMaterial.backFaceCulling = false;
-        domeMaterial.opacityFresnelParameters = new FresnelParameters({
-            leftColor: Color3.White(),
-            rightColor: Color3.Black(),
-            bias: 0.2,
-            power: 4.0,
-        });
-        domeMaterial.emissiveFresnelParameters = new FresnelParameters({
-            leftColor: new Color3(1, 0.8, 0.2),
-            rightColor: new Color3(0.2, 0.05, 0),
-            bias: 0.1,
-            power: 2.0,
-        });
-        dome.material = domeMaterial;
+        const shell = electricSurface(dome, 'shield');
+        const domeMaterial = shell.material;
 
         // Outer wireframe grid
         const gridDome = MeshBuilder.CreateSphere('aegis-grid-dome', { diameter: radius * 2 + 0.2, segments: 16 }, this.scene);
@@ -750,6 +734,7 @@ export class VfxManager {
         gridMat.emissiveColor = new Color3(1, 0.6, 0.1);
         gridMat.disableLighting = true;
         gridMat.wireframe = true;
+        gridDome.isPickable = false;
         gridMat.alpha = 0.15;
         gridDome.material = gridMat;
 
@@ -791,23 +776,26 @@ export class VfxManager {
         const startedAt = performance.now();
         const animate = () => {
             const elapsed = performance.now() - startedAt;
-            domeMaterial.alpha = 0.24 + Math.sin(elapsed * 0.006) * 0.08;
+            shell.update(elapsed / 1000);
             orbitA.rotation.y += 0.018;
             orbitB.rotation.x -= 0.014;
         };
         this.scene.onBeforeRenderObservable.add(animate);
-        setTimeout(() => {
+        let disposed = false;
+        const cleanup = () => {
+            if (disposed) return;
+            disposed = true;
+            clearTimeout(timer);
             this.scene.onBeforeRenderObservable.removeCallback(animate);
-            surface?.stop();
-            dome.dispose();
-            gridDome.dispose();
-            orbitA.dispose();
-            orbitB.dispose();
-            domeMaterial.dispose();
-            gridMat.dispose();
-            ringMaterial.dispose();
-            if (surface) setTimeout(() => surface.dispose(false), 700);
-        }, durationMs);
+            parent.onDisposeObservable.remove(parentObserver);
+            this.scene.onDisposeObservable.remove(sceneObserver);
+            surface?.dispose(false);
+            dome.dispose(); gridDome.dispose(); orbitA.dispose(); orbitB.dispose();
+            domeMaterial.dispose(); gridMat.dispose(); ringMaterial.dispose();
+        };
+        const parentObserver = parent.onDisposeObservable.addOnce(cleanup);
+        const sceneObserver = this.scene.onDisposeObservable.addOnce(cleanup);
+        const timer = setTimeout(cleanup, durationMs);
     }
 
     /** Wraith anti-gravity implosion followed by a vertical particle lift. */
@@ -1031,14 +1019,11 @@ export class VfxManager {
         // Massive expanding glowing sphere
         const empSphere = MeshBuilder.CreateSphere('emp-hemisphere', { segments: 32, diameter: 1 }, this.scene);
         empSphere.position = center;
-        const empMat = new StandardMaterial('emp-mat', this.scene);
-        empMat.emissiveColor = new Color3(0.12, 0.9, 1);
-        empMat.diffuseColor = Color3.Black();
-        empMat.alphaMode = 1; // Engine.ALPHA_ADD
-        empMat.disableLighting = true;
-        empMat.alpha = 0.5;
-        empMat.wireframe = true; // High-tech grid look
-        empSphere.material = empMat;
+        const electric = electricSurface(empSphere, 'emp');
+        const empMat = electric.material;
+        const waveStart = performance.now();
+        const waveObserver = this.scene.onBeforeRenderObservable.add(() => electric.update((performance.now() - waveStart) / 1000));
+        empSphere.onDisposeObservable.addOnce(() => this.scene.onBeforeRenderObservable.remove(waveObserver));
 
         const scaleAnim = new Animation('emp-scale', 'scaling', 60, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
         scaleAnim.setKeys([{ frame: 0, value: new Vector3(1, 1, 1) }, { frame: 30, value: new Vector3(radius * 2, radius * 2, radius * 2) }]);

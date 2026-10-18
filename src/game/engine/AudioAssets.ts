@@ -1,5 +1,6 @@
 /** Curated clips from new-assets/audio; only this subset is shipped and decoded. */
 export const AUDIO_ASSETS = {
+    weaponDeploy: 'missilelock.ogg',
     gunshot: 'rebgun.ogg', plasma: 'laser.ogg', missile: 'rerocket2.ogg',
     mortar: 'rebangmortar.ogg', nuke: 'launch_nook.ogg',
     explosion: 'rebangrcrocket.ogg', nukeExplosion: 'bang_nook.ogg', death: 'death_explosion.ogg',

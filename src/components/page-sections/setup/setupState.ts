@@ -1,7 +1,7 @@
 import { arenas, vehicles, weapons } from '../../../data/catalog';
 
 export const SETUP_MODES = [
-    { id: 'deathmatch', name: 'Team battle', detail: '5 vs 5 · Online players with bot fill', action: 'Find match' },
+    { id: 'deathmatch', name: 'Team battle', detail: '5 vs 5 · Online players with bot fill', action: 'Choose room' },
     { id: 'freeroam', name: 'Free roam', detail: 'Explore an arena and try your loadout', action: 'Enter arena' },
     { id: 'deathrace', name: 'Death race', detail: '6 drivers · 3 laps · Online players with bot fill', action: 'Join race' },
 ] as const;

@@ -8,7 +8,7 @@ interface Props {
     charge: number;
     cooldownSeconds: number;
     unavailable: boolean;
-    ammo: { ammo: number; maxAmmo: number; isReloading: boolean; reloadPct: number };
+    ammo: { ammo: number; maxAmmo: number; isReloading: boolean; reloadPct: number; ready?: boolean; cyclePct?: number };
     onActivate: () => void;
 }
 
@@ -19,6 +19,8 @@ export function VehicleSystems({ vehicleId, health, charge, cooldownSeconds, una
     const ready = progress >= 100 && !unavailable;
     const ability = ABILITIES[vehicleId] ?? 'Overdrive';
     const status = hull <= 0 ? 'Destroyed' : unavailable ? 'Unavailable' : ready ? 'Ready' : `${Math.ceil(cooldownSeconds)}s`;
+    const ammoStatus = unavailable ? 'UNAVAILABLE' : ammo.isReloading ? 'RELOADING' : ammo.ready ? 'READY TO FIRE' : (ammo.cyclePct ?? 100) < 100 ? 'CYCLING' : 'ACQUIRING TARGET';
+    const ammoProgress = ammo.isReloading ? ammo.reloadPct : ammo.cyclePct ?? 100;
     return <section className="vehicle-systems" aria-label="Vehicle systems">
         <button className="overdrive-dial" type="button" onClick={onActivate} disabled={!ready} data-ready={ready} aria-label={`${vehicleId} ${ability}: ${status}. Activate overdrive`}>
             <svg className="overdrive-dial__ring" viewBox="0 0 112 112" aria-hidden="true">
@@ -37,7 +39,11 @@ export function VehicleSystems({ vehicleId, health, charge, cooldownSeconds, una
                 </div>
                 <span className="hull-meter__condition">{hull <= 0 ? 'DESTROYED' : hull <= 30 ? 'LOW HEALTH' : 'NORMAL'}</span>
             </div>
-            {Number.isFinite(ammo.maxAmmo) && <div className="vehicle-ammo"><span>{ammo.isReloading ? `RELOADING ${Math.round(ammo.reloadPct)}%` : 'AMMO'}</span><strong>{ammo.ammo}<span> / {ammo.maxAmmo}</span></strong></div>}
+            <div className="weapon-readiness" data-ready={Boolean(ammo.ready && !unavailable)} data-reloading={ammo.isReloading}>
+                <div><span>{ammoStatus}</span><strong>{Number.isFinite(ammo.maxAmmo) ? `${ammo.ammo} / ${ammo.maxAmmo}` : '∞'}<small> AMMO</small></strong></div>
+                <div className="weapon-readiness__track" role="progressbar" aria-label={ammo.isReloading ? 'Weapon reload' : 'Weapon cycle'} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(ammoProgress)}><i style={{ transform: `scaleX(${ammoProgress / 100})` }} /></div>
+                <small>{ammo.isReloading ? `${Math.round(ammo.reloadPct)}% · AUTO RELOAD` : Number.isFinite(ammo.maxAmmo) ? 'SPACE / FIRE BUTTON' : 'UNLIMITED · HOLD SPACE / FIRE'}</small>
+            </div>
         </div>
     </section>;
 }

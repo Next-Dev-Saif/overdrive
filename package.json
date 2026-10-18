@@ -23,6 +23,7 @@
     "test:audio": "node scripts/verify-audio.mjs",
     "prepare:projectiles": "node scripts/prepare-projectiles.mjs",
     "test:projectiles": "node scripts/verify-projectiles.mjs",
+    "test:rooms": "npm --prefix server run build && node scripts/verify-rooms.mjs",
     "test:setup": "node scripts/verify-setup.mjs"
   },
   "dependencies": {

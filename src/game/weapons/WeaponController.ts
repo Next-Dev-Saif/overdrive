@@ -1,3 +1,4 @@
+import { poseWeaponBay } from '../models/WeaponBay';
 import { Scene, Mesh, Vector3, Ray, StandardMaterial, Color3, MeshBuilder, TransformNode, ParticleSystem, Texture, Color4 } from "@babylonjs/core";
 import { NetworkManager } from "../../network/NetworkManager";
 import { VfxManager, type WeaponVfxKind } from "../vfx/VfxManager";
@@ -24,7 +25,7 @@ export class WeaponController {
     public readonly weaponId: string;
 
     private config: WeaponConfig;
-    private lastFireTime: number = 0;
+    private lastFireTime: number = -Infinity;
     private barrels: Mesh[] = [];
     private muzzleSockets: TransformNode[] = [];
     private barrelIndex: number = 0;
@@ -47,6 +48,31 @@ export class WeaponController {
     private presentationTarget: Mesh | null | undefined;
     private turretYaw: number = 0;
     private turretPitch: number = 0;
+    private bayDoors: TransformNode[] = [];
+    private bayProgress = 0;
+    private bayRequested = false;
+    private remoteDeployUntil = 0;
+
+    /** Shared by HUD and firing so ready never means reloading, disabled or still deploying. */
+    public get isReadyToFire(): boolean {
+        const vehicle = this.ownerMesh.metadata?.vehicle;
+        return this.controlsEnabled && !this.scene.metadata?.combatEnded && !vehicle?.isDead && !vehicle?.isEmped && !vehicle?.isStunned && !this.isReloading && this.currentAmmo > 0 &&
+            performance.now() - this.lastFireTime >= this.config.fireRateMs && (this.bayDoors.length === 0 || this.bayProgress >= 1);
+    }
+
+    public get cycleProgress(): number { return Math.min(1, (performance.now() - this.lastFireTime) / this.config.fireRateMs); }
+
+    private updateWeaponSystems(): void {
+        const now = performance.now();
+        if (this.isReloading && now - this.lastReloadStartTime >= this.reloadTimeMs) { this.isReloading = false; this.currentAmmo = this.maxAmmo; }
+        const vehicle = this.ownerMesh.metadata?.vehicle;
+        const deploy = this.controlsEnabled && !this.scene.metadata?.combatEnded && !vehicle?.isDead && !vehicle?.isEmped && !vehicle?.isStunned && (this.isLocked || this.presentationTarget != null || now < this.remoteDeployUntil);
+        if (deploy && !this.bayRequested && this.bayDoors.length) SoundManager.getInstance().playWeaponDeploy(this.ownerMesh.getAbsolutePosition(), this.isPlayer);
+        this.bayRequested = deploy;
+        const step = Math.min(50, this.scene.getEngine().getDeltaTime() || 16.67) / (this.presentationTarget !== undefined ? 160 : 550);
+        this.bayProgress = Math.max(0, Math.min(1, this.bayProgress + (deploy ? step : -step)));
+        poseWeaponBay(this.turretBases, this.bayDoors, this.bayProgress);
+    }
     private readonly PITCH_MIN = -0.2;
     private readonly PITCH_MAX = 0.4;
     private readonly AUTO_AIM_RANGE = 120;          // metres
@@ -111,6 +137,8 @@ export class WeaponController {
                 this.turretBases.push(m as Mesh);
             }
         });
+        this.turretBarrels = this.ownerMesh.getChildMeshes(false).filter(mesh => mesh.name === 'turretbox') as Mesh[];
+        this.bayDoors = this.ownerMesh.getChildTransformNodes(false).filter(node => node.name === 'weapon-bay-door');
         this.muzzleSockets = this.ownerMesh.getChildTransformNodes(false).filter(node => node.name === 'muzzle_socket');
         if (this.barrels.length === 0) this.barrels.push(this.ownerMesh);
 
@@ -139,6 +167,7 @@ export class WeaponController {
     // ─── Auto-Aim Core ────────────────────────────────────────────────────────
 
     private updateAutoAim = () => {
+        this.updateWeaponSystems();
         if (!this.controlsEnabled || this.scene.metadata?.combatEnded || this.ownerMesh.metadata?.vehicle?.isDead) return;
         const myPos = this.ownerMesh.getAbsolutePosition();
         const myForward = this.ownerMesh.forward;
@@ -210,6 +239,8 @@ export class WeaponController {
 
         // 5. Set aim point for camera & shooting
         this.aimPoint = bestTarget.getAbsolutePosition().clone();
+
+        this.applyTurretRotation();
 
         // 6. Keep acquisition independent from the player-held trigger.
         if (this.isLocked && this.isPlayer && this.firingRequested && this.presentationTarget === undefined) {
@@ -291,7 +322,18 @@ export class WeaponController {
 
     private applyTurretRotation(): void {
         this.turretBases.forEach(base => { base.rotation.y = this.turretYaw; });
-        this.turretBarrels.forEach(box => { box.rotation.x = this.turretPitch; });
+        let launchPitch = this.turretPitch;
+        if (this.currentTarget && ['missile', 'mortar', 'nuke'].includes(this.weaponId)) {
+            const origin = this.muzzleSockets[0]?.getAbsolutePosition() ?? this.ownerMesh.getAbsolutePosition();
+            const delta = this.currentTarget.getAbsolutePosition().subtract(origin);
+            const distance = Math.hypot(delta.x, delta.z);
+            const flightTime = this.weaponId === 'nuke' ? 2.5 : 2;
+            const gravity = this.weaponId === 'nuke' ? 120 : 150;
+            const vertical = this.weaponId === 'missile' ? (delta.y + 1.5) / Math.max(.01, Math.hypot(distance, delta.y + 1.5)) * 80 + 20 : delta.y / flightTime + gravity * flightTime / 2;
+            const horizontal = this.weaponId === 'missile' ? distance / Math.max(.01, Math.hypot(distance, delta.y + 1.5)) * 80 : distance / flightTime;
+            launchPitch = -Math.atan2(vertical, horizontal);
+        }
+        this.turretBarrels.forEach(box => { box.rotation.x = launchPitch; });
 
         if (this.turretBases.length === 0 && this.turretBarrels.length === 0) {
             this.barrels.forEach(barrel => {
@@ -322,6 +364,7 @@ export class WeaponController {
             }
         }
 
+        if (this.bayDoors.length && this.bayProgress < 1) return;
         if (now - this.lastFireTime < this.config.fireRateMs) return;
 
         if (this.currentAmmo <= 0) {
@@ -485,6 +528,7 @@ export class WeaponController {
     }
 
     public playRemoteShot(origin: Vector3, hitPoint: Vector3, targetId?: string) {
+        this.remoteDeployUntil = performance.now() + 1500;
         if (this.weaponId === "minigun" || this.weaponId === "plasma") {
             const direction = hitPoint.subtract(origin).normalize();
             this.triggerMuzzleFlash(origin, direction);

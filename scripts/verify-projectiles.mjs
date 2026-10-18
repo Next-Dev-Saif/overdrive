@@ -19,6 +19,7 @@ async function compile(file) {
     await mkdir(dirname(target), { recursive: true }); await writeFile(target, code);
 }
 await compile(resolve('src/game/weapons/WeaponController.ts'));
+await compile(resolve('src/game/models/WeaponAttachments.ts'));
 const load = file => import(pathToFileURL(resolve(out, file)));
 const { createProjectileModel, PROJECTILE_PROFILES } = await load('src/game/models/ProjectileModel.js');
 const { PROJECTILE_GEOMETRY } = await load('src/assets/models/prepared/ProjectileGeometry.js');
@@ -68,5 +69,39 @@ for (const entry of report) {
     otherScene.dispose();
     weapon.dispose();
 }
+const { buildVehicleWeapons } = await load('src/game/models/WeaponAttachments.js');
+const { SoundManager } = await load('src/game/engine/SoundManager.js');
+let deploySounds = 0;
+SoundManager.getInstance = () => ({ playWeaponDeploy: () => deploySounds++ });
+engine.getDeltaTime = () => 16.667;
+for (const kind of ['minigun', 'plasma', 'missile', 'mortar', 'nuke']) {
+    const owner = new Mesh(`bay-owner-${kind}`, scene);
+    owner.metadata = { entityId: 'owner', teamId: 'alpha', vehicle: {} };
+    const target = new Mesh('target', scene); target.position.set(0, 0, 70); target.metadata = { entityId: 'target', teamId: 'bravo' };
+    buildVehicleWeapons(owner, 'interceptor', kind, { width: 3, height: 2, depth: 5, bottom: 0, bonnetHeight: 1 });
+    const weapon = new WeaponController(scene, owner, kind, 'owner', false);
+    weapon.currentTarget = target; weapon.nextTargetScan = Infinity;
+    assert.equal(weapon.isReadyToFire, false, 'closed bay cannot fire');
+    for (let frame = 0; frame < 45; frame++) weapon.updateAutoAim();
+    assert.equal(weapon.isLocked, true); assert.equal(weapon.isReadyToFire, true);
+    const muzzle = owner.getChildTransformNodes().find(node => node.name === 'muzzle_socket');
+    muzzle.computeWorldMatrix(true);
+    const forward = muzzle.getDirection(Vector3.Forward()).normalize();
+    assert.ok(['mortar', 'nuke'].includes(kind) ? forward.y > .7 : kind === 'missile' ? forward.y > .1 : Math.abs(forward.y) < .1, `${kind}: launch direction matches trajectory (${forward.asArray()})`);
+    const sounds = deploySounds;
+    for (let frame = 0; frame < 5; frame++) weapon.updateAutoAim();
+    assert.equal(deploySounds, sounds, 'deployment audio never loops while locked');
+    if (Number.isFinite(weapon.maxAmmo)) {
+        weapon.currentAmmo = 0; weapon.isReloading = true; weapon.lastReloadStartTime = performance.now() - weapon.reloadTimeMs - 1;
+        weapon.updateAutoAim(); assert.equal(weapon.currentAmmo, weapon.maxAmmo, 'reload completes without holding fire');
+    }
+    owner.metadata.vehicle.isEmped = true;
+    assert.equal(weapon.isReadyToFire, false, 'EMP blocks fire-ready feedback');
+    for (let frame = 0; frame < 40; frame++) weapon.updateAutoAim();
+    assert.ok(owner.getChildMeshes().filter(mesh => mesh.name === 'turret_base').every(mesh => !mesh.isEnabled()), 'disabled weapon retracts');
+    weapon.dispose(); owner.dispose(); target.dispose();
+}
+assert.equal(deploySounds, 5, 'one deployment cue per weapon');
 scene.dispose(); engine.dispose();
+console.log('PASS: five weapon bays, deploy/retract, one-shot audio, upward muzzles, readiness, EMP and automatic reload.');
 console.log('PASS: OBJ provenance, triangle counts, normals/winding, bounds, shared geometry/materials, collision exclusion, tail anchors, pooling and scene isolation.');
