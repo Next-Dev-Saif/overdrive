@@ -1,14 +1,16 @@
 import { Color3, Constants, Matrix, Mesh, RawTexture, StandardMaterial, Texture, Vector3, VertexData } from '@babylonjs/core';
 
-/** Chassis emergence, rising orbit and inward collapse, in vehicle-local space. */
+/** Pulsed flank-hardpoint discharges in vehicle-local space. */
 export function vortexPosition(progress: number, index: number, center: Vector3, size: Vector3, result: Vector3): void {
     const t = Math.max(0, Math.min(1, progress));
-    const expansion = t < 0.3 ? Math.sin(t / 0.3 * Math.PI / 2) : t < 0.65 ? 1 : Math.pow((1 - t) / 0.35, 1.5);
-    const angle = index * 2.399963 + t * Math.PI * 5;
-    const strand = 0.85 + (index % 5) * 0.04;
-    result.set(center.x + Math.cos(angle) * size.x * 0.7 * expansion * strand,
-        center.y + (Math.sin(angle * 0.5 + index) * 0.25 + t * 0.65) * size.y * expansion,
-        center.z + Math.sin(angle) * size.z * 0.65 * expansion * strand);
+    // Short vented discharges at paired flank hardpoints, rather than an orbiting aura.
+    const pulse = Math.sin(t * Math.PI);
+    const phase = (t * 3 + (index % 11) / 11) % 1;
+    const side = index % 2 === 0 ? -1 : 1;
+    result.set(center.x + side * size.x * (0.43 + phase * 0.22 * pulse),
+        center.y + size.y * (phase * 0.32 * pulse),
+        center.z + ((index % 7) / 6 - 0.5) * size.z * 0.65 * pulse);
+
 }
 
 /** One draw call of camera-facing sparks, with private geometry/material/texture ownership.
@@ -23,15 +25,15 @@ export function createAbilityVortex(parent: Mesh, center: Vector3, size: Vector3
     const pixels = new Uint8Array(32 * 32 * 4);
     for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
         const dx = (x - 15.5) / 15.5, dy = (y - 15.5) / 15.5;
-        const alpha = Math.max(0, 1 - Math.hypot(dx, dy));
+        const alpha = Math.pow(Math.max(0, 1 - Math.abs(dx)), 0.65) * Math.min(1, (1 - Math.abs(dy)) * 4);
         const offset = (y * 32 + x) * 4;
-        pixels.set([255, 255, 255, Math.round(alpha * alpha * 255)], offset);
+        pixels.set([255, 255, 255, Math.round(alpha * 255)], offset);
     }
     const texture = RawTexture.CreateRGBATexture(pixels, 32, 32, scene, false, false, Texture.BILINEAR_SAMPLINGMODE);
     texture.name = 'ability-vortex-sprite'; texture.hasAlpha = true;
     const material = new StandardMaterial('ability-vortex-material', scene);
     material.disableLighting = true; material.backFaceCulling = false;
-    material.emissiveColor = color; material.diffuseTexture = texture;
+    material.emissiveColor = color.scale(2.5); material.diffuseTexture = texture;
     material.useAlphaFromDiffuseTexture = true;
     material.alphaMode = Constants.ALPHA_ADD;
     material.transparencyMode = StandardMaterial.MATERIAL_ALPHABLEND;
@@ -61,10 +63,10 @@ export function createAbilityVortex(parent: Mesh, center: Vector3, size: Vector3
             for (let i = 0; i < count; i++) {
                 vortexPosition(progress, i, center, size, local);
                 Vector3.TransformCoordinatesToRef(local, world, worldPoint);
-                const radius = 0.18 + (i % 5) * 0.06;
+                const radius = 0.085 + (i % 5) * 0.012;
                 for (let corner = 0; corner < 4; corner++) {
                     const dx = (corner === 0 || corner === 3 ? -1 : 1) * radius;
-                    const dy = (corner < 2 ? -1 : 1) * radius;
+                    const dy = (corner < 2 ? -1 : 1) * radius * (4 + i % 3);
                     const offset = i * 12 + corner * 3;
                     positions[offset] = worldPoint.x + right.x * dx + up.x * dy;
                     positions[offset + 1] = worldPoint.y + right.y * dx + up.y * dy;

@@ -8,9 +8,9 @@ export function buildWeaponModel(parent: TransformNode, id: string, height: numb
     const scene = parent.getScene();
     const yaw = new Mesh('turret_base', scene); yaw.parent = parent; yaw.position.y = height; yaw.scaling.setAll(scale);
     const base = new ModelBuilder(scene, yaw);
-    const steel = base.material('weapon-steel', '#515b61', 0.8, 0.32);
+    const steel = ModelBuilder.steelSurface(scene);
     const dark = base.material('weapon-carbon', '#1d2429', 0.65, 0.46);
-    const alloy = base.material('weapon-alloy', '#9ca6ab', 0.85, 0.24);
+    const alloy = ModelBuilder.steelSurface(scene, true);
     const warning = base.material('weapon-marking', accent, 0.35, 0.52);
     const energy = base.material('weapon-energy', '#70d5e3', 0.2, 0.2, true);
     base.cylinder('bearing', 0.95, 0.16, dark);

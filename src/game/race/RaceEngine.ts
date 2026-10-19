@@ -9,7 +9,7 @@ import { WeaponController } from '../weapons/WeaponController';
 import { InputManager } from '../utils/InputManager';
 import { SoundManager } from '../engine/SoundManager';
 import { VfxManager } from '../vfx/VfxManager';
-import { GraphicsSettingsManager } from '../settings/GraphicsSettingsManager';
+import { GraphicsSettingsManager, installAdaptiveResolution } from '../settings/GraphicsSettingsManager';
 import { buildRaceTrack } from './RaceTrack';
 import { playAbilityActivation } from '../vfx/AbilityActivation';
 import { createRacePickup } from './RacePickup';
@@ -51,9 +51,10 @@ export class RaceEngine {
 
     constructor(canvas: HTMLCanvasElement, state: RaceSnapshot, localId: string, send: (input: RaceInput) => void) {
         this.snapshot = state; this.localId = localId; this.send = send;
-        this.engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true });
+        this.engine = new Engine(canvas, false, { preserveDrawingBuffer: false, stencil: true, powerPreference: "high-performance" });
         this.engine.setHardwareScalingLevel(GraphicsSettingsManager.getInstance().getConfig().hardwareScalingLevel);
         this.scene = new Scene(this.engine);
+        installAdaptiveResolution(this.scene);
         buildRaceTrack(this.scene);
         VfxManager.initialize(this.scene); SoundManager.getInstance().init(this.scene);
         this.camera = new FreeCamera('race-chase-camera', new Vector3(0, 7, -15), this.scene);
@@ -76,6 +77,7 @@ export class RaceEngine {
         }
         const glow = new GlowLayer('race-pickup-glow', this.scene, { mainTextureRatio: .25, blurKernelSize: 24 });
         glow.intensity = .55;
+        glow.isEnabled = GraphicsSettingsManager.getInstance().getConfig().enableGlow;
         for (const pickup of this.snapshot.pickups) {
             const mesh = createRacePickup(this.scene, pickup);
             glow.addIncludedOnlyMesh(mesh);

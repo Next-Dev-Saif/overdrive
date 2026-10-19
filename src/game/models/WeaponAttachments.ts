@@ -54,7 +54,7 @@ export function buildVehicleWeapons(parent: TransformNode, vehicleId: string, we
         );
         mount.metadata = { placement: profile.placement, vehicleId };
         const b = new ModelBuilder(parent.getScene(), mount);
-        const steel = b.material('attachment-steel', '#303b43', 0.72, 0.43);
+        const steel = ModelBuilder.steelSurface(b.scene);
         const accent = b.material('attachment-trim', profile.accent, 0.7, 0.36);
         if (side) {
             const anchorX = side * ((envelope.sideAnchorWidth ?? envelope.width) / 2 - envelope.width / 2 - scale * 1.4);

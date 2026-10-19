@@ -102,6 +102,36 @@ for (const kind of ['minigun', 'plasma', 'missile', 'mortar', 'nuke']) {
     weapon.dispose(); owner.dispose(); target.dispose();
 }
 assert.equal(deploySounds, 5, 'one deployment cue per weapon');
+// Exercise real detonation payloads and the receiving player's spatial filter.
+await compile(resolve('src/game/engine/CameraShake.ts'));
+const { cameraShakeIntensity } = await load('src/game/engine/CameraShake.js');
+const previousWindow = globalThis.window;
+const shakes = [];
+globalThis.window = { dispatchEvent(event) { if (event.type === 'camera-shake') shakes.push(event.detail); } };
+const explosions = [];
+VfxManager.getInstance = () => ({ triggerExplosion(...args) { explosions.push(args); } });
+SoundManager.getInstance = () => ({ playExplosion() {} });
+for (const weaponId of ['mortar', 'nuke']) for (const isPlayer of [false, true]) {
+    const blast = new Vector3(100, 0, 50), radius = weaponId === 'nuke' ? 30 : 10;
+    const controller = Object.assign(Object.create(WeaponController.prototype), { weaponId, isPlayer, targetPool: [], ownerMesh: { metadata: {} }, networkManager: null });
+    const before = shakes.length;
+    controller.detonateProjectile(blast, radius, 100);
+    assert.equal(shakes.length, before + 1, 'one spatial shake per impact, for local and remote shots');
+    assert.equal(explosions.at(-1)[3], weaponId, 'aftermath receives exact weapon kind');
+    const request = shakes.at(-1);
+    assert.equal(request.radius, radius);
+    assert.equal(cameraShakeIntensity(request, blast), request.intensity);
+    assert.equal(cameraShakeIntensity(request, { x: 100 + radius / 2, y: 0, z: 50 }), request.intensity * .5);
+    assert.equal(cameraShakeIntensity(request, { x: 100 + radius, y: 0, z: 50 }), 0);
+    assert.equal(cameraShakeIntensity(request, { x: 100, y: radius + 1, z: 50 }), 0);
+    assert.equal(cameraShakeIntensity(request, { x: 500, y: 0, z: 50 }), 0);
+    assert.equal(cameraShakeIntensity(request), 0, 'no player means no world-impact shake');
+}
+assert.equal(cameraShakeIntensity({ intensity: .15 }), .15, 'local recoil is preserved');
+assert.equal(cameraShakeIntensity({ intensity: 0 }), 0);
+assert.equal(cameraShakeIntensity({ intensity: 1, position: { x: 0, y: 0, z: 0 }, radius: 0 }, { x: 0, y: 0, z: 0 }), 0);
+globalThis.window = previousWindow;
+console.log('PASS: mortar/nuke shake fades with player distance and stops at the blast boundary.');
 scene.dispose(); engine.dispose();
 console.log('PASS: five weapon bays, deploy/retract, one-shot audio, upward muzzles, readiness, EMP and automatic reload.');
 console.log('PASS: OBJ provenance, triangle counts, normals/winding, bounds, shared geometry/materials, collision exclusion, tail anchors, pooling and scene isolation.');

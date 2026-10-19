@@ -4,7 +4,7 @@ import { ModelBuilder } from './ModelBuilder';
 /** Armored cassette with sliding doors; moving parts remain independent of compacted geometry. */
 export function buildWeaponBay(mount: TransformNode, turret: Mesh, scale: number): void {
     const builder = new ModelBuilder(mount.getScene(), mount);
-    const armor = builder.material('bay-armor', '#303b43', .7, .4);
+    const armor = ModelBuilder.steelSurface(mount.getScene());
     builder.box('bay-floor', 1.65 * scale, .1 * scale, 3.2 * scale, armor, 0, 0, .55 * scale);
     for (const side of [-1, 1]) builder.box('bay-wall', .12 * scale, .65 * scale, 3.2 * scale, armor, side * .83 * scale, .32 * scale, .55 * scale);
     for (const end of [-1.05, 2.15]) builder.box('bay-end', 1.65 * scale, .65 * scale, .1 * scale, armor, 0, .32 * scale, end * scale);

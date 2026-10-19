@@ -153,6 +153,11 @@ export class WeaponController {
     }
 
     /** Register all potential enemy root meshes for targeting */
+    private preferredTarget: Mesh | null | undefined;
+
+    /** Bot intent selects a candidate; normal visibility, range and aim checks still apply. */
+    public setPreferredTarget(target: Mesh | null): void { this.preferredTarget = target; }
+
     public setTargetPool(meshes: Mesh[]): void {
         this.nextTargetScan = 0;
         this.targetPool = meshes.filter(mesh => canAffect(this.ownerMesh, mesh));
@@ -257,6 +262,7 @@ export class WeaponController {
         const candidates: { mesh: Mesh; score: number }[] = [];
 
         for (const enemy of this.targetPool) {
+            if (this.preferredTarget !== undefined && enemy !== this.preferredTarget) continue;
             if (!enemy || enemy.isDisposed()) continue;
             if (enemy === this.ownerMesh) continue;
             if (!canAffect(this.ownerMesh, enemy)) continue;
@@ -800,16 +806,18 @@ export class WeaponController {
     private detonateProjectile(position: Vector3, radius: number, damage: number) {
         const isNuke = this.weaponId === "nuke";
         
-        VfxManager.getInstance().triggerExplosion(position, radius, isNuke);
+        VfxManager.getInstance().triggerExplosion(position, radius, isNuke, this.weaponId as 'missile' | 'mortar' | 'nuke');
         SoundManager.getInstance().playExplosion(position, this.weaponId);
 
+        // All impacts carry their location; the receiving player applies distance falloff.
+        window.dispatchEvent(new CustomEvent('camera-shake', { detail: {
+            intensity: isNuke ? 1.5 : 0.5, duration: isNuke ? 1500 : 300,
+            position: { x: position.x, y: position.y, z: position.z }, radius,
+        } }));
         if (isNuke && this.isPlayer) {
-            window.dispatchEvent(new CustomEvent('camera-shake', { detail: { intensity: 1.5, duration: 1500 } }));
             window.dispatchEvent(new CustomEvent('spawn-status-text', {
                 detail: { x: position.x, y: position.y + 10, z: position.z, text: "RADIATION WARNING", color: "#00ff00" }
             }));
-        } else if (this.isPlayer) {
-            window.dispatchEvent(new CustomEvent('camera-shake', { detail: { intensity: 0.5, duration: 300 } }));
         }
 
         const isLocalShooter = this.isPlayer || this.isAuthoritativeBot;

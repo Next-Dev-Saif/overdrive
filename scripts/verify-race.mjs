@@ -92,7 +92,8 @@ for(const bot of [false,true]) {
  const input=new Map([['a',controls]]);
  assert.equal(stepRace(match,input,1000,1/60).length,0,'acquisition does not instantly fire');
  assert.equal(a.targetId,b.id);
- const shot=stepRace(match,input,1250,1/60).find(shot=>shot.weapon==='plasma');
+ if(bot) assert.equal(stepRace(match,input,1250,1/60).length,0,'bot waits for deliberate reaction window');
+ const shot=stepRace(match,input,bot ? 1450 : 1250,1/60).find(shot=>shot.weapon==='plasma');
  assert.equal(shot?.target,b.id);assert.equal(a.ammo,1);assert.ok(b.health<600);
  b.protectedUntil=5000;assert.equal(stepRace(match,input,2000,1/60).length,0);assert.equal(a.targetId,null);
 }
@@ -152,3 +153,12 @@ for(const pickup of createPickups()) {
 assert.equal(labels.length,10,'every pickup identifies its item in text');
 pickupScene.dispose();assert.equal(pickupScene.meshes.length,0);pickupEngine.dispose();
 console.log('PASS: translucent pickup geometry, labels, elevation, collection/respawn visibility and cleanup.');
+
+{
+ const match=duel(),[a,b]=match.racers; a.bot=true;
+ stepRace(match,new Map(),1000,1/60);
+ assert.equal(a.abilityTarget,null,'unarmed bot observes before activating');
+ assert.equal(a.targetId,b.id,'unarmed bot can acquire an ability target');
+ stepRace(match,new Map(),1500,1/60);
+ assert.equal(a.abilityTarget,b.id,'unarmed bot uses lightning after stable acquisition');
+}

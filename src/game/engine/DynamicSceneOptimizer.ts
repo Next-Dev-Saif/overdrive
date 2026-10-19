@@ -19,7 +19,7 @@ export function createDynamicSceneOptimizerOptions(quality: GraphicsQuality): Sc
         : SceneOptimizerOptions.ModerateDegradationAllowed();
 
     options.optimizations = options.optimizations.filter(
-        // Preserve native display resolution even when reducing other effects.
+        // Resolution is managed separately by the bounded frame-time controller.
         // Particle density is already tiered by GraphicsSettingsManager. A global
         // shutdown permanently hides ability telegraphs after the first FPS dip.
         optimization => !(optimization instanceof HardwareScalingOptimization) && !(optimization instanceof MergeMeshesOptimization) && !(optimization instanceof ParticlesOptimization),

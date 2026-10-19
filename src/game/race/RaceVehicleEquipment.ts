@@ -12,9 +12,9 @@ export function equipRaceWeapon(root: Mesh, weapon: RaceWeapon | null): void {
         mount.getChildMeshes().forEach(mesh => { if (mesh.material) owned.add(mesh.material); });
         mount.dispose();
     }
-    owned.forEach(material => material.dispose());
+    owned.forEach(material => { if (!material.metadata?.sceneOwnedHardware) material.dispose(); });
     const before = new Set(root.getScene().materials);
     if (weapon) buildVehicleWeapons(chassis, 'interceptor', weapon, envelope);
     // Weapon recipes may also allocate unused materials; own those too.
-    chassis.metadata.raceWeaponMaterials = root.getScene().materials.filter(material => !before.has(material));
+    chassis.metadata.raceWeaponMaterials = root.getScene().materials.filter(material => !before.has(material) && !material.metadata?.sceneOwnedHardware);
 }

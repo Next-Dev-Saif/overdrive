@@ -51,7 +51,7 @@ export function stepRace(state: RaceSnapshot, inputs: Map<string, RaceInput>, no
             Object.assign(car, { x: pose.x, z: pose.z, yaw: pose.yaw, vx: 0, vz: 0, health: RACE_RULES.health, protectedUntil: now + 2000, respawnAt: 0 });
         }
         const previous = { x: car.x, z: car.z };
-        const input = car.bot ? botInput(car, (i % 3 - 1) * 4) : (inputs.get(car.id) ?? NEUTRAL_INPUT);
+        const input = car.bot ? botInput(car, (i % 3 - 1) * 4, state.racers, now) : (inputs.get(car.id) ?? NEUTRAL_INPUT);
         car.health = Math.max(0, car.health - driveRacer(car, input, dt));
         if (car.health <= 0) { recoverRacer(car, now); continue; }
         crossCheckpoint(car, previous);
@@ -88,7 +88,7 @@ export function stepRace(state: RaceSnapshot, inputs: Map<string, RaceInput>, no
             const victim = findRaceTarget(car, state.racers, now, RACE_ABILITY.range);
             if (victim) { car.lastAbility = now; car.abilityTarget = victim.id; car.abilityImpactAt = now + RACE_ABILITY.windupMs; }
         }
-        const target = car.weapon && car.ammo > 0 ? findRaceTarget(car, state.racers, now, RACE_WEAPONS[car.weapon].range) : undefined;
+        const target = car.weapon && car.ammo > 0 ? findRaceTarget(car, state.racers, now, RACE_WEAPONS[car.weapon].range) : car.bot ? findRaceTarget(car, state.racers, now, RACE_ABILITY.range) : undefined;
         if (car.targetId !== (target?.id ?? null)) { car.targetId = target?.id ?? null; car.targetSince = now; }
         if (!input.fire || !car.weapon || car.ammo <= 0 || now - car.targetSince < 220) continue;
         const weapon = RACE_WEAPONS[car.weapon];

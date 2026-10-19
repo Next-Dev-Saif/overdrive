@@ -214,6 +214,9 @@ console.log(`PASS: 70 imported/procedural loadouts; finite geometry, wheel count
     const raceEngine = new NullEngine(), scene = new Scene(raceEngine), root = new Mesh('race-car', scene);
     await buildImportedVehicleModel(root, scene, 'interceptor', 'none', { width: 2, height: .8, depth: 4.2 }, Color3.White(), .9);
     assert.equal(root.getChildTransformNodes().filter(n => n.name.startsWith('weapon_mount_')).length, 0);
+    // Hardware materials are bounded scene resources, shared across racers and abilities.
+    const armor = ModelBuilder.steelSurface(scene), alloy = ModelBuilder.steelSurface(scene, true);
+    const textures = scene.textures.length;
     const materialCount = scene.materials.length, meshCount = scene.meshes.length;
     for (let cycle = 0; cycle < 3; cycle++) for (const weapon of ['minigun', 'missile', 'plasma', 'mortar', 'nuke']) {
         equipRaceWeapon(root, weapon);
@@ -222,6 +225,9 @@ console.log(`PASS: 70 imported/procedural loadouts; finite geometry, wheel count
         equipRaceWeapon(root, null);
         assert.equal(scene.meshes.length, meshCount, 'old weapon meshes are released');
         assert.equal(scene.materials.length, materialCount, 'old weapon materials are released');
+        assert.equal(scene.textures.length, textures, 'pickup swaps do not upload additional hardware textures');
+        assert.equal(ModelBuilder.steelSurface(scene), armor, 'removing one weapon preserves shared armor');
+        assert.equal(ModelBuilder.steelSurface(scene, true), alloy, 'removing one weapon preserves shared alloy');
     }
     scene.dispose(); raceEngine.dispose();
     console.log('PASS: Interceptor starts unarmed and all five pickup weapons mount/remove repeatedly without resource growth.');

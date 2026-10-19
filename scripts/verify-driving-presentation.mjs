@@ -44,13 +44,51 @@ for (const config of configs) {
     };
     assert.ok(Math.abs(simulate(30) - simulate(120)) < .02, 'steering stays consistent across frame rates');
 }
-globalThis.window = { devicePixelRatio: 1, dispatchEvent() {} };
-const { GraphicsSettingsManager } = await load('src/game/settings/GraphicsSettingsManager.ts');
+globalThis.window = { devicePixelRatio: 1, dispatchEvent() {}, addEventListener() {}, removeEventListener() {} };
+const { GraphicsSettingsManager, installAdaptiveResolution } = await load('src/game/settings/GraphicsSettingsManager.ts');
 const manager = GraphicsSettingsManager.getInstance();
 for (const dpr of [1, 1.25, 1.5, 2, 3]) for (const quality of ['LOW', 'MEDIUM', 'HIGH']) {
     window.devicePixelRatio = dpr; manager.setQuality(quality);
     assert.equal(800 / manager.getConfig().hardwareScalingLevel, 800 * dpr);
 }
+// Windows detection must bound DPR and saved expensive effects without changing other platforms.
+const previousNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
+const windowsGraphics = new GraphicsSettingsManager();
+assert.equal(windowsGraphics.getQuality(), 'LOW');
+for (const [width, height] of [[1366, 768], [1920, 1080], [3840, 2160]]) {
+    window.innerWidth = width; window.innerHeight = height;
+    for (const dpr of [1, 1.5, 2]) for (const quality of ['LOW', 'MEDIUM', 'HIGH']) {
+        window.devicePixelRatio = dpr; windowsGraphics.setQuality(quality);
+        const config = windowsGraphics.getConfig();
+        assert.ok(width * height / config.hardwareScalingLevel ** 2 <= 1600 * 900 + 1);
+        assert.ok(config.shadowResolution <= 512);
+        assert.equal(config.enableGlow, false);
+        assert.ok(config.particleLimitMultiplier <= .5);
+    }
+}
+// Sustained overload degrades only to a bounded scale; fast frames recover it.
+{
+    const engine = new NullEngine(), scene = new Scene(engine);
+    // NullEngine hardcodes its getter to 1; emulate the real drawing-buffer scale.
+    let scale = 1;
+    engine.setHardwareScalingLevel = value => { scale = value; };
+    engine.getHardwareScalingLevel = () => scale;
+    let dt = 33.3;
+    engine.getDeltaTime = () => dt;
+    const base = manager.getConfig().hardwareScalingLevel;
+    engine.setHardwareScalingLevel(base);
+    installAdaptiveResolution(scene);
+    for (let i = 0; i < 1200; i++) scene.onAfterRenderObservable.notifyObservers(scene);
+    assert.ok(engine.getHardwareScalingLevel() > base);
+    assert.ok(engine.getHardwareScalingLevel() <= base * 1.6 + .001);
+    dt = 16;
+    for (let i = 0; i < 2400; i++) scene.onAfterRenderObservable.notifyObservers(scene);
+    assert.ok(Math.abs(engine.getHardwareScalingLevel() - base) < .02, 'recovers resolution after sustained headroom');
+    scene.dispose(); engine.dispose();
+}
+if (previousNavigator) Object.defineProperty(globalThis, 'navigator', previousNavigator);
+else delete globalThis.navigator;
 const { createDynamicSceneOptimizerOptions } = await load('src/game/engine/DynamicSceneOptimizer.ts');
 for (const quality of ['LOW', 'MEDIUM', 'HIGH']) assert.ok(createDynamicSceneOptimizerOptions(quality).optimizations.every(step => !(step instanceof HardwareScalingOptimization)), 'optimizer cannot reintroduce resolution blur');
 const { createSkyPixels, buildOuterLandscape } = await load('src/game/levels/OuterLandscape.ts');

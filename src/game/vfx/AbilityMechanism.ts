@@ -1,4 +1,5 @@
-import { Color3, Mesh, MeshBuilder, StandardMaterial, TransformNode, Vector3 } from '@babylonjs/core';
+import { ModelBuilder } from '../models/ModelBuilder';
+import { Mesh, MeshBuilder, TransformNode, Vector3 } from '@babylonjs/core';
 
 const HOLD_MS: Record<string, number> = { lightning: 800, shockwave: 800, phantom: 8000, manticore: 1200, valkyrie: 5000, wraith: 1200, behemoth: 6000 };
 
@@ -8,12 +9,8 @@ export function deployAbilityMechanism(parent: Mesh, ability: string, center: Ve
     const root = new TransformNode(`ability-mechanism-${ability}`, scene);
     root.parent = parent;
     root.position.copyFrom(center);
-    const metal = new StandardMaterial('ability-hardware-metal', scene);
-    metal.diffuseColor = new Color3(0.17, 0.19, 0.21);
-    metal.specularColor = new Color3(0.7, 0.7, 0.7);
-    const trim = new StandardMaterial('ability-hardware-inlay', scene);
-    trim.diffuseColor = new Color3(0.8, 0.82, 0.84);
-    trim.emissiveColor = new Color3(0.25, 0.27, 0.29);
+    const metal = ModelBuilder.steelSurface(scene);
+    const trim = ModelBuilder.steelSurface(scene, true);
     const unit = Math.min(size.x / 3, size.z / 5);
     const moving: { node: TransformNode; direction: Vector3; travel: number; hinge: boolean }[] = [];
     const part = (name: string, node: TransformNode, dimensions: Vector3, position: Vector3, bright = false) => {
@@ -64,7 +61,7 @@ export function deployAbilityMechanism(parent: Mesh, ability: string, center: Ve
         scene.onBeforeRenderObservable.remove(observer);
         scene.onDisposeObservable.remove(sceneObserver);
         parent.onDisposeObservable.remove(parentObserver);
-        root.dispose(); metal.dispose(); trim.dispose();
+        root.dispose(); // Materials and maps are shared for the scene lifetime.
     };
     const observer = scene.onBeforeRenderObservable.add(() => {
         if (!valid()) { cleanup(); return; }

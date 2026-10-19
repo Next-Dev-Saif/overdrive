@@ -80,7 +80,9 @@ const { isProjectileCollisionCandidate } = await import(pathToFileURL(`${out}/Pr
 // initializing its unrelated texture loading / activation burst effects.
 for (const [name, source] of [
     ['VfxManager', manager],
+    ['ExplosionAftermath', await readFile('src/game/vfx/ExplosionAftermath.ts', 'utf8')],
     ['AbilityVortex', await readFile('src/game/vfx/AbilityVortex.ts', 'utf8')],
+    ['ModelBuilder', await readFile('src/game/models/ModelBuilder.ts', 'utf8')],
     ['AbilityMechanism', await readFile('src/game/vfx/AbilityMechanism.ts', 'utf8')],
     ['VehicleBounds', await readFile('src/game/models/VehicleBounds.ts', 'utf8')],
     ['TargetFrame', await readFile('src/game/match/TargetFrame.ts', 'utf8')],
@@ -92,7 +94,7 @@ for (const [name, source] of [
 ]) {
     const code = ts.transpileModule(source, {
         compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext },
-    }).outputText.replace("'./ElectricSurface'", "'./ElectricSurface.js'").replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js').replace("'./VfxAssets'", "'./VfxAssets.js'").replace("'./AbilityMechanism'", "'./AbilityMechanism.js'").replaceAll("'./AbilityVortex'", "'./AbilityVortex.js'").replace("'../models/VehicleBounds'", "'./VehicleBounds.js'").replace("@babylonjs/core/Misc/sceneOptimizer'", "@babylonjs/core/Misc/sceneOptimizer.js'");
+    }).outputText.replace("'./ExplosionAftermath'", "'./ExplosionAftermath.js'").replace("'../models/ModelBuilder'", "'./ModelBuilder.js'").replace("'./ElectricSurface'", "'./ElectricSurface.js'").replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js').replace("'./VfxAssets'", "'./VfxAssets.js'").replace("'./AbilityMechanism'", "'./AbilityMechanism.js'").replaceAll("'./AbilityVortex'", "'./AbilityVortex.js'").replace("'../models/VehicleBounds'", "'./VehicleBounds.js'").replace("@babylonjs/core/Misc/sceneOptimizer'", "@babylonjs/core/Misc/sceneOptimizer.js'");
     await writeFile(`${out}/${name}.js`, code);
 }
 const { playAbilityActivation, vortexPosition, ABILITY_ACTIVATION_MS } = await import(pathToFileURL(`${out}/AbilityActivation.js`));
@@ -133,11 +135,13 @@ try {
     body.parent = chassis;
     const sample = Vector3.Zero(), center = new Vector3(0, 1, 0), size = new Vector3(4, 3, 8);
     vortexPosition(0, 0, center, size, sample);
-    assert.ok(sample.equalsWithEpsilon(center), 'activation particles emerge from chassis');
+    assert.ok(Math.abs(sample.x - center.x) <= size.x * 0.5, 'activation sparks start at flank hardpoints');
     vortexPosition(0.5, 0, center, size, sample);
-    assert.ok(sample.subtract(center).length() > 2, 'particles spiral outside chassis');
+    assert.ok(Math.abs(sample.x - center.x) > size.x * 0.43, 'sparks discharge outward from hardpoints');
     vortexPosition(1, 0, center, size, sample);
-    assert.ok(sample.equalsWithEpsilon(center), 'particles collapse back inside before ability');
+    assert.ok(Math.abs(sample.x - center.x) <= size.x * 0.5, 'discharges end at hardpoints');
+    const { ModelBuilder } = await import(pathToFileURL(`${out}/ModelBuilder.js`));
+    ModelBuilder.steelSurface(scene); ModelBuilder.steelSurface(scene, true);
     const baselineMeshes = scene.meshes.length, baselineMaterials = scene.materials.length;
     for (const ability of ['lightning', 'shockwave', 'phantom', 'manticore', 'valkyrie', 'wraith', 'behemoth']) {
         let executed = 0;

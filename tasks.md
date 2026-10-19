@@ -680,3 +680,80 @@
 - Resume receives focus after showModal; the dialog shell no longer draws a viewport-sized focus ring, while action buttons retain visible keyboard focus. Added dialog title/description associations.
 - Replaced absolute positioning of content/footer with a scrollable grid and safe-area padding; controls remain below actions on short screens.
 - Targeted lint, TypeScript and production compilation passed; existing Babylon chunk warning remains. Validation build: /tmp/overdrive-pause-overlay-build using a command-scoped placeholder backend. No deployment changes or browser verification.
+
+## 2026-10-19 — Windows performance and industrial ability hardware
+### In progress
+- [x] Bound Windows desktop render resolution and effect quality; preserve ability cues.
+- [x] Replace soft charge orbs with directional hardpoint sparks; texture armored bays and equipment.
+- [x] Run headless regression, types and lint; leave browser verification to user.
+
+## 2026-10-19 — Windows performance and combat hardware finishes
+### Completed
+- [x] Bound Windows render resolution, default to LOW unless explicitly overridden, and adapt resolution to sustained frame time in arena/race.
+- [x] Replace magical activation orbits with directional hardpoint sparks; retain wind-up timing and cancellation.
+- [x] Add reusable iron armor and machined-metal surface textures to bays, weapons and ability mechanisms.
+- [x] Run headless lifecycle/gameplay checks, TypeScript and lint; leave browser and real Windows FPS verification to the user.
+### Diagnosis
+- All presets currently force native DPR resolution; HIGH is the default and uses 2048px shadows/glow. Automatic resolution reduction is disabled. These are code-level bottleneck candidates, not measured Windows profiling results.
+
+### Findings and verification
+- Expensive unconditional HIGH defaults, native-DPR framebuffer, 2048px shadows and glow are avoidable GPU costs; no hardware FPS measurements were collected.
+- Windows NT desktop user agent defaults to LOW; saved presets remain selectable with a 1.44-million-pixel framebuffer ceiling, no glow, shadows at most 512 and particle multiplier at most 0.5. Other platforms retain existing resolution behavior.
+- Charge batch reduced from 24–100 to 12–48 narrow streaks, vented from flank hardpoints; existing ability timings/cancellation preserved.
+- Shared 128px procedural iron/alloy albedo and metallic/roughness maps cover bays, weapon steel/alloy and temporary ability mechanisms; scene lifetime ownership avoids repeated hardware texture allocation. No new dependencies/assets.
+- TypeScript, app lint (four pre-existing AuthContext/GameCanvas warnings), VFX, 70 model loadouts, projectile/bay, battle and driving/presentation regression checks passed. Windows tests cover three display sizes, three DPRs and all quality presets.
+- No browser opened per execution guide. Actual Windows frame-time comparison and visual inspection of every ability/bay on low/high remain manual QA. Production bundling was not run; TypeScript compilation passed.
+
+### Additional lifecycle and adaptation verification
+- Windows now uses a separate versioned preference key: first launch selects LOW even with a legacy HIGH setting; later explicit choices persist within the Windows performance caps.
+- Arena and race use a bounded resolution controller after a three-second warmup: two-second samples reduce resolution under sustained load and restore it when headroom returns. Tests cover degradation bounds and recovery using a simulated engine scale (NullEngine itself hardcodes its scale getter).
+- Race disables MSAA and requests the high-performance GPU; pickup glow respects the selected profile.
+- Race weapon removal explicitly preserves scene-owned metal materials. Repeated swaps test stable texture counts and material identity; all 70 loadouts pass, maximum 52 render meshes after sharing attachment steel.
+- Passed TypeScript, app lint (four existing warnings), VFX, model, projectile, battle, race and driving/presentation checks. No browser or production bundling run.
+- Manual acceptance: compare frame times on the same Windows laptop/map before and after; inspect all seven ability wind-ups and five weapon bays at LOW/HIGH; trigger simultaneous abilities, death/respawn, repeat race pickups and resize the window. Check readable sparks and worn metal under each map's lighting.
+
+## 2026-10-20 — Visible ability charge and distance-limited impact shake
+### Completed
+- [x] Widen and brighten activation streaks without adding particles or glow dependencies.
+- [x] Attenuate projectile impact shake against the player's position and actual blast radius; preserve local firing/damage feedback.
+- [x] Verify distance boundaries, event payloads, VFX cleanup, TypeScript and lint without browser testing.
+
+### Verification
+- Activation sprites now have wider opaque cores, larger streak widths and 2.5x emissive color. Particle counts, batching and lifetime remain unchanged; visibility does not require glow.
+- Projectile impacts include world position and actual damage radius. The camera listener uses the local vehicle position (not the offset chase camera), linearly fades shake, and ignores impacts at/outside the radius. Local recoil/damage events remain intact; remote impacts use the same spatial filter.
+- Passed TypeScript, VFX, projectile/bay and battle regressions. New detonation tests cover local/remote mortar and nuke impacts, center/half-radius/boundary/distant/vertical positions, absent listener and unchanged recoil. Lint has only four existing warnings.
+- No browser opened. Manual check: all seven charge effects at LOW with glow disabled, then close/far mortar and nuke landings on the same map.
+
+## 2026-10-20 — Deliberate bot combat decisions
+### Completed
+- [x] Add deterministic tactical rules, stable visible-target selection, weapon spacing, withdrawal and obstacle recovery.
+- [x] Coordinate weapon targeting/firing with bot intent and make all seven abilities conditional on useful opportunities.
+- [x] Gate race combat requests on established valid targets instead of unconditional fire/ability input.
+- [x] Test tactics, target loss, disabled states, obstacle recovery, ability conditions and existing gameplay regressions.
+### Scope
+- Preserve physics, damage, cooldowns and network authority. Use bounded local steering and sensing rather than introducing a navigation mesh or new dependency. Browser playtesting remains manual.
+
+### Verification and delivery
+- Added BotTactics and BotPerception modules and deterministic arena controller states; replaced frame-random abilities with seven contextual policies. Weapon preference retains existing LOS/FOV/range enforcement.
+- Added `test:bots` covering range/health/reload decisions, seven abilities, acquisition delay, ally/obstacle/cloak filtering, EMP stopping, recovery and the seven-ray decision budget.
+- Race requests now require stable valid locks; tests cover delayed bot firing and unarmed ability acquisition. Physics, ammunition/damage values and host/server authority are preserved.
+- Passed bot, race, battle and projectile suites, frontend TypeScript and server compilation. App lint has four existing AuthContext/GameCanvas warnings and no new warnings.
+- Behavior thresholds and manual acceptance are documented in docs/bot-behavior.md. No browser opened. Complex navigation and combat feel remain manual verification; this is bounded local steering, not global pathfinding.
+
+## 2026-10-20 — Ordnance aftermath and nuclear cloud
+### Completed
+- [x] Add terrain-projected mortar/nuke scorch marks that fade out.
+- [x] Add a tall rising nuclear smoke column and broad mushroom cap, visible on LOW.
+- [x] Bound concurrent effects and verify expiry/scene disposal, quality budgets and weapon routing.
+
+### Verification
+- Mortar and nuke pass their explicit weapon kind into shared explosion presentation. Scorches project onto actual arena terrain/roads, then fade over the final five seconds: mortar 14s total, nuke 24s total.
+- Nuclear stem/cap rises for five seconds to about 132 units at the current 60-unit blast radius; smoke disperses by 16s. Warm initial smoke cools to gray. LOW retains 14 billboards, MEDIUM 22, HIGH 30, batched in one cloud mesh.
+- Concurrent aftermath limited to three on LOW or six otherwise, evicting the oldest. Scene disposal removes observers and private geometry/materials/textures; borrowed smoke texture remains manager-owned. No physics, targeting or damage changes.
+- Passed TypeScript, aftermath silhouette/projection/expiry/budget checks, VFX and projectile regressions. App lint reports the same four existing warnings. No browser opened.
+- Manual QA: mortar/nuke terrain and road impacts on each map, repeated nukes at LOW, far-view mushroom silhouette, and mark fade on slopes. Browser visual quality and GPU timing remain unverified.
+
+## 2026-10-20 — Promotional video agent handoff
+### Completed
+- [x] Write promotion-video.md in the repository with a locked nine-scene, 30-second/1,800-frame edit, exact narration and overlays, real-footage capture list, Hyperframes workflow, audio/graphic direction and delivery QA.
+- [x] Check current setup UI/catalog and official Hyperframes documentation; distinguish implemented gameplay from older planned features. No video generation, capture or publishing performed.

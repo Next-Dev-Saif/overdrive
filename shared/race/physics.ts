@@ -1,5 +1,6 @@
 import { nearestTrack, normalizeAngle, ROAD_WIDTH, trackPose } from './track';
-import type { Racer, RaceInput } from './types';
+import { RACE_ABILITY, RACE_WEAPONS, type Racer, type RaceInput } from './types';
+import { canTargetRacer } from './combat';
 
 /** Fixed-step road-constrained tire model with grade, progressive power and tire grip. Server owns position and impacts. */
 export function driveRacer(car: Racer, input: RaceInput, dt: number): number {
@@ -32,14 +33,20 @@ export function driveRacer(car: Racer, input: RaceInput, dt: number): number {
 }
 
 /** Look-ahead steering follows the road and brakes for upcoming curvature. */
-export function botInput(car: Racer, lane: number): RaceInput {
+export function botInput(car: Racer, lane: number, racers: Racer[] = [], now = 0): RaceInput {
     const road = nearestTrack(car), speed = Math.hypot(car.vx, car.vz);
     const target = trackPose(road.along + 13 + speed * .45, lane);
     const error = normalizeAngle(Math.atan2(target.x - car.x, target.z - car.z) - car.yaw);
     const ahead = trackPose(road.along + 38), current = trackPose(road.along);
     const bend = Math.abs(normalizeAngle(ahead.yaw - current.yaw));
     const targetSpeed = bend > .6 ? 21 : bend > .3 ? 29 : 43;
-    return { throttle: 1, steer: Math.max(-1, Math.min(1, error * 2.4)), brake: speed > targetSpeed, fire: true, ability: true };
+    const opponent = racers.find(other => other.id === car.targetId);
+    const stable = opponent !== undefined && now - car.targetSince >= 400;
+    const fire = stable && car.weapon !== null && car.ammo > 0 && canTargetRacer(car, opponent, now, RACE_WEAPONS[car.weapon].range);
+    // Reserve lightning for a stable close opportunity, not a fleeting range-edge pass.
+    const ability = stable && !car.abilityTarget && (!car.lastAbility || now - car.lastAbility >= RACE_ABILITY.cooldownMs) &&
+        canTargetRacer(car, opponent, now, RACE_ABILITY.range * .8) && (car.ammo <= 0 || opponent.health > RACE_ABILITY.damage || car.health < 200);
+    return { throttle: 1, steer: Math.max(-1, Math.min(1, error * 2.4)), brake: speed > targetSpeed, fire, ability };
 }
 
 /** Equal-mass collision response keeps racers from passing through one another. */

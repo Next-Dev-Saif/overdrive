@@ -1,3 +1,4 @@
+import { cameraShakeIntensity } from './CameraShake';
 import { Engine, Scene, Vector3, FreeCamera, ArcRotateCamera, Color4, Matrix, GlowLayer, Quaternion, Ray, type Mesh } from "@babylonjs/core";
 import { SceneOptimizer } from "@babylonjs/core/Misc/sceneOptimizer";
 import HavokPhysics from "@babylonjs/havok";
@@ -11,7 +12,7 @@ import { AIBotController } from "../entities/AIBotController";
 import { NetworkManager } from "../../network/NetworkManager";
 import { RemoteVehicle } from "../entities/RemoteVehicle";
 import { WeaponController } from "../weapons/WeaponController";
-import { GraphicsSettingsManager } from "../settings/GraphicsSettingsManager";
+import { GraphicsSettingsManager, installAdaptiveResolution } from "../settings/GraphicsSettingsManager";
 import { VfxManager } from "../vfx/VfxManager";
 import { SoundManager } from "./SoundManager";
 import { createDynamicSceneOptimizerOptions } from "./DynamicSceneOptimizer";
@@ -122,6 +123,7 @@ export class GameEngine {
 
         // Initialize Scene
         this.scene = new Scene(this.engine);
+        installAdaptiveResolution(this.scene);
         // Using light neumorphic background
         this.scene.clearColor = Color4.FromHexString("#ECEDEFff");
 
@@ -586,7 +588,8 @@ export class GameEngine {
         }) as EventListener, { signal: this.eventAbort.signal });
 
         window.addEventListener('camera-shake', ((e: CustomEvent) => {
-            this.shakeCamera(e.detail.intensity || 1.0, e.detail.duration || 200);
+            const intensity = cameraShakeIntensity(e.detail, this.playerVehicle?.mesh.getAbsolutePosition());
+            if (intensity > 0) this.shakeCamera(intensity, e.detail.duration ?? 200);
         }) as EventListener, { signal: this.eventAbort.signal });
 
         window.addEventListener('dash-warp', (() => {

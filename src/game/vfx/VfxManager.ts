@@ -1,3 +1,4 @@
+import { createExplosionAftermath } from './ExplosionAftermath';
 import { electricSurface } from './ElectricSurface';
 import { Scene, Vector3, ParticleSystem, Texture, RawTexture, Color4, Color3, PointLight, Mesh, MeshBuilder, StandardMaterial, Animation, FresnelParameters } from "@babylonjs/core";
 import { GraphicsSettingsManager } from "../settings/GraphicsSettingsManager";
@@ -378,7 +379,8 @@ export class VfxManager {
 
     // ─── Explosions (Replaces the primitive scaling spheres) ─────────────────
 
-    public triggerExplosion(position: Vector3, radius: number, isNuke: boolean = false) {
+    public triggerExplosion(position: Vector3, radius: number, isNuke: boolean = false, kind?: ProjectileVfxKind) {
+        if (isNuke || kind === 'mortar') createExplosionAftermath(this.scene, position, radius, isNuke, this.smokeTexture, GraphicsSettingsManager.getInstance().getConfig().particleLimitMultiplier);
         const pMult = GraphicsSettingsManager.getInstance().getConfig().particleLimitMultiplier;
 
         // 1. Initial Core Flash

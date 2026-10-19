@@ -1,4 +1,4 @@
-import { Color3, Material, Mesh, MeshBuilder, PBRMaterial, Scene, TransformNode, Vector3, VertexData } from '@babylonjs/core';
+import { Color3, RawTexture, Texture, Material, Mesh, MeshBuilder, PBRMaterial, Scene, TransformNode, Vector3, VertexData } from '@babylonjs/core';
 
 /** Small geometry vocabulary shared by vehicle and weapon assemblies. All lengths are metres. */
 export class ModelBuilder {
@@ -11,6 +11,35 @@ export class ModelBuilder {
         material.metallic = metallic;
         material.roughness = roughness;
         if (emission) material.emissiveColor = material.albedoColor.scale(0.8);
+        return material;
+    }
+    /** Small scene-owned steel maps shared by all hardware; no per-activation texture upload. */
+    static steelSurface(scene: Scene, polished = false): PBRMaterial {
+        const name = polished ? 'hardware-machined-alloy' : 'hardware-armored-iron';
+        const existing = scene.getMaterialByName(name);
+        if (existing instanceof PBRMaterial) return existing;
+        const material = new PBRMaterial(name, scene);
+        const pixels = new Uint8Array(128 * 128 * 4);
+        const roughness = new Uint8Array(pixels.length);
+        for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
+            const seam = x % 64 < 2 || y % 64 < 2;
+            const bolt = ((x % 64 - 7) ** 2 + (y % 64 - 7) ** 2) < 6;
+            const grain = ((x * 17 + y * 131) % 23) - 11;
+            const scratch = (y * 29 + Math.floor(x / 23)) % 61 === 0;
+            const value = seam ? 32 : bolt ? 155 : (polished ? 153 : 92) + grain + (scratch ? 32 : 0);
+            const i = (y * 128 + x) * 4;
+            pixels.set([value, value + 3, value + 5, 255], i);
+            roughness.set([255, seam ? 235 : polished ? 82 + grain : 155 + grain, 220, 255], i);
+        }
+        material.albedoTexture = RawTexture.CreateRGBATexture(pixels, 128, 128, scene, true, false, Texture.TRILINEAR_SAMPLINGMODE);
+        material.metallicTexture = RawTexture.CreateRGBATexture(roughness, 128, 128, scene, true, false, Texture.TRILINEAR_SAMPLINGMODE);
+        material.metadata = { sceneOwnedHardware: true };
+        material.metallicTexture.gammaSpace = false;
+        material.useRoughnessFromMetallicTextureAlpha = false;
+        material.useRoughnessFromMetallicTextureGreen = true;
+        material.useMetallnessFromMetallicTextureBlue = true;
+        material.metallic = 0.85;
+        material.roughness = 1;
         return material;
     }
     place(mesh: Mesh, material: Material, x: number, y: number, z: number) {
