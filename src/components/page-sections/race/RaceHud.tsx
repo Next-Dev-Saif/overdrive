@@ -8,7 +8,7 @@ import { TRACK } from '../../../../shared/race/track';
 import { VehicleGlyph } from '../match/VehicleGlyph';
 import type { RaceEngine } from '../../../game/race/RaceEngine';
 import { TargetTracking } from '../match/TargetTracking';
-import { LogOut } from 'lucide-react';
+import { Crosshair, LogOut, Shield, Zap } from 'lucide-react';
 
 const trackPath = TRACK.map((p, i) => `${i ? 'L' : 'M'}${p.x + 220} ${p.z + 220}`).join(' ') + ' Z';
 const formatTime = (ms: number) => `${Math.floor(Math.max(0, ms) / 60000)}:${String(Math.floor(Math.max(0, ms) / 1000) % 60).padStart(2, '0')}.${Math.floor(Math.max(0, ms) % 1000 / 100)}`;
@@ -116,25 +116,76 @@ export function RaceHud({ state, localId, engine: engineRef, recover, leave }: {
                 ))}
             </ol>
 
-            {/* Cockpit Status (Bottom Left) */}
+            {/* Cockpit Status (Bottom Left) - Creative Minimal-Text Visualization */}
             <section className="race-vehicle" aria-label="Interceptor status">
-                <VehicleGlyph vehicleId="interceptor" />
-                <div>
-                    <strong>INTERCEPTOR</strong>
-                    <label>
-                        HEALTH {Math.ceil(local.health / RACE_RULES.health * 100)}%
-                        <meter min="0" max={RACE_RULES.health} value={local.health} />
-                    </label>
-                    <span className="race-ammo" data-ready={weaponReady}>
-                        <strong>{local.weapon ? `${local.weapon.toUpperCase()} · ${local.ammo} AMMO` : 'UNARMED · COLLECT A PICKUP'}</strong>
-                        <small>{weaponReady ? 'READY · SPACE / FIRE' : local.weapon ? weaponCycle < 1 ? 'CYCLING' : 'ACQUIRING TARGET' : 'TRACK WEAPONS ACTIVE'}</small>
-                        {local.weapon && <meter aria-label="Weapon cycle" min="0" max="1" value={weaponCycle} />}
-                    </span>
+                <div className="race-vehicle-pod">
+                    <VehicleGlyph vehicleId="interceptor" />
                 </div>
-                <b>
-                    {Math.round(Math.hypot(local.vx, local.vz) * 3.6)}
+
+                <div className="race-telemetry-cluster">
+                    <div className="race-vehicle-identity">
+                        <strong>INTERCEPTOR</strong>
+                        <span className="race-spec-tag">
+                            <Zap size={10} className="text-amber-400" aria-hidden="true" />
+                            LIGHTNING SPEC
+                        </span>
+                    </div>
+
+                    {/* Creative 10-Segment Armor Matrix */}
+                    <div className="race-hull-matrix" data-critical={local.health <= RACE_RULES.health * 0.3}>
+                        <div className="race-hull-header">
+                            <div className="flex items-center gap-1">
+                                <Shield size={11} className={local.health <= RACE_RULES.health * 0.3 ? 'text-red-400 animate-pulse' : 'text-amber-400'} aria-hidden="true" />
+                                <span>HULL</span>
+                            </div>
+                            <strong>{Math.ceil((local.health / RACE_RULES.health) * 100)}<small>%</small></strong>
+                        </div>
+                        <div className="race-hull-chevrons" aria-hidden="true">
+                            {Array.from({ length: 10 }).map((_, i) => (
+                                <span
+                                    key={i}
+                                    className={`race-chevron ${i < Math.ceil((local.health / RACE_RULES.health) * 10) ? 'active' : 'inactive'}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Visual Trackside Munitions / Ammo Status */}
+                    <div className="race-ammo-pod" data-ready={weaponReady} data-armed={Boolean(local.weapon)}>
+                        {local.weapon ? (
+                            <>
+                                <div className="race-ammo-header">
+                                    <div className="flex items-center gap-1">
+                                        <Crosshair size={11} className={weaponReady ? 'text-amber-400' : 'text-slate-400'} aria-hidden="true" />
+                                        <span>{local.weapon.toUpperCase()}</span>
+                                    </div>
+                                    <strong>{local.ammo} AMMO</strong>
+                                </div>
+                                <div className="race-ammo-pips" aria-hidden="true">
+                                    {Array.from({ length: Math.max(4, local.ammo) }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className={`race-cartridge ${i < local.ammo ? 'loaded' : 'spent'}`}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="race-cycle-track" role="progressbar" aria-label="Weapon cycle" aria-valuenow={Math.round(weaponCycle * 100)} aria-valuemin={0} aria-valuemax={100}>
+                                    <i style={{ transform: `scaleX(${weaponCycle})` }} />
+                                </div>
+                            </>
+                        ) : (
+                            <div className="race-unarmed-holo">
+                                <span className="race-pickup-crosshair">+</span>
+                                <span>AWAITING TRACKSIDE PICKUP</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="race-speedo">
+                    <b>{Math.round(Math.hypot(local.vx, local.vz) * 3.6)}</b>
                     <small>KM/H</small>
-                </b>
+                </div>
             </section>
 
             {/* Combat Controls & Overdrive Trigger */}

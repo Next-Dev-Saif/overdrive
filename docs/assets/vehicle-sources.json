@@ -1,0 +1,137 @@
+[
+  {
+    "vehicle": "wraith",
+    "model": "Subaru BRZ Varis",
+    "upstreamCode": "SX",
+    "sourceRevision": "251bc67d5ff52ce535525e144a4a1304e3b2b5ef",
+    "files": [
+      {
+        "path": "assets-source/vehicles/SX/body.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/SX/sx.blend",
+        "sha256": "78aa9ceaad97ee0c9a8349881c229f076a367a1920f91f19f4717a6171945f12"
+      },
+      {
+        "path": "assets-source/vehicles/SX/wheel.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/SX/wheel.blend",
+        "sha256": "99f435c44e914a37fd92ddca14622be5f6135bd50f3198f46fee969b2eb8419d"
+      },
+      {
+        "path": "assets-source/vehicles/SX/about.txt",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/SX/about.txt",
+        "sha256": "f48c21a18176b54209f9afa184dfc401db6741bd7453b77760f72c01ca22f755"
+      },
+      {
+        "path": "assets-source/vehicles/SX/source.car",
+        "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/carsim/normal/cars/SX.car",
+        "sha256": "ca6236ee7442884e3dcc2d803c3bb6f5d02119bba98a016ebc5b0475bdc352ef"
+      }
+    ],
+    "attribution": "\nAuthor: Socksthecat\nLicense: CC-BY 4.0\nhttps://sketchfab.com/3d-models/subaru-brz-varis-8fecd93279644ada9111c5bfa2226327\n\nSort & merge parts, UV unwrap, AO bake,\nimport, fixes and car settings by CryHam\n\nWheel modified from this:\n\nAuthor: Socksthecat\nLicense: CC-BY 4.0\nhttps://sketchfab.com/3d-models/nissan-silvia-s15-custom-2c3481e502c24d818d23a5eb2be8dac9\n"
+  },
+  {
+    "vehicle": "valkyrie",
+    "model": "BMW M3 GT3",
+    "upstreamCode": "XZ",
+    "sourceRevision": "251bc67d5ff52ce535525e144a4a1304e3b2b5ef",
+    "files": [
+      {
+        "path": "assets-source/vehicles/XZ/body.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/XZ/bmw_m3_gt3.blend",
+        "sha256": "5e7c4dcc02652e05957a4129cb3dec8a8017c83bf56be5b57fb472777eb24836"
+      },
+      {
+        "path": "assets-source/vehicles/XZ/wheel.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/XZ/bmw_m3_gt3_wheel.blend",
+        "sha256": "46e43d420722a813f39261ebec0b031f37b66244160cad8d04dbc27cd1e1227d"
+      },
+      {
+        "path": "assets-source/vehicles/XZ/about.txt",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/XZ/about.txt",
+        "sha256": "c0c7041452c9ed3988cfcabea87fd4acec3236ba4e08ad84e75736317f19089d"
+      },
+      {
+        "path": "assets-source/vehicles/XZ/source.car",
+        "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/carsim/normal/cars/XZ.car",
+        "sha256": "213d36f5efc46346f8fd0603b831357be114c3c4cdab718836fc617e6ac30dd4"
+      }
+    ],
+    "attribution": "Car from blendswap\n\nModel by Neubi\nLicense: CC Zero\nhttp://www.blendswap.com/blends/view/19869\n\t\nImport, settings and interior by CryHam\n"
+  },
+  {
+    "vehicle": "phantom",
+    "model": "Lamborghini Veneno",
+    "upstreamCode": "Y7",
+    "sourceRevision": "251bc67d5ff52ce535525e144a4a1304e3b2b5ef",
+    "files": [
+      {
+        "path": "assets-source/vehicles/Y7/body.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/Y7/veneno.blend",
+        "sha256": "5cd9c16c24be5f6715d94e289d7c2b73a458b759c8761f6d4e7a6bf9def275fd"
+      },
+      {
+        "path": "assets-source/vehicles/Y7/wheel.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/Y7/wheel.blend",
+        "sha256": "5e990f26e33b274748784e84469fe8ded786cf5ef00d5791633b402ce520517b"
+      },
+      {
+        "path": "assets-source/vehicles/Y7/about.txt",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/Y7/about.txt",
+        "sha256": "2429d1b538abb2bb539501c0076b62ccee224eddd12a2c27634b64713959fb27"
+      },
+      {
+        "path": "assets-source/vehicles/Y7/source.car",
+        "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/carsim/normal/cars/Y7.car",
+        "sha256": "57debb32aa476b1f73a96a7d130c5bcd026973ee68f060fe75ea6a5306178122"
+      }
+    ],
+    "attribution": "Car from blendswap\n\nModel by hasapeta\nLicense: CC-BY\nhttp://www.blendswap.com/blends/view/74455\n\nImport and settings by CryHam\n"
+  },
+  {
+    "vehicle": "manticore",
+    "model": "Hummer",
+    "upstreamCode": "HR",
+    "sourceRevision": "251bc67d5ff52ce535525e144a4a1304e3b2b5ef",
+    "files": [
+      {
+        "path": "assets-source/vehicles/HR/body.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/HR/hummer.blend",
+        "sha256": "0a89d7ac736b50720e4ca3fff8040f3efc923ba1f702359c81cdafde2c5db8f7"
+      },
+      {
+        "path": "assets-source/vehicles/HR/about.txt",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/HR/about.txt",
+        "sha256": "67693e7d49eccc1a43e7962296fe2fcdf4029e1ce20691eb3e652d8b41f6941d"
+      },
+      {
+        "path": "assets-source/vehicles/HR/source.car",
+        "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/carsim/normal/cars/HR.car",
+        "sha256": "e3f083c1a7ae599253c8746f525c442ee0ed807f7f251f3202a793136081522c"
+      }
+    ],
+    "attribution": "Car from blendswap\n\nModel by thiagohenrinrique\nLicense: CC-BY\nhttp://www.blendswap.com/blends/view/66599\n\t\nImport, interior, settings by CryHam\n"
+  },
+  {
+    "vehicle": "behemoth",
+    "model": "Off-road truck",
+    "upstreamCode": "OT",
+    "sourceRevision": "251bc67d5ff52ce535525e144a4a1304e3b2b5ef",
+    "files": [
+      {
+        "path": "assets-source/vehicles/OT/body.blend",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/OT/truck.blend",
+        "sha256": "87bb35fd7731f0f4fc21b988d68997ad5ff343886048f36dae94bdd381108b04"
+      },
+      {
+        "path": "assets-source/vehicles/OT/about.txt",
+        "url": "https://raw.githubusercontent.com/stuntrally/blendfiles/251bc67d5ff52ce535525e144a4a1304e3b2b5ef/cars/OT/about.txt",
+        "sha256": "e42b7ba38101af0fff2526d74ec6e3be62dded7385d67864061d51d2e87e7a1b"
+      },
+      {
+        "path": "assets-source/vehicles/OT/source.car",
+        "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/carsim/normal/cars/OT.car",
+        "sha256": "28a6237548f2909be2077cadb7fad32896174278408eb6f5f8a89f575777e078"
+      }
+    ],
+    "attribution": "Car from blendswap\n\nModel by irokrhus\nLicense: CC Zero\nhttp://www.blendswap.com/blends/view/66103\n\t\nUV unwrap, import, settings by CryHam\n"
+  }
+]

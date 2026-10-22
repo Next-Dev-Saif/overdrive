@@ -1,3 +1,4 @@
+import { createThermalWake, type ThermalPatch } from './ThermalWake';
 import { createExplosionAftermath } from './ExplosionAftermath';
 import { electricSurface } from './ElectricSurface';
 import { Scene, Vector3, ParticleSystem, Texture, RawTexture, Color4, Color3, PointLight, Mesh, MeshBuilder, StandardMaterial, Animation, FresnelParameters } from "@babylonjs/core";
@@ -871,106 +872,12 @@ export class VfxManager {
         setTimeout(() => glitch.dispose(false), 500);
     }
 
-    public triggerAfterburner(emitter: Mesh, origin: Vector3, hazardDurationMs: number): void {
-        this.createExpandingRing('afterburner-launch-ring', origin, 9, new Color3(0.88, 0.18, 1), 0.15, 24);
-        this.triggerShiningBurst('afterburner-launch-sparks', origin, new Color4(1, 0.78, 1, 1), new Color4(0.48, 0.08, 1, 0.85), 150, 22);
-        this.createTransientLight(origin, new Color3(0.72, 0.08, 1), 5.0, 25, 300);
-
-        // Thruster Cone attached to the vehicle
-        const thrusterCone = MeshBuilder.CreateCylinder('afterburner-cone', { diameterTop: 0.2, diameterBottom: 2.5, height: 6 }, this.scene);
-        thrusterCone.parent = emitter;
-        thrusterCone.position = new Vector3(0, 0, -3.5);
-        thrusterCone.rotation.x = Math.PI / 2;
-        
-        const coneMat = new StandardMaterial('afterburner-cone-mat', this.scene);
-        coneMat.emissiveColor = new Color3(0.9, 0.1, 1);
-        coneMat.diffuseColor = Color3.Black();
-        coneMat.alphaMode = 1; // Engine.ALPHA_ADD
-        coneMat.disableLighting = true;
-        coneMat.alpha = 0.8;
-        thrusterCone.material = coneMat;
-
-        // Animate cone length/visibility
-        const coneScaleAnim = new Animation('cone-scale', 'scaling.y', 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
-        coneScaleAnim.setKeys([{ frame: 0, value: 0.1 }, { frame: 10, value: 1.5 }, { frame: 30, value: 1.0 }, { frame: 50, value: 0 }]);
-        const coneAlphaAnim = new Animation('cone-alpha', 'visibility', 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
-        coneAlphaAnim.setKeys([{ frame: 0, value: 0.8 }, { frame: 30, value: 0.4 }, { frame: 50, value: 0 }]);
-        
-        thrusterCone.animations = [coneScaleAnim, coneAlphaAnim];
-        this.scene.beginAnimation(thrusterCone, 0, 50, false, 1, () => {
-            thrusterCone.dispose();
-            coneMat.dispose();
-        });
-
-        const multiplier = GraphicsSettingsManager.getInstance().getConfig().particleLimitMultiplier;
-        if (multiplier > 0) {
-            // Speed lines
-            const streaks = new ParticleSystem('afterburner-warp-streaks', Math.round(250 * multiplier), this.scene);
-            streaks.particleTexture = this.flareTexture;
-            streaks.emitter = emitter;
-            streaks.minEmitBox = new Vector3(-2.5, -1.0, -3.0);
-            streaks.maxEmitBox = new Vector3(2.5, 1.5, -1.4);
-            streaks.color1 = new Color4(1, 0.62, 1, 1);
-            streaks.color2 = new Color4(0.24, 0.16, 1, 0.85);
-            streaks.colorDead = new Color4(0.08, 0, 0.24, 0);
-            streaks.minSize = 0.1;
-            streaks.maxSize = 0.5; // Longer streaks
-            streaks.minLifeTime = 0.15;
-            streaks.maxLifeTime = 0.3;
-            streaks.emitRate = 500 * multiplier;
-            streaks.direction1 = new Vector3(0, 0, -30);
-            streaks.direction2 = new Vector3(0, 0, -50);
-            streaks.blendMode = ParticleSystem.BLENDMODE_ADD;
-            streaks.start();
-            setTimeout(() => {
-                streaks.stop();
-                setTimeout(() => streaks.dispose(false), 500);
-            }, 600); // Stop matching dash duration
-        }
-
-        const hazardRing = MeshBuilder.CreateTorus('afterburner-hazard-ring', { diameter: 7.2, thickness: 0.1, tessellation: 64 }, this.scene);
-        hazardRing.position.copyFrom(origin);
-        hazardRing.position.y += 0.12;
-        const hazardMaterial = new StandardMaterial('afterburner-hazard-material', this.scene);
-        hazardMaterial.emissiveColor = new Color3(0.78, 0.08, 1);
-        hazardMaterial.diffuseColor = Color3.Black();
-        hazardMaterial.disableLighting = true;
-        hazardMaterial.alpha = 0.62;
-        hazardRing.material = hazardMaterial;
-
-        const hazard = multiplier > 0 ? new ParticleSystem('afterburner-plasma-hazard', Math.round(100 * multiplier), this.scene) : null;
-        if (hazard) {
-            hazard.particleTexture = this.fireTexture;
-            hazard.emitter = origin;
-            hazard.createBoxEmitter(
-                new Vector3(-0.12, 1, -0.12),
-                new Vector3(0.12, 1, 0.12),
-                new Vector3(-3.1, 0, -3.1),
-                new Vector3(3.1, 0.15, 3.1),
-            );
-            hazard.color1 = new Color4(0.92, 0.28, 1, 0.82);
-            hazard.color2 = new Color4(0.14, 0.12, 1, 0.52);
-            hazard.colorDead = new Color4(0.05, 0, 0.18, 0);
-            hazard.minSize = 0.35;
-            hazard.maxSize = 1.1;
-            hazard.minLifeTime = 0.35;
-            hazard.maxLifeTime = 0.85;
-            hazard.minEmitPower = 3;
-            hazard.maxEmitPower = 7;
-            hazard.emitRate = 75 * multiplier;
-            hazard.blendMode = ParticleSystem.BLENDMODE_ADD;
-            hazard.start();
-        }
-        const startedAt = performance.now();
-        const pulse = () => { hazardMaterial.alpha = 0.45 + Math.sin((performance.now() - startedAt) * 0.012) * 0.2; };
-        this.scene.onBeforeRenderObservable.add(pulse);
-        setTimeout(() => {
-            this.scene.onBeforeRenderObservable.removeCallback(pulse);
-            hazard?.stop();
-            hazardRing.dispose();
-            hazardMaterial.dispose();
-            if (hazard) setTimeout(() => hazard.dispose(false), 900);
-        }, hazardDurationMs);
+    /** Burst presentation is identical for local players, bots and remote replicas. */
+    public triggerAfterburner(emitter: Mesh, origin: Vector3,
+        onPulse?: (patches: readonly ThermalPatch[]) => void, isActive?: () => boolean): () => void {
+        this.createExpandingRing('afterburner-launch-ring', origin, 9, new Color3(.1, .65, 1), .15, 24);
+        this.triggerShiningBurst('afterburner-launch-sparks', origin, new Color4(.8, 1, 1, 1), new Color4(1, .4, .05, 1), 100, 18);
+        return createThermalWake(this.scene, emitter, onPulse, isActive);
     }
 
     private createElectricLoop(name: string, center: Vector3, radius: number, color: Color3, durationFrames: number): void {

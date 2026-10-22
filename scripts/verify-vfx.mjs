@@ -80,6 +80,8 @@ const { isProjectileCollisionCandidate } = await import(pathToFileURL(`${out}/Pr
 // initializing its unrelated texture loading / activation burst effects.
 for (const [name, source] of [
     ['VfxManager', manager],
+    ['ThermalWake', await readFile('src/game/vfx/ThermalWake.ts', 'utf8')],
+    ['ArenaTerrain', await readFile('src/game/levels/ArenaTerrain.ts', 'utf8')],
     ['ExplosionAftermath', await readFile('src/game/vfx/ExplosionAftermath.ts', 'utf8')],
     ['AbilityVortex', await readFile('src/game/vfx/AbilityVortex.ts', 'utf8')],
     ['ModelBuilder', await readFile('src/game/models/ModelBuilder.ts', 'utf8')],
@@ -94,7 +96,7 @@ for (const [name, source] of [
 ]) {
     const code = ts.transpileModule(source, {
         compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext },
-    }).outputText.replace("'./ExplosionAftermath'", "'./ExplosionAftermath.js'").replace("'../models/ModelBuilder'", "'./ModelBuilder.js'").replace("'./ElectricSurface'", "'./ElectricSurface.js'").replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js').replace("'./VfxAssets'", "'./VfxAssets.js'").replace("'./AbilityMechanism'", "'./AbilityMechanism.js'").replaceAll("'./AbilityVortex'", "'./AbilityVortex.js'").replace("'../models/VehicleBounds'", "'./VehicleBounds.js'").replace("@babylonjs/core/Misc/sceneOptimizer'", "@babylonjs/core/Misc/sceneOptimizer.js'");
+    }).outputText.replace("'./ThermalWake'", "'./ThermalWake.js'").replace("'../levels/ArenaTerrain'", "'./ArenaTerrain.js'").replace("'./ExplosionAftermath'", "'./ExplosionAftermath.js'").replace("'../models/ModelBuilder'", "'./ModelBuilder.js'").replace("'./ElectricSurface'", "'./ElectricSurface.js'").replace('../settings/GraphicsSettingsManager', './GraphicsSettingsManager.js').replace("'./VfxAssets'", "'./VfxAssets.js'").replace("'./AbilityMechanism'", "'./AbilityMechanism.js'").replaceAll("'./AbilityVortex'", "'./AbilityVortex.js'").replace("'../models/VehicleBounds'", "'./VehicleBounds.js'").replace("@babylonjs/core/Misc/sceneOptimizer'", "@babylonjs/core/Misc/sceneOptimizer.js'");
     await writeFile(`${out}/${name}.js`, code);
 }
 const { playAbilityActivation, vortexPosition, ABILITY_ACTIVATION_MS } = await import(pathToFileURL(`${out}/AbilityActivation.js`));

@@ -1,4 +1,3 @@
-import { cameraShakeIntensity } from './CameraShake';
 import { Engine, Scene, Vector3, FreeCamera, ArcRotateCamera, Color4, Matrix, GlowLayer, Quaternion, Ray, type Mesh } from "@babylonjs/core";
 import { SceneOptimizer } from "@babylonjs/core/Misc/sceneOptimizer";
 import HavokPhysics from "@babylonjs/havok";
@@ -72,8 +71,7 @@ export class GameEngine {
     private remoteWeapons: Map<string, WeaponController> = new Map();
     private cameraYaw: number = 0; // smoothed hull yaw for camera orbit
     private cameraBasePosition: Vector3 | null = null;
-    private shakeIntensity = 0;
-    private shakeDecay = 0;
+    private cameraLookTarget: Vector3 | null = null;
     private dashFovOffset = 0;
     private readonly chaseCamera = {
         distance: 11.5,
@@ -587,11 +585,6 @@ export class GameEngine {
             this.networkManager?.requestRespawn();
         }) as EventListener, { signal: this.eventAbort.signal });
 
-        window.addEventListener('camera-shake', ((e: CustomEvent) => {
-            const intensity = cameraShakeIntensity(e.detail, this.playerVehicle?.mesh.getAbsolutePosition());
-            if (intensity > 0) this.shakeCamera(intensity, e.detail.duration ?? 200);
-        }) as EventListener, { signal: this.eventAbort.signal });
-
         window.addEventListener('dash-warp', (() => {
             this.dashFovOffset = 0.6; // Adds FOV for warp effect
         }) as EventListener, { signal: this.eventAbort.signal });
@@ -604,6 +597,7 @@ export class GameEngine {
 
         if (this.matchState === 'intro' || this.matchState === 'countdown') {
             this.cameraBasePosition = null;
+            this.cameraLookTarget = null;
             // Cinematic orbit during intro or MVP showcase
             this.cameraYaw += 0.005; 
             const CAM_HEIGHT = 15;
@@ -618,17 +612,10 @@ export class GameEngine {
             return;
         }
 
-        // Extract vehicle's world-space yaw from its rotation quaternion
-        // This gives us the angle the hull is ACTUALLY facing, no drift
-        const q = this.playerVehicle.mesh.rotationQuaternion;
-        let hullYaw = 0;
-        if (q) {
-            // Standard quaternion → yaw formula
-            hullYaw = Math.atan2(2 * (q.w * q.y + q.x * q.z), 1 - 2 * (q.y * q.y + q.z * q.z));
-        } else {
-            const fwd = this.playerVehicle.mesh.forward;
-            hullYaw = Math.atan2(fwd.x, fwd.z);
-        }
+        // Project the actual forward axis; pitch/roll must not become camera yaw.
+        const hullForward = this.playerVehicle.mesh.forward;
+        const hullYaw = Math.hypot(hullForward.x, hullForward.z) > .25
+            ? Math.atan2(hullForward.x, hullForward.z) : this.cameraYaw;
 
         const deltaSeconds = Math.min(this.engine.getDeltaTime() / 1000, 0.05);
 
@@ -637,7 +624,7 @@ export class GameEngine {
         // Wrap delta to [-π, π]
         while (delta > Math.PI) delta -= 2 * Math.PI;
         while (delta < -Math.PI) delta += 2 * Math.PI;
-        const yawFollow = 1 - Math.exp(-7 * deltaSeconds);
+        const yawFollow = 1 - Math.exp(-5 * deltaSeconds);
         this.cameraYaw += delta * yawFollow;
 
         // Elevated chase framing: full vehicle below center with useful road visibility.
@@ -671,22 +658,15 @@ export class GameEngine {
             idealCamPos = obstruction.pickedPoint.subtract(obstructionRay.direction.scale(this.chaseCamera.collisionPadding));
         }
 
-        const positionFollow = 1 - Math.exp(-11 * deltaSeconds);
+        const positionFollow = 1 - Math.exp(-7 * deltaSeconds);
         this.cameraBasePosition = Vector3.Lerp(this.cameraBasePosition ?? this.camera.position, idealCamPos, positionFollow);
         this.camera.position.copyFrom(this.cameraBasePosition);
 
-        const currentLook = this.camera.getTarget();
-        const targetFollow = 1 - Math.exp(-9 * deltaSeconds);
-        this.camera.setTarget(Vector3.Lerp(currentLook, lookAhead, targetFollow));
-
-        // Apply screen shake
-        if (this.shakeIntensity > 0) {
-            this.camera.position.x += (Math.random() - 0.5) * this.shakeIntensity;
-            this.camera.position.y += (Math.random() - 0.5) * this.shakeIntensity;
-            this.camera.position.z += (Math.random() - 0.5) * this.shakeIntensity;
-            this.shakeIntensity -= this.shakeDecay;
-            if (this.shakeIntensity < 0) this.shakeIntensity = 0;
-        }
+        // Store a world-space target separately: moving the camera must not feed
+        // back into the next look-target sample or inherit hull impact vibration.
+        const targetFollow = 1 - Math.exp(-5 * deltaSeconds);
+        this.cameraLookTarget = Vector3.Lerp(this.cameraLookTarget ?? lookAhead, lookAhead, targetFollow);
+        this.camera.setTarget(this.cameraLookTarget);
 
         // Apply FOV Dash Warp
         if (this.dashFovOffset > 0) {
@@ -694,11 +674,6 @@ export class GameEngine {
             if (this.dashFovOffset < 0.01) this.dashFovOffset = 0;
             this.camera.fov = 0.82 + this.dashFovOffset;
         }
-    }
-
-    public shakeCamera(intensity: number, durationMs: number = 200) {
-        this.shakeIntensity = intensity;
-        this.shakeDecay = intensity / (durationMs / 16.66);
     }
 
     public getSpeed(): number {

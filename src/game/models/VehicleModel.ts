@@ -99,6 +99,6 @@ export function buildVehicleModel(root: Mesh, id: string, weapon: string, size: 
         });
     }
     b.compact();
-    buildVehicleWeapons(chassis, id, weapon, { width: w + 0.8 * wheelScale, height: cabinTop + h * 0.45, depth: d, bottom: -h * 0.45, sideAnchorWidth: w * 0.62, bonnetHeight: h * 0.48 });
+    buildVehicleWeapons(chassis, id, weapon, { width: w + 0.8 * wheelScale, height: cabinTop + h * 0.45, depth: d, bottom: -h * 0.45, bonnetHeight: h * 0.48 });
     return visual;
 }

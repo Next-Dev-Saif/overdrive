@@ -1,0 +1,47 @@
+[
+  {
+    "file": "assets-source/weapons/rotary-turret.blend",
+    "page": "https://opengameart.org/content/turret",
+    "download": "https://opengameart.org/sites/default/files/turrent.blend",
+    "author": "Lewis W. Veasey",
+    "license": "CC0-1.0",
+    "weapons": [
+      "minigun"
+    ],
+    "sha256": "6d14b32a59c40ed5bd13b48898fd8c894572a42fc97972b7df39a5610e1732ad"
+  },
+  {
+    "file": "assets-source/weapons/van.blend",
+    "page": "https://opengameart.org/content/military-van",
+    "download": "https://opengameart.org/sites/default/files/van.blend",
+    "author": "johndh",
+    "license": "CC-BY-SA-3.0",
+    "weapons": [
+      "missile",
+      "mortar"
+    ],
+    "sha256": "cbae42003ea6d0591fea953a97f45a59d8c1dea272d57b7efd588075cc445fb1"
+  },
+  {
+    "file": "assets-source/weapons/plasma.zip",
+    "page": "https://opengameart.org/content/plasma-gun",
+    "download": "https://opengameart.org/sites/default/files/plasma_0.zip",
+    "author": "Unnamed (Viktor Hahn)",
+    "license": "CC-BY-SA-3.0",
+    "weapons": [
+      "plasma"
+    ],
+    "sha256": "a01c88e671cff59a4d257c4022d7781a42ce03046cb918fde0a1eb879a049c9c"
+  },
+  {
+    "file": "assets-source/weapons/rocket-launcher.zip",
+    "page": "https://opengameart.org/content/rocket-launcher",
+    "download": "https://opengameart.org/sites/default/files/rocket_launcher.zip",
+    "author": "Unnamed (Viktor Hahn)",
+    "license": "CC-BY-SA-3.0",
+    "weapons": [
+      "nuke"
+    ],
+    "sha256": "b8126327c518e7966b7279aff616bf1138e15f7eb3a27085c8f18ca06adbcbc0"
+  }
+]

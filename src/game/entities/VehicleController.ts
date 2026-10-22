@@ -1,3 +1,4 @@
+import { THERMAL_WAKE, touchesThermalWake } from '../vfx/ThermalWake';
 import { advanceSteering, vehicleHandling } from './VehicleHandling';
 import { playAbilityActivation } from '../vfx/AbilityActivation';
 import { groundHeight, recoveryHeight } from '../levels/ArenaTerrain';
@@ -441,6 +442,7 @@ export class VehicleController {
 
     private explode() {
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         this.isDead = true;
         this.aggregate.dispose();
         
@@ -470,6 +472,7 @@ export class VehicleController {
     /** Restores a destroyed vehicle at an authoritative team spawn. */
     public respawnAt(position: Vector3, yaw: number): void {
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         if (!this.aggregate.body?.isDisposed) this.aggregate.dispose();
         this.mesh.position.copyFrom(position);
         const surface = groundHeight(this.scene, position.x, position.z);
@@ -512,6 +515,7 @@ export class VehicleController {
 
     public dispose() {
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         this.scene.onBeforeRenderObservable.removeCallback(this.update);
         this.tireSmoke.dispose(false);
         this.exhaustFlames.dispose(false);
@@ -521,6 +525,7 @@ export class VehicleController {
 
     // --- Special Abilities ---
     private cancelAbilityActivation: (() => void) | null = null;
+    private cancelThermalWake: (() => void) | null = null;
     public lastAbilityTime = 0;
     public isCloaked = false;
     public isEmped = false; // New status for Manticore EMP
@@ -542,6 +547,7 @@ export class VehicleController {
         this.lastAbilityTime = now;
         const abilityName = this.vehicleId === 'interceptor' ? 'lightning' : this.vehicleId === 'juggernaut' ? 'shockwave' : this.vehicleId;
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         const stopAbilitySound = SoundManager.getInstance().playAbility(abilityName, this.mesh.getAbsolutePosition(), this.isPlayer);
         this.cancelAbilityActivation = playAbilityActivation(this.mesh, abilityName, () => {
             this.cancelAbilityActivation = null;
@@ -619,39 +625,22 @@ export class VehicleController {
             
         }
 
-        // Leave plasma fire trap where we started
+        // The owner applies trail damage; remote replicas render the same wake.
         const trapOrigin = this.mesh.getAbsolutePosition().clone();
         
         window.dispatchEvent(new CustomEvent('spawn-status-text', {
-            detail: { x: trapOrigin.x, y: trapOrigin.y + 4, z: trapOrigin.z, text: "DASHING", color: "#4caf50" }
+            detail: { x: trapOrigin.x, y: trapOrigin.y + 4, z: trapOrigin.z, text: "THERMAL BURST", color: "#63dfff" }
         }));
         
-        VfxManager.getInstance().triggerAfterburner(this.mesh, trapOrigin, 5000);
-        const trapAnchor = new TransformNode('afterburner-hazard-anchor', this.scene);
-        trapAnchor.position.copyFrom(trapOrigin);
-
-        // Animate out after 5s
-        setTimeout(() => {
-            if (!trapAnchor.isDisposed()) {
-                trapAnchor.dispose();
+        this.cancelThermalWake?.();
+        this.cancelThermalWake = VfxManager.getInstance().triggerAfterburner(this.mesh, trapOrigin, patches => {
+            if (this.isDead) return;
+            for (const target of this.scene.meshes) {
+                const metadata = target.metadata;
+                if (!(metadata?.vehicle || metadata?.playerId || metadata?.aiId) || !canAffect(this.mesh, target)) continue;
+                if (touchesThermalWake(target.getAbsolutePosition(), patches)) this.dealDamage(target as Mesh, THERMAL_WAKE.damage, 'afterburner');
             }
-        }, 5000);
-        
-        // Damage tick
-        const tickInterval = setInterval(() => {
-            if (trapAnchor.isDisposed() || this.isDead) {
-                clearInterval(tickInterval);
-                return;
-            }
-            this.scene.meshes.forEach(m => {
-                if (m === this.mesh || !canAffect(this.mesh, m)) return;
-                
-                const dist = Vector3.Distance(trapAnchor.position, m.getAbsolutePosition());
-                if (dist < 4) {
-                    this.dealDamage(m as Mesh, 5, 'afterburner');
-                }
-            });
-        }, 500);
+        }, () => !this.isDead);
     }
 
     private triggerOpticalCamouflage() {

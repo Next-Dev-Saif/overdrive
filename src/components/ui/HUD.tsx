@@ -468,14 +468,31 @@ export const HUD: React.FC<HUDProps> = ({ engineRef, mode }) => {
 
             {/* ── Immersive Tactical Radar & Speed (Bottom-Right) ── */}
             <div className="combat-radar absolute bottom-6 right-6 pointer-events-none flex items-end gap-5">
-                {/* Minimalist Tactical Speedometer */}
-                <div className="flex flex-col items-end pb-2 font-mono">
-                    <span className="text-white/40 text-[9px] tracking-[0.25em] uppercase mb-1">SPEED</span>
+                {/* Minimalist Tactical Speedometer with Dynamic Speed Arc */}
+                <div className="flex flex-col items-end pb-1 font-mono">
+                    <div className="flex items-center gap-1.5 mb-1">
+                        {/* Dynamic speed LEDs: 6 segments lighting up with vehicle velocity */}
+                        <div className="flex items-center gap-1" aria-hidden="true">
+                            {[25, 50, 75, 100, 130, 160].map((threshold, i) => (
+                                <span
+                                    key={i}
+                                    className={`w-1.5 h-3 rounded-[1px] transform skew-x-[-15deg] transition-all duration-75 ${
+                                        speed >= threshold
+                                            ? threshold >= 130
+                                                ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]'
+                                                : 'bg-white shadow-[0_0_6px_#ffffff]'
+                                            : 'bg-white/10'
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-white/40 text-[9px] tracking-[0.25em] uppercase">SPEED</span>
+                    </div>
                     <div className="flex items-baseline gap-1.5">
-                        <span className="text-white text-5xl font-black tracking-tighter tabular-nums leading-none">
+                        <span className="text-white text-5xl font-black tracking-tighter tabular-nums leading-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
                             {speed}
                         </span>
-                        <span className="text-white/50 text-[10px] tracking-widest font-bold">KM/H</span>
+                        <span className="text-amber-400 text-[10px] tracking-widest font-bold">KM/H</span>
                     </div>
                 </div>
 

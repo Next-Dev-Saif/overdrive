@@ -757,3 +757,61 @@
 ### Completed
 - [x] Write promotion-video.md in the repository with a locked nine-scene, 30-second/1,800-frame edit, exact narration and overlays, real-footage capture list, Hyperframes workflow, audio/graphic direction and delivery QA.
 - [x] Check current setup UI/catalog and official Hyperframes documentation; distinguish implemented gameplay from older planned features. No video generation, capture or publishing performed.
+
+## 2026-10-21 — Tighter vehicle turns and stable chase camera
+### Completed
+- [x] Couple steering yaw with bounded cornering tire force and full-lock speed control; verify all vehicle sizes, reverse and frame rates.
+- [x] Remove artificial camera shake and stabilize chase position/heading/target while preserving vehicle collision response.
+- [x] Run headless regressions, TypeScript and lint; leave browser playtesting to the user per execution guide.
+
+### Verification and decisions
+- Arena tire forces now include centripetal acceleration for the actual yaw; full-lock cornering sheds excess speed within bounded braking/grip limits. Reverse, stationary steering, driver braking and Havok collision/airborne response remain supported.
+- Removed the arena camera shake listener and random camera offsets. Arena/race chase targets use independent world-space smoothing; heading follows the shortest angular path. Vehicle impact motion remains in physics.
+- Passed seven-class integrated U-turn/slip checks at actual scaled vehicle lengths, reverse/braking and 30–120 Hz checks, existing driving/presentation suite, race, bots, battle, frontend TypeScript and app lint. Lint retains four existing AuthContext/GameCanvas warnings.
+- U-turn integration is a simplified flat-ground model, not a Havok terrain playtest. Browser verification and production bundling were not run per execution guide.
+- Manual acceptance: try slow/full-speed left/right U-turns and reverse with light/heavy vehicles; collide with walls and take close explosive hits; check stable horizon/follow on slopes, respawn and race network corrections.
+
+## 2026-10-21 — Valkyrie thermal wake
+### Completed
+- [x] Upgrade burst with twin jets and a terrain-following burning trail that denies pursuit routes for five seconds.
+- [x] Share visuals across local players, host bots and remote replicas; retain owner-only damage and team/protection rules.
+- [x] Bound effect geometry/lifetime, cancel on death/disposal, and test damage cadence, overlap, replay and cleanup without opening a browser.
+
+### Verification and decisions
+- Replaced the stationary launch trap with a 1.5-second moving thermal wake; each section burns for five seconds at 5 damage per 250 ms, once per target per pulse. Existing burst impulse/cooldown and combat attribution are preserved.
+- Added twin blue/white jets, a cyan launch ring and batched orange embers/flame tongues. Core effect is five meshes with at most 32 trail sections and no particles/glow requirement.
+- Local humans and host bots own damage through the existing send-hit path. Remote humans/bots use the same VFX with no damage callback. Existing abilityUsed broadcast and server damage caps remain compatible; no server/network schema changes.
+- Passed new test:valkyrie (including actual controller methods and headless scene renders), VFX, projectiles, bots, battle, match rules, TypeScript and targeted lint. App lint retains four prior AuthContext/GameCanvas warnings.
+- Documented gameplay, authority, budgets and manual two-client/terrain/LOW-quality checks in docs/valkyrie-thermal-wake.md. No browser opened or production bundle run; actual multiplayer latency and visual appearance remain manual verification.
+
+## 2026-10-22 — Five distinct open-source vehicle models
+### Completed
+- [x] Source five licensed, detailed coupe/SUV models matching Phantom, Valkyrie, Wraith, Manticore and Behemoth.
+- [x] Download originals, prepare bounded medium-triangle GLBs with paint materials and four animated wheels, and record provenance.
+- [x] Integrate shared runtime mapping while retaining Interceptor/Juggernaut assets and gameplay.
+- [x] Run headless model/runtime checks, TypeScript and lint. Browser verification remains manual per project guidance.
+
+### Verification and decisions
+- Downloaded five distinct CC0/CC-BY Stunt Rally source models: Phantom/Veneno, Valkyrie/M3 GT3, Wraith/BRZ Varis, Manticore/Hummer, Behemoth/off-road truck. Original Blender bodies/wheels and upstream author records retained in assets-source/vehicles; pinned URLs and checksums recorded in docs/assets/vehicle-sources.json. Attribution ships in public/assets/vehicle-model-credits.txt.
+- Added reproducible Blender 5.1.2 + glTF Transform preparation (`npm run prepare:vehicles:distinct`). Corrected source axes, assembled original wheels at upstream axle locations, separated recolorable paint/glass/trim/tire/rim surfaces, normalized dimensions, and optimized without runtime textures or decoders. Retained smooth medium-detail geometry: 19,951–53,276 triangles, 11 meshes, 0.41–1.03 MB per base.
+- Updated only the five imported model URLs; Interceptor/Juggernaut assets and all existing gameplay parameters remain unchanged. Shared factory covers previews, players, bots and remote vehicles.
+- Passed all seven structural asset checks, five distinct mapping/source integrity checks, 70 vehicle/weapon combinations, articulation/mount clearance/spawn/pickup cleanup tests, frontend TypeScript and app lint. Four existing AuthContext/GameCanvas lint warnings remain.
+- Inspected offline Blender renders and corrected overly simplified off-road tires. No browser opened or production bundle run per project guidance. Manual in-game visual/terrain/GPU checks are documented in docs/assets/vehicle-preparation.md.
+
+## 2026-10-22 — Downloaded weapon models and compact vehicle mounts
+### Completed
+- [x] Source and download licensed models for minigun, plasma, missile, mortar and nuke launchers.
+- [x] Prepare consistent forward axes, articulation, muzzle sockets and bounded runtime geometry; preserve provenance.
+- [x] Integrate all five weapons across loadouts and pickup swaps, and replace long side outriggers with directly attached compact bays.
+- [x] Verify placement/clearance, firing origins, bay deployment, cleanup, TypeScript and lint; use offline renders, leaving browser playtesting manual.
+
+### Verification and decisions
+- Sourced 5 CC0/CC-BY-SA 3D weapon models: rotary turret (`rotary-turret.blend` by Lewis W. Veasey, CC0), military van weapon attachments (`van.blend` by johndh, CC-BY-SA 3.0), plasma gun (`plasma.blend` by Viktor Hahn, CC-BY-SA 3.0), and rocket launcher (`rocket_launcher.blend` by Viktor Hahn, CC-BY-SA 3.0). Upstream authors, licenses, and SHA-256 hashes are recorded in `docs/assets/weapon-sources.json` and deployed in `public/assets/weapon-model-credits.txt`.
+- Geometry extraction via Blender (`scripts/prepare-weapons.py` / `npm run prepare:weapons`): Stripped grips and armatures, aligned axes (+Z forward), computed bevels and edge splits, normalized winding, extracted muzzle sockets (6 for minigun, 18 for missile pods, 1 for mortar, 1 for plasma, 1 for nuke), and generated synchronous typed geometry in `src/assets/models/prepared/WeaponGeometry.ts`.
+- Runtime integration (`ImportedWeaponModel.ts`, `WeaponModel.ts`, `WeaponAttachments.ts`, `WeaponBay.ts`): Replaced floating side outriggers with a direct bonnet-mounted plinth (`deck-plinth`) and saddle (`mount-saddle`) at 0.65 scale. Armored cassettes feature sliding doors (`weapon-bay-door`) and lift trunnions (`turretbox`) deployed smoothly prior to firing.
+- Controller and dynamic race pickups (`WeaponController.ts`, `RaceVehicleEquipment.ts`): Muzzle sockets and bay doors are automatically discovered; ballistic arcs and aim calculations orient pitch trunnions and yaw bases. Scene-owned materials are preserved across hot swaps without GPU re-allocation.
+- Passed `npm run test:imported-weapons` (all 5 models pass SHA-256 provenance, muzzle counts, winding, bay envelopes, and triangle budgets: minigun 4,668, missile 12,600, mortar 530, plasma 14,427, nuke 8,371).
+- Passed `npm run test:models` (all 70 loadouts pass geometry, hit-testing, ray picks, moving-root articulation, bay door slide, and race swaps; max 30 render meshes / 49,053 vertices).
+- Passed `npm run test:projectiles`, `npm run test:vfx`, `npm run test:battle`, `npm run test:aftermath`, `npm run test:valkyrie`, `npm run test:scenery`, `npm run test:bots`, `npm run test:match`, `npm run test:audio`, `npm run test:setup`, TypeScript (`npx tsc -b`), and app lint (`oxlint`, 0 errors).
+- Documented full pipeline and architecture in `docs/assets/weapon-preparation.md`. Offline validation complete; browser playtest intentionally left to user per `Agent-execution-guide.md`.
+

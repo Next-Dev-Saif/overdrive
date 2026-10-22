@@ -107,6 +107,7 @@ export class RemoteVehicle {
 
     public respawnAt(position: Vector3, yaw: number, health: number): void {
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         this.isDead = false;
         this.health = health;
         this.mesh.position.copyFrom(position);
@@ -121,6 +122,7 @@ export class RemoteVehicle {
 
     public explode() {
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         if (this.isDead) return;
         this.isDead = true;
         SoundManager.getInstance().playDeath(this.mesh.getAbsolutePosition());
@@ -147,10 +149,12 @@ export class RemoteVehicle {
     }
 
     private cancelAbilityActivation: (() => void) | null = null;
+    private cancelThermalWake: (() => void) | null = null;
 
     public triggerAbility(abilityName: string) {
         if (this.isDead || this.scene.metadata?.combatEnded) return;
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         const stopAbilitySound = SoundManager.getInstance().playAbility(abilityName, this.mesh.getAbsolutePosition(), false);
         this.cancelAbilityActivation = playAbilityActivation(this.mesh, abilityName, () => {
             this.cancelAbilityActivation = null;
@@ -189,10 +193,10 @@ export class RemoteVehicle {
         const trapOrigin = this.mesh.getAbsolutePosition().clone();
         
         window.dispatchEvent(new CustomEvent('spawn-status-text', {
-            detail: { x: trapOrigin.x, y: trapOrigin.y + 4, z: trapOrigin.z, text: "DASHING", color: "#4caf50" }
+            detail: { x: trapOrigin.x, y: trapOrigin.y + 4, z: trapOrigin.z, text: "THERMAL BURST", color: "#63dfff" }
         }));
         
-        VfxManager.getInstance().triggerAfterburner(this.mesh, trapOrigin, 5000);
+        this.cancelThermalWake = VfxManager.getInstance().triggerAfterburner(this.mesh, trapOrigin, undefined, () => !this.isDead);
     }
 
     private triggerOpticalCamouflage() {
@@ -331,6 +335,7 @@ export class RemoteVehicle {
 
     public dispose() {
         this.cancelAbilityActivation?.();
+        this.cancelThermalWake?.();
         this.scene.onBeforeRenderObservable.removeCallback(this.update);
         if (this.healthBar) this.healthBar.dispose();
         this.mesh.dispose();

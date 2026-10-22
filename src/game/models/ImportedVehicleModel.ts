@@ -12,8 +12,13 @@ import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders/glTF';
 import coupeModelUrl from '../../assets/models/prepared/muscle-coupe.glb?url';
 import suvModelUrl from '../../assets/models/prepared/armored-suv.glb?url';
+import phantomModelUrl from '../../assets/models/prepared/phantom.glb?url';
+import manticoreModelUrl from '../../assets/models/prepared/manticore.glb?url';
+import valkyrieModelUrl from '../../assets/models/prepared/valkyrie.glb?url';
+import wraithModelUrl from '../../assets/models/prepared/wraith.glb?url';
+import behemothModelUrl from '../../assets/models/prepared/behemoth.glb?url';
 import type { ChassisDimensions } from './VehicleModel';
-import { buildVehicleWeapons, WEAPON_ATTACHMENTS } from './WeaponAttachments';
+import { buildVehicleWeapons, getWeaponAssemblyScale, WEAPON_ATTACHMENTS } from './WeaponAttachments';
 import { buildVehicleStyle, type VehicleStyle } from './VehicleStyle';
 
 interface ImportedVehicleConfig {
@@ -25,11 +30,11 @@ interface ImportedVehicleConfig {
 const IMPORTED_VEHICLES: Record<string, ImportedVehicleConfig> = {
     interceptor: { url: coupeModelUrl, style: 'muscle', scaleMultiplier: 1.35 },
     juggernaut: { url: suvModelUrl, style: 'armored', scaleMultiplier: 1.45 },
-    phantom: { url: coupeModelUrl, style: 'track', scaleMultiplier: 1.25 },
-    manticore: { url: suvModelUrl, style: 'expedition', scaleMultiplier: 1.4 },
-    valkyrie: { url: coupeModelUrl, style: 'track', scaleMultiplier: 1.35 },
-    wraith: { url: coupeModelUrl, style: 'muscle', scaleMultiplier: 1.55 },
-    behemoth: { url: suvModelUrl, style: 'armored', scaleMultiplier: 2.1 },
+    phantom: { url: phantomModelUrl, style: 'track', scaleMultiplier: 1.25 },
+    manticore: { url: manticoreModelUrl, style: 'expedition', scaleMultiplier: 1.4 },
+    valkyrie: { url: valkyrieModelUrl, style: 'track', scaleMultiplier: 1.35 },
+    wraith: { url: wraithModelUrl, style: 'muscle', scaleMultiplier: 1.55 },
+    behemoth: { url: behemothModelUrl, style: 'armored', scaleMultiplier: 2.1 },
 };
 
 const containerCache = new WeakMap<Scene, Map<string, Promise<AssetContainer>>>();
@@ -195,45 +200,25 @@ export async function buildImportedVehicleModel(
         // Multiple points cover the mounting rails, rather than guessing from roof height.
         const profile = WEAPON_ATTACHMENTS[vehicleId];
         let bonnetY = sourceBounds.minimum.y;
-        let sideAnchorWidth = sourceSize.x;
-        if (profile.placement === 'bonnet') {
-            for (const x of [-0.1, 0, 0.1]) for (const z of [-0.07, 0, 0.07]) {
+        const deckHeights: number[] = [];
+        const assemblyScale = getWeaponAssemblyScale(vehicleId, sourceSize.x * scale, sourceSize.z * scale);
+        // Fit the load-bearing pad itself, never an unrelated windshield or roof.
+        for (const longitudinal of [-.625, .625]) {
+            let deckY = sourceBounds.minimum.y;
+            for (const lateral of [-.45, 0, .45]) {
                 const ray = new Ray(new Vector3(
-                    sourceCenter.x + sourceSize.x * x,
+                    sourceCenter.x + lateral * assemblyScale / scale,
                     sourceBounds.maximum.y + 1,
-                    sourceCenter.z + sourceSize.z * (profile.forward + z),
+                    sourceCenter.z + sourceSize.z * profile.forward + longitudinal * assemblyScale / scale,
                 ), Vector3.Down(), sourceSize.y + 2);
                 for (const mesh of visibleMeshes) {
                     const hit = ray.intersectsMesh(mesh, false);
-                    if (hit.hit && hit.pickedPoint) bonnetY = Math.max(bonnetY, hit.pickedPoint.y);
+                    if (hit.hit && hit.pickedPoint) deckY = Math.max(deckY, hit.pickedPoint.y);
                 }
             }
-            if (bonnetY === sourceBounds.minimum.y) throw new Error(`No bonnet mounting surface found for ${vehicleId}.`);
-        }
-
-        if (profile.placement === 'sides') {
-            // Mirrors and wheel arches widen the overall bounds. Reach the actual side
-            // panel at the bracket's height so the outrigger does not float beside it.
-            const contacts: number[] = [];
-            for (const side of [-1, 1]) {
-                const ray = new Ray(new Vector3(
-                    sourceCenter.x + side * (sourceSize.x / 2 + 1),
-                    sourceBounds.minimum.y + sourceSize.y * profile.elevation,
-                    sourceCenter.z + sourceSize.z * profile.forward,
-                ), new Vector3(-side, 0, 0), sourceSize.x + 2);
-                let nearest = Number.POSITIVE_INFINITY;
-                let contact: number | undefined;
-                for (const mesh of visibleMeshes) {
-                    const hit = ray.intersectsMesh(mesh, false);
-                    if (hit.hit && hit.pickedPoint && hit.distance < nearest) {
-                        nearest = hit.distance;
-                        contact = Math.abs(hit.pickedPoint.x - sourceCenter.x);
-                    }
-                }
-                if (contact !== undefined) contacts.push(contact);
-            }
-            if (contacts.length !== 2) throw new Error(`No side mounting panels found for ${vehicleId}.`);
-            sideAnchorWidth = Math.min(...contacts) * 2;
+            if (deckY === sourceBounds.minimum.y) throw new Error(`No front-deck mounting surface found for ${vehicleId}.`);
+            deckHeights.push(deckY);
+            bonnetY = Math.max(bonnetY, deckY);
         }
 
         visualRoot = new TransformNode('visualRoot', scene);
@@ -259,7 +244,8 @@ export async function buildImportedVehicleModel(
             height: sourceSize.y * scale,
             depth: sourceSize.z * scale,
             bottom: -targetSize.y / 2,
-            sideAnchorWidth: sideAnchorWidth * scale,
+            deckRearHeight: -targetSize.y / 2 + (deckHeights[0] - sourceBounds.minimum.y) * scale,
+            deckFrontHeight: -targetSize.y / 2 + (deckHeights[1] - sourceBounds.minimum.y) * scale,
             bonnetHeight: -targetSize.y / 2 + (bonnetY - sourceBounds.minimum.y) * scale,
         };
         buildVehicleStyle(chassisRoot, config.style, envelope);

@@ -1,0 +1,28 @@
+OVERDRIVE — mounted weapon model credits
+
+Sources and preparation derivatives are preserved in assets-source/weapons and src/assets/models/prepared/WeaponGeometry.ts.
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+CC-BY-SA-3.0: https://creativecommons.org/licenses/by-sa/3.0/
+
+Adaptations by the Overdrive project: selected vehicle-mount parts; removed handheld-only geometry; normalized forward axes and scale; added machined edge bevels and smooth normals; opened the cannon bore; replaced materials; baked static geometry; added muzzle sockets.
+The missile, mortar, plasma and nuke mesh derivatives in WeaponGeometry.ts are distributed under CC-BY-SA-3.0. The minigun derivative is CC0-1.0. These notices concern the model assets, not the surrounding application code.
+
+MINIGUN: Lewis W. Veasey
+CC0-1.0
+https://opengameart.org/content/turret
+https://opengameart.org/sites/default/files/turrent.blend
+
+MISSILE, MORTAR: johndh
+CC-BY-SA-3.0
+https://opengameart.org/content/military-van
+https://opengameart.org/sites/default/files/van.blend
+
+PLASMA: Unnamed (Viktor Hahn)
+CC-BY-SA-3.0
+https://opengameart.org/content/plasma-gun
+https://opengameart.org/sites/default/files/plasma_0.zip
+
+NUKE: Unnamed (Viktor Hahn)
+CC-BY-SA-3.0
+https://opengameart.org/content/rocket-launcher
+https://opengameart.org/sites/default/files/rocket_launcher.zip

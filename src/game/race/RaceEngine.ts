@@ -21,6 +21,8 @@ export class RaceEngine {
     readonly input = new InputManager();
     private engine: Engine;
     private camera: FreeCamera;
+    private cameraYaw: number | null = null;
+    private cameraLookTarget: Vector3 | null = null;
     private vehicles = new Map<string, { vehicle: RemoteVehicle; height: number; weapon: RaceWeapon | null }>();
     private weapons = new Map<string, WeaponController>();
     private pickups = new Map<number, Mesh>();
@@ -152,9 +154,15 @@ export class RaceEngine {
             const pose = trackPose(nearestTrack(local).along);
             if (model && !model.vehicle.isDead) model.vehicle.updateNetworkState({ x: local.x, y: pose.y + model.height, z: local.z }, this.roadRotation(local.yaw, pose));
             const position = model?.vehicle.mesh.position ?? new Vector3(local.x, 1, local.z);
-            const desired = new Vector3(position.x - Math.sin(local.yaw) * 13, Math.max(position.y + 6, trackPose(nearestTrack({ x: position.x - Math.sin(local.yaw) * 13, z: position.z - Math.cos(local.yaw) * 13 }).along).y + 4), position.z - Math.cos(local.yaw) * 13);
+            // Filter heading and focus independently of network corrections and hull impacts.
+            const previousYaw = this.cameraYaw ?? local.yaw;
+            const yawDelta = Math.atan2(Math.sin(local.yaw - previousYaw), Math.cos(local.yaw - previousYaw));
+            this.cameraYaw = previousYaw + yawDelta * (1 - Math.exp(-5 * dt));
+            const desired = new Vector3(position.x - Math.sin(this.cameraYaw) * 13, Math.max(position.y + 6, trackPose(nearestTrack({ x: position.x - Math.sin(this.cameraYaw) * 13, z: position.z - Math.cos(this.cameraYaw) * 13 }).along).y + 4), position.z - Math.cos(this.cameraYaw) * 13);
             this.camera.position = Vector3.Lerp(this.camera.position, desired, 1 - Math.exp(-7 * dt));
-            this.camera.setTarget(new Vector3(position.x + Math.sin(local.yaw) * 8, position.y + 1, position.z + Math.cos(local.yaw) * 8));
+            const lookAhead = new Vector3(position.x + Math.sin(this.cameraYaw) * 8, position.y + 1, position.z + Math.cos(this.cameraYaw) * 8);
+            this.cameraLookTarget = Vector3.Lerp(this.cameraLookTarget ?? lookAhead, lookAhead, 1 - Math.exp(-5 * dt));
+            this.camera.setTarget(this.cameraLookTarget);
             if (!this.paused && local.health > 0 && local.finishedAt === null && this.snapshot.phase === 'racing') {
                 SoundManager.getInstance().updateEngineSound(Math.hypot(local.vx, local.vz) * 3.6, controls.throttle !== 0);
             } else SoundManager.getInstance().stopEngineSound();

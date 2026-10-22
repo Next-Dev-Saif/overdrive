@@ -176,66 +176,245 @@
     display: flex;
     gap: 16px;
     align-items: center;
-    background: #090a0ee6;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 0;
-    padding: 16px 20px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+    background: rgba(8, 10, 14, 0.88);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    padding: 12px 18px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 0, 0, 0.5);
     pointer-events: none;
+    z-index: 50;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, monospace, sans-serif;
+}
+
+.race-vehicle-pod {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(20, 24, 32, 0.9) 0%, rgba(8, 10, 14, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 .race-vehicle .vehicle-glyph {
-    width: 36px;
-    height: 56px;
+    width: 34px;
+    height: 48px;
     margin: 0;
+    color: #ffffff;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
 }
 
-.race-vehicle > div {
+.race-telemetry-cluster {
+    width: 180px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
 }
 
-.race-vehicle strong {
+.race-vehicle-identity {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.race-vehicle-identity strong {
     font-size: 13px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     font-weight: 900;
+    font-style: italic;
     text-transform: uppercase;
     color: #ffffff;
 }
 
-.race-vehicle label,
-.race-vehicle span {
-    font: 10px monospace;
+.race-spec-tag {
+    font-size: 9px;
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    color: #cf973f;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* 10-Segment Armor Matrix */
+.race-hull-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    padding: 4px 7px;
+}
+
+.race-hull-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.race-hull-header span {
+    font: 800 9px/1 monospace;
+    letter-spacing: 0.12em;
     color: #8c93a0;
 }
 
-.race-vehicle meter {
-    display: block;
+.race-hull-header strong {
+    font: 800 12px/1 monospace;
+    color: #ffffff;
+}
+
+.race-hull-header strong small {
+    font-size: 8px;
+    color: #8c93a0;
+}
+
+.race-hull-chevrons {
+    display: flex;
+    align-items: center;
+    gap: 2.5px;
     width: 100%;
     height: 6px;
-    accent-color: #ffffff;
-    margin-top: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.race-vehicle b {
-    font: 900 32px monospace;
-    color: #ffffff;
-    line-height: 1;
-    margin-left: 8px;
-    text-align: right;
+.race-chevron {
+    flex: 1;
+    height: 100%;
+    clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+    background: rgba(255, 255, 255, 0.08);
+    transition: background 120ms ease;
 }
 
-.race-vehicle b small {
-    display: block;
-    font: 700 9px monospace;
+.race-chevron.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #ffffff 100%);
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.4);
+}
+
+.race-hull-matrix[data-critical="true"] {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.race-hull-matrix[data-critical="true"] .race-chevron.active {
+    animation: hull-critical-pulse 0.8s infinite ease-in-out;
+}
+
+.race-hull-matrix[data-critical="true"] .race-hull-header strong {
+    color: #ef4444;
+}
+
+/* Munitions Pod / Weapon Status */
+.race-ammo-pod {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    padding: 4px 7px;
+}
+
+.race-ammo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.race-ammo-header span {
+    font: 800 9px/1 monospace;
+    letter-spacing: 0.1em;
     color: #8c93a0;
-    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.race-ammo-header strong {
+    font: 800 11px/1 monospace;
+    color: #ffffff;
+}
+
+.race-ammo-pips {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 8px;
+    width: 100%;
+}
+
+.race-cartridge {
+    flex: 1;
+    height: 100%;
+    border-radius: 1px;
+}
+
+.race-cartridge.loaded {
+    background: linear-gradient(180deg, #ffffff 0%, #cf973f 100%);
+    box-shadow: 0 0 5px rgba(207, 151, 63, 0.5);
+}
+
+.race-cartridge.spent {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.race-cycle-track {
+    height: 2.5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
     margin-top: 2px;
+}
+
+.race-cycle-track > i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: #cf973f;
+    transform-origin: left;
+    transition: transform 80ms linear;
+}
+
+.race-unarmed-holo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font: 700 8.5px monospace;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.race-pickup-crosshair {
+    color: #cf973f;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.race-speedo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 4px;
+}
+
+.race-speedo b {
+    font: 900 34px/1 monospace;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.race-speedo small {
+    display: block;
+    font: 800 9px/1 monospace;
+    color: #cf973f;
+    letter-spacing: 0.15em;
+    margin-top: 3px;
 }
 
 /* Race Controls (Bottom-Right) */

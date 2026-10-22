@@ -25,7 +25,7 @@ for (const config of configs) {
             angle = advanceSteering(config, angle, 1, speed, 1 / 60);
             const result = vehicleHandling(config, speed, 0, yaw, angle, 1, 1 / 60);
             yaw += result.yawDelta;
-            assert.ok(Number.isFinite(yaw) && result.driveDelta >= 0, 'forward plus steer keeps accelerating');
+            assert.ok(Number.isFinite(yaw) && Number.isFinite(result.driveDelta), 'forward plus steer stays finite');
         }
         const weight = Math.max(.8, Math.min(2.2, Math.sqrt(config.mass / 1200)));
         const oldLock = (.56 + Math.min(5, config.steeringSpeed) * .03) / (1 + speed * .018);
@@ -44,6 +44,42 @@ for (const config of configs) {
     };
     assert.ok(Math.abs(simulate(30) - simulate(120)) < .02, 'steering stays consistent across frame rates');
 }
+// Integrate world velocity and heading at the actual scaled chassis sizes. A
+// full-throttle U-turn must slow to tire grip, follow the hull and finish compactly.
+const depths = [5.5, 4, 5, 4.8, 3.5, 6, 4.2];
+for (const [index, base] of configs.entries()) {
+    const config = { ...base, depth: depths[index] * 1.5 };
+    const run = (hz, direction = 1) => {
+        const dt = 1 / hz;
+        let vx = 0, vz = direction * config.maxSpeed, yaw = 0, yawSpeed = 0, angle = 0, x = 0, z = 0;
+        let maxSlip = 0;
+        for (let frame = 0; frame < hz * 12; frame++) {
+            const sin = Math.sin(yaw), cos = Math.cos(yaw);
+            const speed = vx * sin + vz * cos, slip = vx * cos - vz * sin;
+            angle = advanceSteering(config, angle, 1, speed, dt);
+            const response = vehicleHandling(config, speed, slip, yawSpeed, angle, direction, dt);
+            vx += response.driveDelta * sin + response.lateralDelta * cos;
+            vz += response.driveDelta * cos - response.lateralDelta * sin;
+            yawSpeed += response.yawDelta;
+            yaw += yawSpeed * dt; x += vx * dt; z += vz * dt;
+            if (frame > hz) maxSlip = Math.max(maxSlip, Math.abs(slip));
+            if (Math.abs(yaw) >= Math.PI) return { x, z, maxSlip, time: frame * dt };
+        }
+        assert.fail('full-lock vehicle must finish a U-turn within 12 seconds');
+    };
+    const turn = run(60);
+    assert.ok(Math.hypot(turn.x, turn.z) < config.depth * 6, 'U-turn fits within six vehicle lengths from its start');
+    assert.ok(turn.maxSlip < 1.5, 'tires follow the turn without sustained sideways skating');
+    const slow = run(30), fast = run(120);
+    assert.ok(Math.hypot(slow.x - fast.x, slow.z - fast.z) < 2, 'turn path stays consistent at 30–120 Hz');
+    assert.ok(run(60, -1).x > 0, 'reverse turn follows the steered wheels');
+    const angle = advanceSteering(config, 0, 1, config.maxSpeed, 1);
+    assert.ok(vehicleHandling(config, config.maxSpeed, 0, 0, angle, 1, 1 / 60).driveDelta < 0, 'full lock sheds excess speed');
+    assert.ok(vehicleHandling(config, 2, 0, 0, angle, 1, 1 / 60).driveDelta > 0, 'slow turns still accelerate');
+}
+const cameraSource = await readFile('src/game/engine/GameEngine.ts', 'utf8');
+assert.ok(!cameraSource.includes("addEventListener('camera-shake'"), 'combat events cannot shake the camera');
+assert.ok(!cameraSource.includes('shakeIntensity'), 'chase camera has no random impact offsets');
 globalThis.window = { devicePixelRatio: 1, dispatchEvent() {}, addEventListener() {}, removeEventListener() {} };
 const { GraphicsSettingsManager, installAdaptiveResolution } = await load('src/game/settings/GraphicsSettingsManager.ts');
 const manager = GraphicsSettingsManager.getInstance();

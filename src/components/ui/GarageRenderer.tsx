@@ -31,9 +31,12 @@ export function GarageRenderer({ vehicleId, weaponId, vehicleColor, environment 
             engine = new Engine(canvas, true, { stencil: true, powerPreference: 'high-performance' });
             engine.setHardwareScalingLevel(1 / (window.devicePixelRatio || 1));
             const scene = new Scene(engine); sceneRef.current = scene;
-            scene.clearColor = Color4.FromHexString('#161616ff');
+            scene.clearColor = Color4.FromHexString('#0a0d16ff');
             scene.skipPointerMovePicking = true;
-            scene.ambientColor = new Color3(0.22, 0.24, 0.28);
+            scene.ambientColor = new Color3(0.28, 0.30, 0.36);
+            scene.fogMode = Scene.FOGMODE_EXP2;
+            scene.fogDensity = 0.001;
+            scene.fogColor = Color3.FromHexString('#0c0f18');
             const camera = new ArcRotateCamera('showroom-camera', Math.PI / 3, 1.15, 11, new Vector3(0, 0.4, 0), scene);
             camera.attachControl(canvas, true); camera.lowerRadiusLimit = 6; camera.upperRadiusLimit = 20;
             camera.lowerBetaLimit = 0.35; camera.upperBetaLimit = 1.45; camera.wheelPrecision = 45;

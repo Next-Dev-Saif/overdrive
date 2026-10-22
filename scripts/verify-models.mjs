@@ -8,8 +8,9 @@ import { NullEngine, Scene, Mesh, Color3, VertexBuffer, Ray, Vector3, TransformN
 import { HardwareScalingOptimization, MergeMeshesOptimization, ParticlesOptimization, SceneOptimizerOptions } from '@babylonjs/core/Misc/sceneOptimizer.js';
 const out = resolve('node_modules/.cache/overdrive-model-check');
 await mkdir(out, { recursive: true });
-for (const name of ['VehicleScale', 'ModelBounds', 'ModelBuilder', 'WeaponModel', 'WeaponBay', 'WeaponAttachments', 'VehicleStyle', 'VehicleModel', 'ImportedVehicleModel']) {
-    let source = await readFile(`src/game/models/${name}.ts`, 'utf8');
+for (const name of ['VehicleScale', 'ModelBounds', 'ModelBuilder', 'WeaponModel', 'WeaponBay', 'WeaponAttachments', 'VehicleStyle', 'VehicleModel', 'ImportedVehicleModel', 'ImportedWeaponModel', 'WeaponGeometry']) {
+    let source = await readFile(name === 'WeaponGeometry' ? 'src/assets/models/prepared/WeaponGeometry.ts' : `src/game/models/${name}.ts`, 'utf8');
+    source = source.replace('../../assets/models/prepared/WeaponGeometry', './WeaponGeometry');
     if (name === 'ImportedVehicleModel') {
         for (const match of [...source.matchAll(/import (\w+) from '(\.\.\/\.\.\/assets\/[^']+)\?url';/g)]) {
             const data = await readFile(resolve('src/game/models', match[2]));
@@ -44,6 +45,7 @@ for (const quality of ['LOW', 'MEDIUM', 'HIGH']) {
     );
 }
 const { poseWeaponBay } = await import(pathToFileURL(`${out}/WeaponBay.js`));
+const { WEAPON_GEOMETRY } = await import(pathToFileURL(`${out}/WeaponGeometry.js`));
 const { ModelBuilder } = await import(pathToFileURL(`${out}/ModelBuilder.js`));
 {
     const scene = new Scene(engine);
@@ -67,8 +69,12 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
         const paint = root.getChildMeshes().find(mesh => mesh.name.endsWith('_paint'));
         assert.ok(paint && paint.material.albedoColor.equals(Color3.FromHexString('#b54c30')), `${id}: player-selected paint`);
         const tail = root.getChildMeshes().find(mesh => mesh.name.endsWith('_tail'));
-        tail.computeWorldMatrix(true);
-        assert.ok(tail.getBoundingInfo().boundingBox.maximumWorld.z < 0, `${id}: actual taillights face backward, nose faces driving +Z`);
+        if (tail) {
+            tail.computeWorldMatrix(true);
+            assert.ok(tail.getBoundingInfo().boundingBox.maximumWorld.z < 0, `${id}: actual taillights face backward, nose faces driving +Z`);
+        } else {
+            assert.ok(!['interceptor', 'juggernaut'].includes(id), `${id}: retained models keep their taillights`);
+        }
         const bodyEnvelope = root.getChildTransformNodes().find(node => node.name === 'chassisRoot').metadata.weaponEnvelope;
         assert.ok(bodyEnvelope.depth >= depth * 1.2, `${id}: full-size model is not compressed to the former cabin height`);
         assert.ok(Math.abs(bodyEnvelope.bottom + (height + .6 * wheelScale + .2) / 2) < 1e-5, `${id}: larger body retains wheel contact height`);
@@ -94,7 +100,7 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
     poseWeaponBay(turrets, doors, 1);
     assert.ok(turrets.every(turret => turret.isEnabled()), 'locked weapons rise out of bays');
     assert.ok(doors.every(door => Math.abs(door.position.x) > Math.abs(door.metadata.closedX)), 'doors slide clear of lift');
-    const mountCount = ['juggernaut', 'phantom', 'manticore', 'behemoth'].includes(id) ? 2 : 1;
+    const mountCount = 1;
     const mounts = root.getChildTransformNodes(false).filter(node => node.name.startsWith('weapon_mount_'));
     assert.equal(mounts.length, mountCount, `${id}: vehicle-specific hardpoints`);
     if (mountCount === 2) {
@@ -120,9 +126,9 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
     assert.ok(barrels.length > 0, `${weapon}: muzzle discovery`);
     assert.ok(barrels.every(m => m.parent.name === 'turretbox'));
     const muzzleSockets = root.getChildTransformNodes(false).filter(node => node.name === 'muzzle_socket');
-    assert.equal(muzzleSockets.length, mountCount * (weapon === 'minigun' ? 6 : weapon === 'missile' ? 4 : 1), `${weapon}: authored muzzle sockets`);
+    assert.equal(muzzleSockets.length, mountCount * WEAPON_GEOMETRY[weapon].muzzles.length, `${weapon}: authored muzzle sockets`);
     assert.ok(muzzleSockets.every(socket => socket.parent?.name === 'turretbox'), `${weapon}: muzzle sockets follow turret pitch`);
-    assert.ok(muzzleSockets.every(socket => socket.position.z > 1.1), `${weapon}: muzzle sockets sit at launch-tube exits`);
+    assert.ok(muzzleSockets.every(socket => socket.position.z > .7), `${weapon}: muzzle sockets sit at launch-tube exits`);
     const wheelDetail = meshes.find(m => m.parent?.name === 'wheel0' && m.getTotalVertices() > 0);
     const turretDetail = meshes.find(m => m.parent?.name === 'turretbox' && m.getTotalVertices() > 0);
     if (id !== 'wraith' || imported) assert.ok(wheelDetail, `${id}: wheel detail must retain its articulation parent`);
@@ -135,17 +141,15 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
     }
     if (imported) {
         const body = meshes.filter(mesh => mesh.getTotalVertices() && mesh.isEnabled() && !mounts.some(mount => mesh.isDescendantOf(mount)));
-        const maxX = Math.max(...body.map(mesh => mesh.getBoundingInfo().boundingBox.maximumWorld.x));
-        const minX = Math.min(...body.map(mesh => mesh.getBoundingInfo().boundingBox.minimumWorld.x));
         const roofY = Math.max(...body.map(mesh => mesh.getBoundingInfo().boundingBox.maximumWorld.y));
-        assert.ok(mounts.every(mount => mount.getAbsolutePosition().y < roofY), `${id}: mounts remain below roof/ladder`);
-        // Side-pod muzzles must stay outside the cab over the full acquisition cone.
-        if (mountCount === 2) for (const yaw of [-Math.PI / 6, 0, Math.PI / 6]) {
+        assert.ok(mounts.every(mount => mount.getAbsolutePosition().y < roofY), `${id}: mounts remain on front deck`);
+        for (const yaw of [-Math.PI / 6, 0, Math.PI / 6]) {
             for (const base of meshes.filter(mesh => mesh.name === 'turret_base')) base.rotation.y = yaw;
             for (const socket of muzzleSockets) {
                 socket.computeWorldMatrix(true);
-                const x = socket.getAbsolutePosition().x;
-                assert.ok(x < minX || x > maxX, `${id}/${weapon}: side muzzle clears body at yaw ${yaw}`);
+                const direction = Vector3.TransformNormal(Vector3.Forward(), socket.getWorldMatrix()).normalize();
+                const ray = new Ray(socket.getAbsolutePosition(), direction, depth * 2);
+                assert.ok(body.every(mesh => !ray.intersectsMesh(mesh, false).hit), `${id}/${weapon}: clear muzzle at yaw ${yaw}`);
             }
         }
         for (const base of meshes.filter(mesh => mesh.name === 'turret_base')) base.rotation.y = 0;
@@ -155,10 +159,10 @@ for (const imported of [false, true]) for (const [id, width, height, depth, whee
     const hit = scene.pickWithRay(new Ray(new Vector3(0, 0, depth + 5), new Vector3(0, 0, -1), depth + 10), mesh => mesh.isVisible && mesh.isDescendantOf(root));
     assert.ok(hit?.hit, `${id}/${weapon}: weapon hit-test geometry`);
     // Rotation must move the muzzle while preserving its local pitch hierarchy.
-    const before = barrels[0].getAbsolutePosition().clone();
+    const before = muzzleSockets[0].getAbsolutePosition().clone();
     scene.getMeshByName('turret_base').rotation.y = Math.PI / 2;
-    barrels[0].computeWorldMatrix(true);
-    assert.ok(barrels[0].getAbsolutePosition().subtract(before).length() > .1);
+    muzzleSockets[0].computeWorldMatrix(true);
+    assert.ok(muzzleSockets[0].getAbsolutePosition().subtract(before).length() > .1);
     const movingParts = [wheelDetail, turretDetail].filter(Boolean);
     const movingPartsBefore = movingParts.map(mesh => { mesh.computeWorldMatrix(true); return mesh.getAbsolutePosition().clone(); });
     const rootDelta = new Vector3(9, 2, -4);
@@ -216,6 +220,8 @@ console.log(`PASS: 70 imported/procedural loadouts; finite geometry, wheel count
     assert.equal(root.getChildTransformNodes().filter(n => n.name.startsWith('weapon_mount_')).length, 0);
     // Hardware materials are bounded scene resources, shared across racers and abilities.
     const armor = ModelBuilder.steelSurface(scene), alloy = ModelBuilder.steelSurface(scene, true);
+    // Warm each bounded scene-owned template once before checking repeated swaps.
+    for (const kind of Object.keys(WEAPON_GEOMETRY)) { equipRaceWeapon(root, kind); equipRaceWeapon(root, null); }
     const textures = scene.textures.length;
     const materialCount = scene.materials.length, meshCount = scene.meshes.length;
     for (let cycle = 0; cycle < 3; cycle++) for (const weapon of ['minigun', 'missile', 'plasma', 'mortar', 'nuke']) {

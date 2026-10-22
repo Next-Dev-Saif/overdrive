@@ -1,0 +1,50 @@
+[
+  {
+    "weapon": "minigun",
+    "source": "rotary-turret.blend",
+    "objects": [
+      "Cube.001",
+      "Cylinder.002",
+      "Cube.003"
+    ],
+    "triangles": 4668,
+    "muzzles": 6
+  },
+  {
+    "weapon": "missile",
+    "source": "van.blend",
+    "objects": [
+      "Rocket pods.001",
+      "Mini rockets.001"
+    ],
+    "triangles": 12600,
+    "muzzles": 18
+  },
+  {
+    "weapon": "mortar",
+    "source": "van.blend",
+    "objects": [
+      "Heavy cannon.001"
+    ],
+    "triangles": 530,
+    "muzzles": 1
+  },
+  {
+    "weapon": "plasma",
+    "source": "plasma/plasma.blend",
+    "objects": [
+      "plasma"
+    ],
+    "triangles": 14427,
+    "muzzles": 1
+  },
+  {
+    "weapon": "nuke",
+    "source": "rocket-launcher/rocket_launcher.blend",
+    "objects": [
+      "rocket_launcher"
+    ],
+    "triangles": 8371,
+    "muzzles": 1
+  }
+]

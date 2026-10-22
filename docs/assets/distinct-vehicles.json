@@ -1,0 +1,37 @@
+[
+  {
+    "vehicle": "phantom",
+    "path": "src/assets/models/prepared/phantom.glb",
+    "triangles": 26789,
+    "bytes": 575780,
+    "meshes": 11
+  },
+  {
+    "vehicle": "manticore",
+    "path": "src/assets/models/prepared/manticore.glb",
+    "triangles": 34346,
+    "bytes": 866512,
+    "meshes": 11
+  },
+  {
+    "vehicle": "valkyrie",
+    "path": "src/assets/models/prepared/valkyrie.glb",
+    "triangles": 19951,
+    "bytes": 412856,
+    "meshes": 11
+  },
+  {
+    "vehicle": "wraith",
+    "path": "src/assets/models/prepared/wraith.glb",
+    "triangles": 42695,
+    "bytes": 913216,
+    "meshes": 11
+  },
+  {
+    "vehicle": "behemoth",
+    "path": "src/assets/models/prepared/behemoth.glb",
+    "triangles": 53276,
+    "bytes": 1027084,
+    "meshes": 11
+  }
+]
